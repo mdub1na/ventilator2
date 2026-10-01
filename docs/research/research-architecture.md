@@ -75,6 +75,14 @@ Helper собран в bundle, но не зарегистрирован и не 
 
 Требование выхода процесса опирается на документированное значение [Apple `Process.isRunning`](https://developer.apple.com/documentation/foundation/process/isrunning): false после завершения или неудачного запуска; для наших children успешный `run()` и handshake проверяются отдельно. Это проверка прекращения процесса модели. **Отмена уже начатого kernel SMC I/O, SIGKILL самого broker, потеря питания и аппаратный Auto этим не установлены.** Новый путь создаёт только `FileSimulatedStepDevice`, работает non-root и не выдаёт `ArmedHardwareRecovery`. Аппаратная привязка broker, доверенный локальный issuer, положительная installed проверка и единый сеанс владельца ещё нужны; аппаратный старт остаётся закрыт.
 
+### Продолжение после PR — 2026-10-01
+
+Создан [PR #1](https://github.com/mdub1na/ventilator2/pull/1) с текущим прототипом; разработка продолжается в этой ветке. Добавлен `ReadOnlyExperimentObserver` на отдельном `CSMCRead` соединении: точные ui8/flt типы и размеры, FNum/Ftst, два вентилятора, thermal pressure, timestamp начала и бюджет 0,5 с по continuous clock. Медленное чтение отвергается после возврата; отмена синхронного IOKit не заявляется. Финальная сборка без sudo прочитала [показания](evidence/experiment-read-only.json): два вентилятора, actual/target 0, mode 3, прежние диапазоны, Ftst 0, nominal pressure; весь снимок занял около 3 мс. Кандидатный preflight прошёл и не выдавал разрешения на запись.
+
+В подготовленном `NativeExperimentDevice` устранено окно, где ранее reserved Fixed ещё мог пройти после durable closure: перед I/O перечитывается живой ledger, проверяются boot/domain/последняя попытка/pending/роль/исходные сроки. `RecoveryProbeClient` требует свежий private-pipe ответ с новым ID и точным scope/nonce/phase/deadline; ошибка навсегда закрывает этот probe. `RecoveryMonitor.reply` не возобновляет lease или heartbeat владельца. Тесты используют модель и приватные pipe; модельный probe не выдаёт hardware witness. После ответа в нативном device вновь проверяется ledger, но атомарная отмена начатого kernel I/O остаётся недоказанной.
+
+64 Swift теста прошли (10 core, 17 control, 37 experiment), 11 process recovery сценариев и прежний XPC dry-run повторно прошли; docs_check — 11 документов, 36 BDD, без ошибок. [Актуальный общий протокол](evidence/software-verification.txt) и кандидатный план связаны с новым SHA-256. Apple-issued identities по-прежнему 0. Положительный signed/root hardware broker/issuer/installed путь не подключён; hardwareControlAvailable=false, аппаратных записей не было.
+
 ### Отклонение от буквального ожидания задания
 
 Задание перечисляет CPU, GPU и SSD как обязательные показания. На дату исследования для `Mac15,7` + macOS 27 установлен источник одного NAND-канала SSD, но **не установлены достоверные источники CPU/GPU**. Прототип показывает «нет данных» и источник/статус датчика там, где атрибуция не подтверждена; нельзя объявлять произвольный `T…` ключ «температурой CPU» ради полного экрана. Это временное отклонение снимается после воспроизводимой проверки оставшихся источников.
@@ -122,6 +130,7 @@ Helper собран в bundle, но не зарегистрирован и не 
 | Неисполняемый кандидатный план | `Sources/VentilatorControl/CandidateExperimentPlan.swift`, `scripts/prepare-experiment-plan.py` |
 | Подготовленный ABI и authority | `Sources/CSMCExperiment/SMCExperiment.c`, `Sources/VentilatorControl/ExperimentAuthority.swift`, `Sources/VentilatorExperiment/` |
 | Надзор за writer и модельные device-процессы | `Sources/VentilatorExperiment/RecoveryMonitor.swift`, `Sources/VentilatorHelper/ApprovedModelRecovery.swift`, `scripts/recovery-dry-run.py` |
+| Независимые чтения и допуск перед I/O | `Sources/VentilatorExperiment/ReadOnlyExperimentObserver.swift`, `Sources/VentilatorExperiment/ExperimentWriteAdmission.swift`, `Sources/VentilatorExperiment/RecoveryProbe.swift` |
 
 ## Связанные материалы
 

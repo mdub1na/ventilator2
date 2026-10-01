@@ -24,6 +24,22 @@ tags: [macOS, SMC, approval, preparation]
 
 GUI не зависит от `VentilatorExperiment`/`CSMCExperiment`; отсутствие writer-symbols проверяется на собранном executable.
 
+Перед каждым device I/O `ExperimentWriteAdmission` повторно проверяет живой ledger, boot, pending состояние, последнюю зарезервированную попытку, роль и исходный срок. Durable closure отзывает уже выданный, но ещё не исполненный Fixed reservation. Нативный device проверяет журнал после ответа восстановителя; роль Fixed не может выполнить Auto, роль восстановления — Fixed. Это уменьшает окно между reservation и I/O; атомарная отмена начатого kernel вызова не установлена.
+
+## Независимое чтение для опыта
+
+`ReadOnlyExperimentObserver` открывает отдельное **read-only** соединение через `CSMCRead`; проверяет точный профиль и читает `FNum`, `Ftst`, actual/target/min/max/mode обоих вентиляторов. Принимаются только локально подтверждённые `ui8 `/`flt ` с точными размерами; Intel fallback не используется. Нулевые RPM остаются нулевыми; отсутствующая метаинформация, NaN/отрицательный RPM или не два вентилятора отвергают весь снимок.
+
+Timestamp берётся **до** первого чтения. Бюджет чтения — 0,5 с по `mach_continuous_time`; обратный/невалидный clock и медленный возврат отвергают снимок. Этот бюджет не отменяет синхронный IOKit; будущий аппаратный broker должен получать снимки из отдельного процесса. Thermal pressure остаётся явным входом preflight, не скрывается отсутствием CPU/GPU-атрибуции.
+
+`--experiment-read-only` запускает только этот наблюдатель без root/одобрения и выводит снимок/результат preflight. Чтение на текущем Mac выполнено без sudo; [результат](../research/evidence/experiment-read-only.json). Успешный кандидатный preflight не разрешает аппаратные записи.
+
+## Свежий ответ восстановителя
+
+`RecoveryProbeClient` использует наследуемые pipe и новый request ID для каждого обращения. Ответ должен совпасть по session/owner/boot/hash/nonce, роли/фазе и deadline запроса; окно не более 0,5 с. Неверный или поздний ответ, EOF, ошибка clock либо oversized frame навсегда закрывают данный probe без retry. `RecoveryMonitor.reply` не продлевает heartbeat владельца или срок операции. Установка `F_SETNOSIGPIPE` на свои дескрипторы защищает процесс при закрытом peer; проверена локальными pipe-тестами.
+
+`ArmedHardwareRecovery` теперь требует bound probe и hardware ledger, а нативный factory и каждая запись требуют свежего ответа. Публичного конструктора/декодирования witness по-прежнему нет. Проверено IPC на модели и отказ превращения model probe в hardware witness; **hardware broker ещё не выдаёт witness**, positive signed/root ветка не запускалась. Эта подготовка не включает аппаратный запуск или локальный hardware issuer.
+
 ## Одобрение и журнал
 
 `ExperimentAuthority` создаёт challenge для серверного owner ID, точного хеша плана, двух binary fingerprints и boot UUID. Challenge действует 300 с. Решение выдаётся локально; XPC метода выдачи нет. Hardware domain требует root и локальный Terminal для выдачи решения; соответствующий CLI issuer и installed проверка **ещё не подключены**. Отдельные файлы simulation/hardware, проверка владельца/прав и domain не позволяют использовать симуляционное решение для нативного устройства.
@@ -57,6 +73,9 @@ Power observer теперь поддерживает отложенный acknow
 | Приватные файлы и транзакционная блокировка | `Sources/VentilatorControl/FileSessionJournal.swift` |
 | Передача зарезервированной операции | `Sources/VentilatorExperiment/ApprovedStepExecutor.swift` |
 | Нативные подписи/хеши/scope | `Sources/VentilatorExperiment/NativeExperimentDevice.swift` |
+| Отзыв reservation перед I/O | `Sources/VentilatorExperiment/ExperimentWriteAdmission.swift` |
+| Независимый read-only наблюдатель | `Sources/VentilatorExperiment/ReadOnlyExperimentObserver.swift`, `Sources/VentilatorHelper/ExperimentReadOnlyCheck.swift` |
+| Свежая проверка recovery | `Sources/VentilatorExperiment/RecoveryProbe.swift` |
 | Подставное устройство | `Sources/VentilatorExperiment/SimulatedStepDevice.swift` |
 | Broker, scope и файловая модель | `Sources/VentilatorExperiment/RecoveryMonitor.swift`, `Sources/VentilatorExperiment/FileSimulatedStepDevice.swift`, `Sources/VentilatorHelper/ApprovedModelRecovery.swift` |
 | XPC и встроенный dry-run | `Sources/VentilatorControl/HelperProtocol.swift`, `Sources/VentilatorHelper/ExperimentProtocolCheck.swift` |
@@ -142,6 +161,54 @@ Power observer теперь поддерживает отложенный acknow
 **Тогда:** Auto начинается только после выхода writer; при зависшем Auto потраченный шаг не повторяется, pending сохраняется. Отказ fan zero не блокирует Auto fan one.
 
 **Automated:** `scripts/recovery-dry-run.py`
+
+### Scenario: Timestamp начала независимого чтения
+
+**Дано:** точный профиль, допустимые типы и реальные нулевые RPM.
+**Когда:** наблюдатель читает отдельное соединение.
+**Тогда:** снимок содержит Ftst/оба вентилятора и время начала чтения; ноль не заменяется unknown.
+
+**Automated:** `Tests/VentilatorExperimentTests/ReadOnlyExperimentObserverTests.swift::testExactTypesZeroRPMAndTimestampAtReadStart`
+
+### Scenario: Неверные или медленные показания
+
+**Дано:** read-only источник опыта.
+**Когда:** тип/размер отличается либо чтение выходит за бюджет/clock перестаёт быть монотонным.
+**Тогда:** весь снимок отвергнут, старые значения не публикуются как свежие.
+
+**Automated:** `Tests/VentilatorExperimentTests/ReadOnlyExperimentObserverTests.swift::testWrongTypeOrSizeDoesNotUseAnIntelFallback`, `Tests/VentilatorExperimentTests/ReadOnlyExperimentObserverTests.swift::testSlowReadBackwardClockAndUnavailableClockRejectWholeSample`
+
+### Scenario: Reservation отозван до I/O
+
+**Дано:** Fixed reservation уже сохранён.
+**Когда:** broker сохраняет durable closure до исполнения устройства.
+**Тогда:** повторная проверка ledger запрещает этот ранее зарезервированный Fixed шаг.
+
+**Automated:** `Tests/VentilatorExperimentTests/ExperimentWriteAdmissionTests.swift::testPreviouslyReservedFixedStepIsRevokedByDurableClosure`
+
+### Scenario: Роль и исходный срок устройства
+
+**Дано:** отдельный восстановитель с reserved Auto шагом.
+**Когда:** шаг предъявлен Fixed device или исходный срок восстановления истёк.
+**Тогда:** I/O не допускается; срок не переносится на момент нового вызова.
+
+**Automated:** `Tests/VentilatorExperimentTests/ExperimentWriteAdmissionTests.swift::testRestorationUsesOriginalDeadlineAndCannotUseFixedDevice`
+
+### Scenario: Свежий ответ по приватному каналу
+
+**Дано:** recovery probe на модели с точным scope.
+**Когда:** peer не отвечает, меняет binding/deadline/phase либо model probe предъявляют hardware witness.
+**Тогда:** запрос отвергнут; неудачный probe больше не используется, hardware доступ не появляется.
+
+**Automated:** `Tests/VentilatorExperimentTests/RecoveryProbeTests.swift::testStoppedPeerTimesOutWithoutAWriteRetry`, `Tests/VentilatorExperimentTests/RecoveryProbeTests.swift::testWrongReplyBindingDeadlineOrPhasePermanentlyInvalidatesProbe`, `Tests/VentilatorExperimentTests/RecoveryProbeTests.swift::testFreshBoundAcknowledgementOnEachProbeAndModelCannotArmHardware`
+
+### Scenario: Probe не заменяет heartbeat владельца
+
+**Дано:** writer запрашивает свежий ответ broker.
+**Когда:** heartbeat владельца истекает и Fixed закрывается.
+**Тогда:** probe не продлевает lease/heartbeat и больше не получает разрешённую фазу.
+
+**Automated:** `Tests/VentilatorExperimentTests/RecoveryMonitorTests.swift::testWriterProbeCannotRenewHeartbeatOrRespondAfterClosure`
 
 ### Scenario: Отложенное подтверждение сна
 

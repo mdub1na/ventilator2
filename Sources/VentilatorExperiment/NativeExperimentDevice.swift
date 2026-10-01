@@ -17,6 +17,9 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
     public let domain: ExperimentDomain = .hardware
     private let connection: OpaquePointer
     private let sessionID: UUID
+    private let authority: ExperimentAuthority
+    private let role: ExperimentDeviceRole
+    private let recovery: ArmedHardwareRecovery
 
     public init(authority: ExperimentAuthority, sessionID: UUID, restorationOnly: Bool,
                 recovery: ArmedHardwareRecovery? = nil) throws {
@@ -27,8 +30,7 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
         guard let session = try authority.state().ledger, session.sessionID == sessionID,
               session.domain == .hardware, session.approval.domain == .hardware else { throw NativeExperimentError.invalidScope }
         guard currentBootSession() == session.approval.challenge.bootSession else { throw NativeExperimentError.wrongBootSession }
-        guard let recovery, recovery.sessionID == sessionID,
-              recovery.planSHA256 == session.approval.challenge.planSHA256 else { throw NativeExperimentError.recoveryNotArmed }
+        guard let recovery else { throw NativeExperimentError.recoveryNotArmed }
         guard trustedHelperAndApplication() else { throw NativeExperimentError.untrustedSignature }
         let helper = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
         let application = helper.deletingLastPathComponent().appendingPathComponent("Ventilator")
@@ -48,14 +50,28 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
                   session.expiresAt == session.startedAt + plan.leaseSeconds else { throw NativeExperimentError.invalidScope }
             deadline = session.expiresAt
         }
+        try recovery.confirm(session: session, role: restorationOnly ? .restoration : .fixed)
         guard let connection = SMCExperimentOpen(deadline, restorationOnly ? 1 : 0) else { throw NativeExperimentError.openFailed }
         self.connection = connection
         self.sessionID = sessionID
+        self.authority = authority
+        self.role = restorationOnly ? .restoration : .fixed
+        self.recovery = recovery
     }
 
     deinit { SMCExperimentClose(connection) }
 
     public func write(_ reservation: ExperimentWriteReservation) throws {
+        guard let beforeProbe = try authority.state().ledger else { throw NativeExperimentError.invalidScope }
+        try recovery.confirm(session: beforeProbe, role: role)
+        guard let current = try authority.state().ledger, let boot = currentBootSession() else {
+            throw NativeExperimentError.invalidScope
+        }
+        guard recovery.sessionID == sessionID, recovery.planSHA256 == current.approval.challenge.planSHA256 else {
+            throw NativeExperimentError.recoveryNotArmed
+        }
+        try ExperimentWriteAdmission.validate(reserved: reservation.ledger, current: current, step: reservation.step,
+            domain: .hardware, sessionID: sessionID, boot: boot, now: ExperimentMonotonicClock.now(), role: role)
         let step = try reservation.consume(domain: .hardware, sessionID: sessionID)
         var result = SMCExperimentResult()
         let status = SMCExperimentWriteStep(connection, step.rawValue, &result)
@@ -69,9 +85,23 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
 /// Only the future recovery broker in this module may issue a live witness. It has no public initializer
 /// and cannot be decoded from an XPC payload. No hardware witness is issued by the current simulation worker.
 public final class ArmedHardwareRecovery {
-    let sessionID: UUID
-    let planSHA256: String
-    internal init(sessionID: UUID, planSHA256: String) { self.sessionID = sessionID; self.planSHA256 = planSHA256 }
+    private let probe: RecoveryProbeClient
+    var sessionID: UUID { probe.scope.sessionID }
+    var planSHA256: String { probe.scope.planSHA256 }
+
+    internal init(session: ApprovedExperimentLedger, role: ExperimentDeviceRole, probe: RecoveryProbeClient) throws {
+        self.probe = probe
+        try confirm(session: session, role: role)
+    }
+
+    internal func confirm(session: ApprovedExperimentLedger, role: ExperimentDeviceRole) throws {
+        guard geteuid() == 0, session.domain == .hardware, probe.scope.domain == .hardware,
+              probe.scope.matches(session), probe.phase == (role == .fixed ? .fixed : .restoring),
+              probe.deadline == (role == .fixed ? session.expiresAt : session.restoreStartedAt.map { $0 + 8 }),
+              session.pendingRestoration, !session.autoCodesObserved,
+              (role == .fixed ? !session.fixedClosed : session.fixedClosed) else { throw NativeExperimentError.recoveryNotArmed }
+        do { try probe.confirm() } catch { throw NativeExperimentError.recoveryNotArmed }
+    }
 }
 
 private func currentBootSession() -> UUID? {
