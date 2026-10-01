@@ -1,17 +1,18 @@
-Software gates: 2026-10-01T09:31:01+05:00
-Swift tests: 64/64 passed (10 core, 17 control, 37 experiment).
-Independent recovery: 11 process scenarios passed; prior anonymous XPC/worker checks also passed.
-Read-only observer: actual Mac15,7 / 27.0.0 / 26A428, UID 501, FNum 2, Ftst 0, modes 3/3, RPM 0/0, nominal pressure.
-Full read duration: 0.002635s; timestamp taken before reads; no sudo or writes.
-Model/pipe tests: revoked reservation, scope/domain/boot/role/deadline, malformed/slow reads, nonce/phase/deadline/EOF/timeout, no probe retry and no simulation hardware witness.
-Docs: 11 documents, 36 BDD scenarios; docs_check --on-main passed.
-C writer: clang -Wall -Wextra -Werror syntax check passed.
-App/helper: codesign --verify --strict passed (ad hoc); 0 valid signing identities.
+Software gates: 2026-10-01T10:15:08+05:00
+Branch: codex/hardware-broker; base: merged PR #1 and #2 (main 534cf11).
+Swift tests: 71/71 passed (10 core, 17 control, 44 experiment).
+Independent recovery: 16 process scenarios passed; prior anonymous XPC/worker checks also passed.
+Added process cases: reader SIGSTOP/block/failure; blocked Auto reader; early Auto reader failure preserves all remaining Auto attempts and pending.
+Prepared hardware child: non-root invocation refused before journal/device access (exit 78).
+Read-only observer: Mac15,7 / 27.0.0 / 26A428, UID 501, Ftst 0, modes 3/3, RPM and targets 0/0, exact ranges, nominal pressure.
+Full read duration: 0.002667s; timestamp taken before reads; no sudo or writes.
+Docs: 11 documents, 41 BDD scenarios; docs_check --on-main passed.
+App/helper: codesign --verify --strict passed (ad hoc).
+Signing inspection: command reports 2 identities; first flagged revoked, second an unverified candidate. No Apple-issued signing or private-key access.
 GUI: no SMCExperiment open/write symbols; helper contains the prepared writer.
 Candidate schema: 2, readyForOwnerApproval=false; binary fingerprints and read-only evidence matched.
-Plan SHA-256: 265ae1c2ebe0a938486c811a74ead4ec4a6f2c7d69e7702323d3cbe9448b28d0
-Helper SHA-256: 9b354ef620ca5d75cc153067bea29d72f9e3d2bc0ea3fecb6a6b01a4dc403208
-No SMCExperimentOpen/WriteStep, sudo, installation or actual sleep experiment performed. The hardware check opened only CSMCRead.
-Hardware broker handler/issuer and signed installed validation remain pending; hardware start stays closed.
-Active PR: https://github.com/mdub1na/ventilator2/pull/2
-Base implementation: https://github.com/mdub1na/ventilator2/pull/1 (merged before this continuation).
+Plan SHA-256: 3e40c6ea2cd2daa2b8f2a1d3ddb1cb1e94c85edbca391d90a67190139f533cf1
+Helper SHA-256: 5a897036d6e083d38e2d731ff23352c69c47766c82691380e4e86f5913048e93
+No SMCExperimentOpen/WriteStep, sudo, installation or actual sleep experiment performed. Actual hardware check opened only CSMCRead.
+Prepared native child and common broker loop compiled but positive signed/root hardware branch was not run.
+Public hardware start, local issuer, hardware restart/re-arm and signed installed validation remain pending; hardware start stays closed.

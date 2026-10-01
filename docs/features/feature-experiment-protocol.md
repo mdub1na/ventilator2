@@ -20,7 +20,7 @@ tags: [macOS, SMC, approval, preparation]
 
 Перед записью повторно проверяются профиль, два вентилятора, свежая метаинформация ключа и условия шага. Для Fixed также проверяются точные диапазоны, порядок, трёхсекундное ожидание после unlock и deadline непосредственно перед IOKit. Повтор одного шага на соединении запрещён; ошибка закрывает дальнейший Fixed. Kernel failure, неверный размер ответа, SMC result и неквалифицированный nonzero status отвергаются. Это проверено чистыми пакетами и компиляцией; сам аппаратный путь **не запускался**.
 
-`NativeExperimentDevice` дополнительно требует аппаратный журнал, текущую загрузку ОС, совпадающие хеши, Apple-issued подписи app/helper одной команды и `ArmedHardwareRecovery`. Свидетельство восстановления нельзя декодировать из XPC и у него нет публичного конструктора. Нынешний симуляционный worker его не выдаёт; подключение живого аппаратного recovery broker остаётся задачей. Синхронный IOKit вызов не имеет доказанного здесь верхнего предела задержки: проверки deadline не гарантируют отмену уже начатого вызова.
+`NativeExperimentDevice` дополнительно требует аппаратный журнал, текущую загрузку ОС, совпадающие хеши, Apple-issued подписи app/helper одной команды и `ArmedHardwareRecovery`. Свидетельство восстановления нельзя декодировать из XPC и у него нет публичного конструктора. Симуляция его не выдаёт. Подготовленный аппаратный child может получить его из bound probe и consumed hardware ledger; public hardware start и локальный issuer ещё не подключены. Синхронный IOKit вызов не имеет доказанного здесь верхнего предела задержки: проверки deadline не гарантируют отмену уже начатого вызова.
 
 GUI не зависит от `VentilatorExperiment`/`CSMCExperiment`; отсутствие writer-symbols проверяется на собранном executable.
 
@@ -30,7 +30,7 @@ GUI не зависит от `VentilatorExperiment`/`CSMCExperiment`; отсут
 
 `ReadOnlyExperimentObserver` открывает отдельное **read-only** соединение через `CSMCRead`; проверяет точный профиль и читает `FNum`, `Ftst`, actual/target/min/max/mode обоих вентиляторов. Принимаются только локально подтверждённые `ui8 `/`flt ` с точными размерами; Intel fallback не используется. Нулевые RPM остаются нулевыми; отсутствующая метаинформация, NaN/отрицательный RPM или не два вентилятора отвергают весь снимок.
 
-Timestamp берётся **до** первого чтения. Бюджет чтения — 0,5 с по `mach_continuous_time`; обратный/невалидный clock и медленный возврат отвергают снимок. Этот бюджет не отменяет синхронный IOKit; будущий аппаратный broker должен получать снимки из отдельного процесса. Thermal pressure остаётся явным входом preflight, не скрывается отсутствием CPU/GPU-атрибуции.
+Timestamp берётся **до** первого чтения. Бюджет чтения — 0,5 с по `mach_continuous_time`; обратный/невалидный clock и медленный возврат отвергают снимок. Этот бюджет не отменяет синхронный IOKit; подготовленный общий broker получает снимки из отдельного reader процесса. Thermal pressure остаётся явным входом preflight, не скрывается отсутствием CPU/GPU-атрибуции.
 
 `--experiment-read-only` запускает только этот наблюдатель без root/одобрения и выводит снимок/результат preflight. Чтение на текущем Mac выполнено без sudo; [результат](../research/evidence/experiment-read-only.json). Успешный кандидатный preflight не разрешает аппаратные записи.
 
@@ -38,7 +38,15 @@ Timestamp берётся **до** первого чтения. Бюджет чт
 
 `RecoveryProbeClient` использует наследуемые pipe и новый request ID для каждого обращения. Ответ должен совпасть по session/owner/boot/hash/nonce, роли/фазе и deadline запроса; окно не более 0,5 с. Неверный или поздний ответ, EOF, ошибка clock либо oversized frame навсегда закрывают данный probe без retry. `RecoveryMonitor.reply` не продлевает heartbeat владельца или срок операции. Установка `F_SETNOSIGPIPE` на свои дескрипторы защищает процесс при закрытом peer; проверена локальными pipe-тестами.
 
-`ArmedHardwareRecovery` теперь требует bound probe и hardware ledger, а нативный factory и каждая запись требуют свежего ответа. Публичного конструктора/декодирования witness по-прежнему нет. Проверено IPC на модели и отказ превращения model probe в hardware witness; **hardware broker ещё не выдаёт witness**, positive signed/root ветка не запускалась. Эта подготовка не включает аппаратный запуск или локальный hardware issuer.
+`ArmedHardwareRecovery` теперь требует bound probe и hardware ledger, а нативный factory и каждая запись требуют свежего ответа. Публичного конструктора/декодирования witness по-прежнему нет. Проверено IPC на модели и отказ превращения model probe в hardware witness; подготовленный аппаратный child содержит guarded issuance, но **positive signed/root ветка не запускалась**. Эта подготовка не включает аппаратный запуск или локальный hardware issuer.
+
+## Общий процессный runtime
+
+`ExperimentRecoveryBroker` используется модельным harness и содержит внутренний подготовленный hardware entry. Аппаратный entry не вызывается CLI/XPC; локальный issuer не реализован. Одна схема IPC обслуживает отдельные Fixed/Auto/reader children. `ScopedExperimentChild` проверяет domain/scope/phase/роль до probe/device open; native factory сохраняет собственные root/signature/boot/hash проверки. Private child mode `--prepared-hardware-child` отвергает non-root, обычный терминал и отсутствие bound аппаратного ledger. Симуляционные faults в аппаратном domain запрещены.
+
+Reader не имеет executor, а его снимок не содержит reservation. Broker принимает только ответ на текущий reader request с точными ID/scope/ролью/PID, свежим timestamp после запроса, конечным read duration ≤0,5 с, текущим deadline, проверенным профилем и диапазонами. Чтения IOKit не выполняются в broker loop. Ошибка/зависание reader в Fixed закрывают writer и вызывают Auto. Отказ Auto reader сохраняет pending и не мешает остальным допустимым Auto-попыткам; device effects сами по себе не являются доказательством восстановления.
+
+Startup handshake и передача device/probe фреймов имеют ограниченные сроки. После durable closure Auto по-прежнему начинается только после подтверждённого завершения **writer**. Read-only child не пишет; ожидание его возможного kernel read не блокирует Auto. SIGKILL не считается доказательством отмены kernel I/O. Даже три аппаратных Auto-кода оставляют hardware pending и `physicalAutoVerified=false` в outcome. Подготовленный broker принимает только свежий consumed ledger; hardware restart/re-arm, signing/installation и владельческий сеанс остаются открытыми.
 
 ## Одобрение и журнал
 
@@ -75,9 +83,10 @@ Power observer теперь поддерживает отложенный acknow
 | Нативные подписи/хеши/scope | `Sources/VentilatorExperiment/NativeExperimentDevice.swift` |
 | Отзыв reservation перед I/O | `Sources/VentilatorExperiment/ExperimentWriteAdmission.swift` |
 | Независимый read-only наблюдатель | `Sources/VentilatorExperiment/ReadOnlyExperimentObserver.swift`, `Sources/VentilatorHelper/ExperimentReadOnlyCheck.swift` |
+| Общая граница child и ограниченный снимок | `Sources/VentilatorExperiment/ScopedExperimentChild.swift`, `Tests/VentilatorExperimentTests/BrokerObservationTests.swift` |
 | Свежая проверка recovery | `Sources/VentilatorExperiment/RecoveryProbe.swift` |
 | Подставное устройство | `Sources/VentilatorExperiment/SimulatedStepDevice.swift` |
-| Broker, scope и файловая модель | `Sources/VentilatorExperiment/RecoveryMonitor.swift`, `Sources/VentilatorExperiment/FileSimulatedStepDevice.swift`, `Sources/VentilatorHelper/ApprovedModelRecovery.swift` |
+| Broker, scope и файловая модель | `Sources/VentilatorExperiment/RecoveryMonitor.swift`, `Sources/VentilatorExperiment/FileSimulatedStepDevice.swift`, `Sources/VentilatorHelper/ExperimentRecoveryBroker.swift`, `Sources/VentilatorHelper/ApprovedModelRecovery.swift` |
 | XPC и встроенный dry-run | `Sources/VentilatorControl/HelperProtocol.swift`, `Sources/VentilatorHelper/ExperimentProtocolCheck.swift` |
 | Исполняемые проверки | `Tests/VentilatorExperimentTests/`, `scripts/control-dry-run.py` |
 | Проверка изоляции writer | `Tests/VentilatorExperimentTests/RecoveryMonitorTests.swift`, `scripts/recovery-dry-run.py` |
@@ -217,3 +226,43 @@ Power observer теперь поддерживает отложенный acknow
 **Тогда:** acknowledgement следует после выхода writer, Auto-процесса и наблюдения кодов Auto. Реальный сон этим не подтверждён.
 
 **Automated:** `scripts/recovery-dry-run.py`
+
+### Scenario: Независимый reader остановился
+
+**Дано:** Fixed подтверждается отдельным процессом reader.
+**Когда:** reader получает SIGSTOP либо зависает/возвращает ошибку.
+**Тогда:** broker закрывает Fixed и выполняет Auto после выхода writer; таймер продолжает работать.
+
+**Automated:** `scripts/recovery-dry-run.py`
+
+### Scenario: Auto без независимого подтверждения
+
+**Дано:** Auto child может выполнить оставшиеся допустимые шаги, но отдельный reader отказал.
+**Когда:** модель уже вернулась в Auto, а свежих независимых снимков нет.
+**Тогда:** остальные допустимые Auto-попытки выполняются без retry, outcome остаётся recoveryRequired и pending сохраняется.
+
+**Automated:** `scripts/recovery-dry-run.py`
+
+### Scenario: Чужой или устаревший снимок reader
+
+**Дано:** ожидается снимок текущего read request.
+**Когда:** timestamp предшествует запросу/находится в будущем, reply поздний либо изменились профиль/диапазоны/числа.
+**Тогда:** снимок отвергнут и не становится доказательством Fixed/Auto.
+
+**Automated:** `Tests/VentilatorExperimentTests/BrokerObservationTests.swift::testReplyFromEarlierRequestAndFutureSampleAreRejected`, `Tests/VentilatorExperimentTests/BrokerObservationTests.swift::testLateReplyAndInvalidReadDurationDoNotBecomeEvidence`, `Tests/VentilatorExperimentTests/BrokerObservationTests.swift::testChangedProfileOrRangeAndUnreadableNumbersAreRejected`
+
+### Scenario: Роль дочернего процесса связана с журналом
+
+**Дано:** consumed ledger и scope broker.
+**Когда:** child предъявляет чужой session, закрытый Fixed или несовместимую роль/phase.
+**Тогда:** init отвергнут до probe и device open; новых аппаратных попыток нет.
+
+**Automated:** `Tests/VentilatorExperimentTests/BrokerObservationTests.swift::testChildRoleAndScopeAreCheckedBeforeAnyProbeOrDeviceOpen`
+
+### Scenario: Код Auto не становится физическим доказательством
+
+**Дано:** подготовленный аппаратный outcome.
+**Когда:** broker формирует результат наблюдения кодов.
+**Тогда:** physicalAutoVerified остаётся false; non-root не может сохранить аппаратный result.
+
+**Automated:** `Tests/VentilatorExperimentTests/BrokerObservationTests.swift::testHardwareOutcomeNeverClaimsPhysicalAutoAndNonRootCannotPersistIt`
