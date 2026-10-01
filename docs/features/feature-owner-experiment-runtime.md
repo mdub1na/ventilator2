@@ -48,7 +48,7 @@ Signed installed positive, administrative approval, hardware calls, actual sleep
 
 `owner-session.py prepare` создаёт локальную копию, manifest с SHA-256 проверенных app/helper/plist/PLAN/script. Последующие sign/install/register/ready/run/collect/unregister требуют ручного non-root Terminal. Sign использует только подготовленный публичный certificate fingerprint, Hardened Runtime и отдельный процесс онлайн-проверки сертификата с positive revocation policy, timeout 20 с. После подписи создаются финальные candidate/review/seal; именно фактические signed hashes показываются в root approval. Notarization не заявлена, локальная Development сборка не квалифицирована для распространения. При любом отказе — остановка до записи, без обхода Gatekeeper или замены существующего installed app.
 
-Полный UTF-8 план импортирован настоящим model CLI и совпал по Swift/Python canonical digest. Отказы owner-команд без TTY и ad hoc native gate проверены. Положительная подпись/сертификат/installed session не выполнены. Outcome хранит максимум пять independent reader snapshots: baseline, первый подтверждённый Fixed и три Auto, включая actual/target/mode/pressure/timestamp/readSeconds. Эти данные предназначены для разбора владельцем, не выдают физическую qualification. Root result/consumed pending не удаляются. После failed Auto дополнительные ручные SMC attempts не реализованы: план предусматривает прекращение нагрузки и физическое выключение при неясном восстановлении.
+Полный UTF-8 план импортирован настоящим model CLI и совпал по Swift/Python canonical digest. Отказы owner-команд без TTY и ad hoc native gate проверены. Владелец подписал прежний пакет; исправленный read-only qualifier подтвердил подписи/сертификат, но старые executable содержат ошибку validation и не устанавливаются. Новая сборка требует повторной подписи; installed session не проверена. При qualification error script сохраняет исходный stderr в STOP, не повторяет подпись и не создаёт seal. Collect сохраняет ошибку отдельного чтения и продолжает остальные diagnostics. Outcome хранит максимум пять independent reader snapshots: baseline, первый подтверждённый Fixed и три Auto, включая actual/target/mode/pressure/timestamp/readSeconds. Эти данные предназначены для разбора владельцем, не выдают физическую qualification. Root result/consumed pending не удаляются. После failed Auto дополнительные ручные SMC attempts не реализованы: план предусматривает прекращение нагрузки и физическое выключение при неясном восстановлении.
 
 ## Code anchors
 
@@ -134,3 +134,11 @@ Signed installed positive, administrative approval, hardware calls, actual sleep
 **Тогда:** baseline/Fixed/три Auto доступны в отчёте; actual модели 2400 не подменён target 2500; physicalAutoVerified не выставлен.
 
 **Automated:** `scripts/session-runtime-dry-run.py`
+
+### Scenario: Ошибка qualification и отдельного чтения видна владельцу
+
+**Дано:** subprocess с non-zero exit и диагностическим stderr либо ошибкой чтения при collect.
+**Когда:** session wrapper обрабатывает результат.
+**Тогда:** STOP сохраняет exit и причину; collect сохраняет ошибку конкретного чтения и продолжает status/audit. Нет автоматического повторения или аппаратного запуска.
+
+**Automated:** `scripts/owner-session-dry-run.py`

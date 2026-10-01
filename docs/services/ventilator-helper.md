@@ -20,7 +20,7 @@ SwiftPM собирает отдельный исполняемый файл и �
 
 `scripts/build-app.sh` собирает оба бинарника, помещает plist, подписывает helper и bundle, проверяет каждую подпись. По умолчанию ad hoc. `VENTILATOR_SIGN_IDENTITY` позволяет использовать уже настроенную identity; самостоятельно сертификаты скрипт не создаёт.
 
-Обычный режим демона требует root, текущий signed/root-owned `/Applications/Ventilator.app`, точный app/helper/LaunchDaemon layout и динамическую подпись helper по CDHash. Перед приёмом сообщений требует Apple anchor, identifier `dev.ventilator.macos`, тот же Team ID и CDHash конкретного app. При отсутствии условий — exit 78. Происхождение от launchd отдельно не проверяется; клиент дополнительно подтверждает живой root peer через bound XPC. Положительный установленный сценарий **не проверен**. Есть кандидат Apple Development без revoked пометки, но бездиалоговый signing probe остановился до codesign; [новый gate и его границы](../features/feature-helper-installation.md).
+Обычный режим демона требует root, текущий signed/root-owned `/Applications/Ventilator.app`, точный app/helper/LaunchDaemon layout и динамическую подпись helper по CDHash. Перед приёмом сообщений требует Apple anchor, identifier `dev.ventilator.macos`, тот же Team ID и CDHash конкретного app. При отсутствии условий — exit 78. Происхождение от launchd отдельно не проверяется; клиент дополнительно подтверждает живой root peer через bound XPC. Положительный установленный сценарий **не проверен**. Подписи прежнего owner package и публичный сертификат теперь подтверждены исправленным qualifier, Team `4659S5GD6X`; новая сборка требует повторной owner подписи. [Gate и его границы](../features/feature-helper-installation.md).
 
 `--loopback-check` использует приватный anonymous listener и клиента в том же непривилегированном процессе; его acceptance обход относится только к симуляционному anonymous listener. Публичный daemon listener эту политику не использует. Подход anonymous listener для начального XPC рекомендует [Apple DTS](https://developer.apple.com/forums/thread/799910).
 
@@ -74,7 +74,7 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 
 Подготовленный [session runtime](../features/feature-owner-experiment-runtime.md) связывает receipt, preflight и broker; новые experimental heartbeat/restore/status RPC отделены от simulation. Startup daemon продолжает только оставшиеся Auto при свободном lifetime lock и точном boot/binary binding. Hardware pending остаётся для владельческого результата.
 
-[Единый сеанс владельца](../owner-session.md) подготовлен: Terminal client удерживает проверенное соединение, root staging импортирует full review, audit читает защищённый outcome. Независимые baseline/Fixed/три Auto сохраняются с фактическими значениями. Signed/installed/hardware positive пока не проверены.
+[Единый сеанс владельца](../owner-session.md) подготовлен: Terminal client удерживает проверенное соединение, root staging импортирует full review, audit читает защищённый outcome. Независимые baseline/Fixed/три Auto сохраняются с фактическими значениями. Подписи сохранённого прежнего пакета подтверждены; signed новая сборка, installed/hardware positive пока не проверены.
 
 ## Code anchors
 

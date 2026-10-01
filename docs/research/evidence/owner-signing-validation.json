@@ -1,0 +1,92 @@
+{
+  "verifiedAt": "2026-10-02T00:58:06+05:00",
+  "profile": "Mac15,7 / macOS 27.0.0 (26A428)",
+  "ownerSigningAttempt": {
+    "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+    "qualificationExit": 78,
+    "qualificationError": "signatureRejected(-67070): errSecCSInvalidFlags",
+    "sealCreated": false,
+    "installed": false,
+    "hardwareWritesExecuted": 0
+  },
+  "disprovedTeamInference": {
+    "commonNameSuffix": "568959LQ99",
+    "actualTeamIdentifier": "4659S5GD6X",
+    "source": "SecCodeCopySigningInformation and certificate leaf subject.OU; both signed app and helper"
+  },
+  "nativeStaticFlagProbe": {
+    "requirement": "anchor apple generic and exact identifier and leaf OU 4659S5GD6X",
+    "baseStrictAllArchitecturesNested": "0x00000019",
+    "results": [
+      {
+        "flags": "0x00000019",
+        "status": 0
+      },
+      {
+        "flags": "0x80000019",
+        "status": 0
+      },
+      {
+        "flags": "0x20000019",
+        "status": 0
+      },
+      {
+        "flags": "0x08000019",
+        "status": -67070
+      },
+      {
+        "flags": "0xa0000019",
+        "status": 0
+      },
+      {
+        "flags": "0xa8000019",
+        "status": -67070
+      }
+    ]
+  },
+  "strictCodesignVerification": {
+    "application": true,
+    "helper": true,
+    "performedOutsideSandbox": true
+  },
+  "correctedQualifier": {
+    "command": "new ad hoc diagnostic executable --qualify-owner-signature saved-owner-signed-bundle certificateSHA1",
+    "exit": 0,
+    "externalTimeoutSeconds": 20,
+    "qualification": {
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "fingerprint": {
+        "applicationSHA256": "3f567bef76dafb2b2d7880ba1bf99d9368b5eb13dd66fe287bacd03641e34936",
+        "helperSHA256": "40603db1cc3d14c4178ab474d9ac859d0708146f40586e5615ebad0916a24368",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "notarizationClaimed": false,
+      "positiveRevocation": true,
+      "teamIdentifier": "4659S5GD6X"
+    },
+    "applicationCDHash": "8ca24b2aff97cbed70e06d1e11cabf01cf3f9c33",
+    "helperCDHash": "279887586c494908f7f61f88f038a425bf08acbc",
+    "diagnosticApplicationSHA256": "61025c6fcd3d8a9d5c9fa4649fe0b9a4dfe5d3b6c89d2ad4851210a9062a48a9"
+  },
+  "trustBoundaries": {
+    "nativeOffline": "Supported SecStatic flags + explicit Apple identity requirement; BasicX509 system trust/expiry, network fetch disabled",
+    "ownerOnline": "Apple CodeSigning + revocation RequirePositiveResponse for both files, no custom anchors",
+    "intermediateDiagnosticFailure": "Offline CodeSigning policy returned -67635 unable to verify revocation before subsequent evaluations passed; not proof of certificate revocation",
+    "sandboxLimitation": "Sandbox trust inspection reported CSSMERR_TP_NOT_TRUSTED; native verification outside sandbox passed"
+  },
+  "scope": "Read-only signatures and public certificate. No private-key access by developer, signing retries, sudo, registration or SMC writer calls. Saved signed binaries still contain old validation code; must not install them. Rebuild and owner-sign revised package.",
+  "failedPackageManifestSHA256": "07b0ec2a6998dfaba5eb18bbd703f1b5fe503344efb87ed3693edf97033e7dca",
+  "failedPackagePreservedAt": ".build/owner-session-2026-10-02-sign-failed",
+  "replacementPackage": {
+    "path": ".build/owner-session",
+    "fingerprint": {
+      "applicationSHA256": "61025c6fcd3d8a9d5c9fa4649fe0b9a4dfe5d3b6c89d2ad4851210a9062a48a9",
+      "helperSHA256": "ab4571832312b08d9ecedc2ba634b3ca54ae49913f438e1ce76ea36d65f36097",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "signed": false,
+    "installed": false,
+    "hardwareWritesExecuted": 0,
+    "planBytes": 12241
+  }
+}

@@ -1,4 +1,4 @@
-Installation gate verification: 2026-10-01T14:53:07+05:00
+Installation gate verification: 2026-10-02T01:06:26+05:00
 UID=501; ad hoc bundle, no SMAppService registration, private-key access, root or hardware writes.
 --verify-installed-helper: refused before registration/removal; hardware remains unavailable.
 --register-helper: refused before registration/removal; hardware remains unavailable.
@@ -8,6 +8,6 @@ Extra command arguments rejected before service access; no arbitrary path/servic
 launchArguments: actual bundle inspector rejected layout before service registration.
 helperSymlink: actual bundle inspector rejected layout before service registration.
 GUI still links no native experiment open/write symbols despite adding the installation/XPC client.
-Positive Apple-issued signing, root-owned installed bundle, authenticated privileged XPC and SMAppService approval remain unverified.
-SHA-256 of tested helper: edbc8b0a93eee5693f66eff1903c2901a4fd27f129c70cf6f41fd4e72877f92a
-SHA-256 of tested application: 1bb278033159a5cb0e14c732d167311d9886dc7693ad32eeefb2d8014ee018e8
+This ad hoc suite does not positively qualify Apple-issued signatures or test root-owned installation, privileged XPC and SMAppService approval.
+SHA-256 of tested helper: ab4571832312b08d9ecedc2ba634b3ca54ae49913f438e1ce76ea36d65f36097
+SHA-256 of tested application: 61025c6fcd3d8a9d5c9fa4649fe0b9a4dfe5d3b6c89d2ad4851210a9062a48a9

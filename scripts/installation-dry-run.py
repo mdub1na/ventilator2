@@ -64,7 +64,7 @@ for kind in ["launchArguments", "helperSymlink"]:
 symbols = subprocess.check_output(["nm", "-g", str(app)], text=True, timeout=5)
 assert "_SMCExperimentOpen" not in symbols and "_SMCExperimentWriteStep" not in symbols
 lines += ["GUI still links no native experiment open/write symbols despite adding the installation/XPC client.",
-          "Positive Apple-issued signing, root-owned installed bundle, authenticated privileged XPC and SMAppService approval remain unverified.",
+          "This ad hoc suite does not positively qualify Apple-issued signatures or test root-owned installation, privileged XPC and SMAppService approval.",
           "SHA-256 of tested helper: " + hashlib.sha256(helper.read_bytes()).hexdigest(),
           "SHA-256 of tested application: " + hashlib.sha256(app.read_bytes()).hexdigest()]
 text = "\n".join(lines) + "\n"

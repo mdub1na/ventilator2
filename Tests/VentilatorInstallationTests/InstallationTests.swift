@@ -130,4 +130,20 @@ final class InstallationTests: XCTestCase {
             XCTAssertThrowsError(try InstalledHelperSession.validate(reply), key)
         }
     }
+
+    func testValidationFlagsAreAcceptedByNativeAPIAndRejectWrongRequirement() throws {
+        // This uses the real signed XCTest bundle, not a hand-crafted flag equality assertion.
+        let bundle = Bundle(for: InstallationTests.self).bundleURL
+        var code: SecStaticCode?, good: SecRequirement?, wrong: SecRequirement?
+        XCTAssertEqual(SecStaticCodeCreateWithPath(bundle as CFURL, [], &code), errSecSuccess)
+        let executable = try XCTUnwrap(code)
+        XCTAssertEqual(SecRequirementCreateWithString("true" as CFString, [], &good), errSecSuccess)
+        XCTAssertEqual(SecRequirementCreateWithString("identifier \"dev.ventilator.not-this-test\"" as CFString, [], &wrong), errSecSuccess)
+        let flags = SecCSFlags(rawValue: kSecCSStrictValidate | kSecCSCheckAllArchitectures | kSecCSCheckNestedCode | SignedBundleInspector.offlineFlags.rawValue)
+        XCTAssertEqual(SecStaticCodeCheckValidity(executable, flags, good), errSecSuccess)
+        XCTAssertNotEqual(SecStaticCodeCheckValidity(executable, flags, wrong), errSecSuccess)
+        var running: SecCode?
+        XCTAssertEqual(SecCodeCopySelf([], &running), errSecSuccess)
+        XCTAssertEqual(SecCodeCheckValidity(try XCTUnwrap(running), SignedBundleInspector.offlineFlags, good), errSecSuccess)
+    }
 }

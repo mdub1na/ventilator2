@@ -1,7 +1,8 @@
 Signing identity inspection: 2026-10-01
 Command: security find-identity -v -p codesigning
 The command reported "2 valid identities found".
-Both entries were labelled Apple Development with Team ID 568959LQ99.
+Both entries were labelled Apple Development; their common-name suffix was 568959LQ99.
+Correction verified 2026-10-02: that suffix was incorrectly called Team ID. Actual signed-code TeamIdentifier is 4659S5GD6X; see owner-signing-validation.json.
 First entry: explicitly flagged CSSMERR_TP_CERT_REVOKED.
 Second entry: no revoked flag in the output; candidate for a separate signing verification.
 No private key access, certificate installation or Apple-issued codesign operation was performed.

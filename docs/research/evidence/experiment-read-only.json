@@ -22,8 +22,8 @@
   "hardwareWritesExecuted" : 0,
   "model" : "Mac15,7",
   "preflight" : "candidatePassed",
-  "readSeconds" : 0.0025688749738037586,
-  "sampleStartedAt" : "2026-10-01T09:53:12Z",
+  "readSeconds" : 0.0030139166919980198,
+  "sampleStartedAt" : "2026-10-01T20:05:05Z",
   "testMode" : 0,
   "thermalPressure" : "nominal",
   "version" : "27.0.0"

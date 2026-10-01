@@ -33,6 +33,7 @@
 - [x] Добавить предварительные проверки машины/показаний и отдельные критерии наблюдаемого изменения RPM и устойчивого кода Auto на подставных снимках.
 - [ ] Провести dry-run, собрать и подписать установленный bundle с подходящей identity.
 - [x] Подготовить owner client/full-review import и единый план с проверенными ad hoc хешами, seal финальных signed хешей, всеми SMC-записями и stop-процедурой; проверить offline/model путь.
+- [x] Исправить owner qualification после реальной подписи: проверить допустимые Security flags, фактический Team и positive revocation; сохранить failed пакет и подготовить новую сборку/последовательность.
 - [ ] Выполнить с владельцем подпись/qualification/установку и получить одно локальное одобрение точного sealed опыта.
 - [ ] После одобрения выполнить ровно один ограниченный аппаратный опыт и проверить устойчивый возврат Auto.
 
@@ -56,3 +57,5 @@ PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https:/
 - [ ] Добавлять иные Mac только после отдельных аппаратных проверок.
 
 PR #7 объединил guarded runtime и исправление durable отзыва при SIGSTOP в authority transaction. Следующий шаг подготовил [единый сеанс владельца](docs/owner-session.md), Terminal client, защищённый импорт review и independent evidence. Дальнейший signed/installed/hardware positive требует действий владельца; обычный GUI остаётся read-only.
+
+2026-10-02: подпись предыдущего owner package выполнена владельцем, но seal не создан из-за нашего `errSecCSInvalidFlags`. Ошибка и неверный Team исправлены; strict подписи и positive revocation сохранённых файлов подтверждены [реальным qualifier](docs/research/evidence/owner-signing-validation.json). Старые executable с ошибкой не устанавливаются; следующий шаг владельца — подписать новый пакет, затем следовать пяти шагам [обновлённого плана](docs/owner-session.md). Installed/root XPC и аппаратный опыт ещё не выполнялись.
