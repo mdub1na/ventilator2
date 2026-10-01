@@ -29,6 +29,7 @@ public final class ApprovedStepExecutor {
             guard let current = try authority.state().ledger else { throw ExperimentAuthorityError.wrongSession }
             try ExperimentWriteAdmission.validate(reserved: reservation.ledger, current: current, step: step,
                 domain: device.domain, sessionID: session.sessionID, boot: session.approval.challenge.bootSession, now: now)
+            if step.isFixed, try authority.fixedRevoked(sessionID: session.sessionID) { throw ExperimentAuthorityError.fixedClosed }
             try device.write(reservation)
             try authority.recordSuccessfulReturn(step: step, sessionID: session.sessionID)
         } catch {

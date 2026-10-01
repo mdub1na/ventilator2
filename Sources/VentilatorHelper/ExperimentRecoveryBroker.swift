@@ -37,9 +37,15 @@ struct BrokerBootstrap: Codable {
 enum BrokerOwnerCommand: String, Codable { case heartbeat, restore, sleep }
 struct BrokerOwnerRequest: Codable { let scope: RecoveryScope; let command: BrokerOwnerCommand }
 struct BrokerReady: Codable { let scope: RecoveryScope; let brokerPID: Int32; let writerPID: Int32; let readerPID: Int32; let restorerPID: Int32? }
-struct BrokerProcessEvent: Codable { let scope: RecoveryScope; let role: ExperimentChildRole; let pid: Int32 }
+struct BrokerProcessEvent: Codable {
+    let scope: RecoveryScope; let role: ExperimentChildRole; let pid: Int32
+    let fixedRPMObserved: Bool
+    init(scope: RecoveryScope, role: ExperimentChildRole, pid: Int32, fixedRPMObserved: Bool = false) {
+        self.scope = scope; self.role = role; self.pid = pid; self.fixedRPMObserved = fixedRPMObserved
+    }
+}
 
-private func privateChannel(domain: ExperimentDomain = .simulation) throws -> WorkerChannel {
+func privateExperimentChannel(domain: ExperimentDomain = .simulation) throws -> WorkerChannel {
     var input = stat(), output = stat()
     guard (domain == .hardware ? geteuid() == 0 : geteuid() != 0), fstat(STDIN_FILENO, &input) == 0, fstat(STDOUT_FILENO, &output) == 0,
           input.st_mode & S_IFMT == S_IFIFO, output.st_mode & S_IFMT == S_IFIFO else {
@@ -50,10 +56,14 @@ private func privateChannel(domain: ExperimentDomain = .simulation) throws -> Wo
 
 /// Private child entry points share the same broker protocol. Local approval does not start hardware.
 func runApprovedModelChild(directory: URL) throws { try runExperimentChild(directory: directory, domain: .simulation) }
-func runPreparedHardwareChild(directory: URL) throws { try runExperimentChild(directory: directory, domain: .hardware) }
+func runPreparedHardwareChild(directory: URL) throws {
+    guard directory.standardizedFileURL == hardwareExperimentDirectory else { throw CheckError.failed("Fixed hardware directory required") }
+    _ = try HardwareRecoveryIdentity.currentBoot()
+    try runExperimentChild(directory: directory, domain: .hardware)
+}
 
 private func runExperimentChild(directory: URL, domain: ExperimentDomain) throws {
-    let channel = try privateChannel(domain: domain)
+    let channel = try privateExperimentChannel(domain: domain)
     guard let initial = try channel.readLine(waitSeconds: 0.5) else { throw CheckError.failed("Child bootstrap timeout") }
     let bootstrap = try JSONDecoder().decode(BrokerChildBootstrap.self, from: initial)
     guard bootstrap.scope.domain == domain, domain == .simulation || bootstrap.fault == .normal else {
@@ -62,6 +72,9 @@ private func runExperimentChild(directory: URL, domain: ExperimentDomain) throws
     let authority = try ExperimentAuthority(directory: directory, domain: domain)
     let child = try ScopedExperimentChild(authority: authority, scope: bootstrap.scope, role: bootstrap.role,
         phase: bootstrap.phase, input: STDIN_FILENO, output: STDOUT_FILENO)
+    if bootstrap.fault == .stoppedAuthorityTransaction, bootstrap.role == .fixed {
+        try authority.stopAfterTargetReturnForModelCheck()
+    }
     if bootstrap.fault == .restoreFailure { try child.simulateFailure(before: .autoZero) }
     if bootstrap.fault == .blockedFixed && bootstrap.role == .fixed { try child.simulateBlock(afterEffect: .unlock) }
     if bootstrap.fault == .blockedRestore && bootstrap.role == .restore { try child.simulateBlock(afterEffect: .autoZero) }
@@ -161,11 +174,14 @@ private final class ExperimentChildClient {
 /// The production-shaped broker is exercised with simulation approval and file devices only.
 func runApprovedModelBroker(directory: URL) throws { try runExperimentBroker(directory: directory, domain: .simulation) }
 
-/// Prepared internal hardware entry; no CLI, XPC or local issuer invokes it yet.
-func runPreparedHardwareBroker(directory: URL) throws { try runExperimentBroker(directory: directory, domain: .hardware) }
+/// Inherited private pipes and installed root identity are required before touching hardware state.
+func runPreparedHardwareBroker() throws {
+    _ = try HardwareRecoveryIdentity.currentBoot()
+    try runExperimentBroker(directory: hardwareExperimentDirectory, domain: .hardware)
+}
 
 private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throws {
-    let ownerChannel = try privateChannel(domain: domain)
+    let ownerChannel = try privateExperimentChannel(domain: domain)
     guard let data = try ownerChannel.readLine(waitSeconds: 2) else { throw CheckError.failed("Broker bootstrap timeout") }
     let bootstrap = try JSONDecoder().decode(BrokerBootstrap.self, from: data)
     let journal = try FileSessionJournal(directory: directory)
@@ -249,6 +265,9 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
     let power = SystemPowerObserver(beforeSleep: { acknowledge in
         sleeping = true; sleepAcknowledgements.append(acknowledge)
     })
+    guard domain != .hardware || bootstrap.restarting || power.registered else {
+        throw CheckError.failed("System power observer unavailable; no Fixed writes started")
+    }
     defer { sleepAcknowledgements.forEach { $0() } }
     signal(SIGTERM, SIG_IGN)
     let termination = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
@@ -279,7 +298,7 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
         if monitor.phase == .quiescing {
             if !writerKillSent {
                 do {
-                    try authority.closeFixed(sessionID: ledger.sessionID, now: HelperClock.now())
+                    try authority.revokeFixed(sessionID: ledger.sessionID, now: HelperClock.now())
                     events.append("fixedClosed")
                 } catch { monitor.fail(reason: "journalClosureFailure") }
                 events.append("writerStopRequested"); writer?.killOwnedChild(); writerKillSent = true
@@ -364,7 +383,11 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                         }
                         if observation.thermalPressure != .nominal { monitor.stop(reason: "thermalPressure", now: HelperClock.now()) }
                         if nextFixed == 5, ExperimentVerification.fixedRPMConfirmed(baseline: baseline!, observed: observation.snapshot) {
-                            if !fixedObserved { events.append("fixedRPMObserved") }
+                            if !fixedObserved {
+                                events.append("fixedRPMObserved")
+                                try ownerChannel.send(BrokerProcessEvent(scope: monitor.scope, role: .reader,
+                                    pid: reader.process.processIdentifier, fixedRPMObserved: true), deadline: HelperClock.now() + 0.05)
+                            }
                             fixedObserved = true
                         } else if nextFixed == 5 && fixedObserved { monitor.stop(reason: "fixedNotObserved", now: HelperClock.now()) }
                     } else if nextRestore == restoreSteps.count, monitor.pendingOperation == nil,

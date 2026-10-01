@@ -12,7 +12,7 @@ tags: [macOS, SMC, approval, preparation]
 
 # Протокол ограниченного опыта
 
-Реализованы нативный код формирования/проверки SMC-записей и файловая логика одобрения. **Аппаратный запуск не подключён.** Никакие записи на Mac не выполнялись; `hardwareControlAvailable=false`. Эта feature описывает подготовленный код и проверку на моделях, не успешное управление оборудованием.
+Реализованы нативный код формирования/проверки SMC-записей и файловая логика одобрения. **Experimental hardware entry подключён за installed/local-receipt gates, положительный запуск не выполнялся.** Никакие записи на Mac не выполнялись; `hardwareControlAvailable=false`. Эта feature описывает подготовленный код и проверку на моделях, не успешное управление оборудованием.
 
 ## Нативная граница
 
@@ -20,7 +20,7 @@ tags: [macOS, SMC, approval, preparation]
 
 Перед записью повторно проверяются профиль, два вентилятора, свежая метаинформация ключа и условия шага. Для Fixed также проверяются точные диапазоны, порядок, трёхсекундное ожидание после unlock и deadline непосредственно перед IOKit. Повтор одного шага на соединении запрещён; ошибка закрывает дальнейший Fixed. Kernel failure, неверный размер ответа, SMC result и неквалифицированный nonzero status отвергаются. Это проверено чистыми пакетами и компиляцией; сам аппаратный путь **не запускался**.
 
-`NativeExperimentDevice` дополнительно требует signed/root-owned installed bundle и аппаратный журнал, текущую загрузку ОС, совпадающие хеши, Apple-issued подписи app/helper одной команды и `ArmedHardwareRecovery`. Свидетельство восстановления нельзя декодировать из XPC и у него нет публичного конструктора. Симуляция его не выдаёт. Подготовленный аппаратный child может получить его из bound probe и consumed hardware ledger; public hardware start ещё закрыт; локальный issuer только сохраняет approval. Синхронный IOKit вызов не имеет доказанного здесь верхнего предела задержки: проверки deadline не гарантируют отмену уже начатого вызова.
+`NativeExperimentDevice` дополнительно требует signed/root-owned installed bundle и аппаратный журнал, текущую загрузку ОС, совпадающие хеши, Apple-issued подписи app/helper одной команды и `ArmedHardwareRecovery`. Свидетельство восстановления нельзя декодировать из XPC и у него нет публичного конструктора. Симуляция его не выдаёт. Подготовленный аппаратный child может получить его из bound probe и consumed hardware ledger; experimental start требует signed installed daemon и локальный receipt; локальный issuer только сохраняет approval. Синхронный IOKit вызов не имеет доказанного здесь верхнего предела задержки: проверки deadline не гарантируют отмену уже начатого вызова.
 
 GUI не зависит от `VentilatorExperiment`/`CSMCExperiment`; CLI зависит от отдельного `VentilatorInstallation`, который не линкует writer; отсутствие writer-symbols проверяется на собранном executable.
 
@@ -42,11 +42,11 @@ Timestamp берётся **до** первого чтения. Бюджет чт
 
 ## Общий процессный runtime
 
-`ExperimentRecoveryBroker` используется модельным harness и содержит внутренний подготовленный hardware entry. Аппаратный entry не вызывается CLI/XPC или issuer. Одна схема IPC обслуживает отдельные Fixed/Auto/reader children. `ScopedExperimentChild` проверяет domain/scope/phase/роль до probe/device open; native factory сохраняет собственные root/signature/boot/hash проверки. Private child mode `--prepared-hardware-child` отвергает non-root, обычный терминал и отсутствие bound аппаратного ledger. Симуляционные faults в аппаратном domain запрещены.
+`ExperimentRecoveryBroker` используется модельным harness и содержит внутренний подготовленный hardware entry. Аппаратный entry теперь вызывается отдельным proxy после signed installed identity, локального receipt и isolated preflight; issuer сам его не запускает. Одна схема IPC обслуживает отдельные Fixed/Auto/reader children. `ScopedExperimentChild` проверяет domain/scope/phase/роль до probe/device open; native factory сохраняет собственные root/signature/boot/hash проверки. Private child mode `--prepared-hardware-child` отвергает non-root, обычный терминал и отсутствие bound аппаратного ledger. Симуляционные faults в аппаратном domain запрещены.
 
 Reader не имеет executor, а его снимок не содержит reservation. Broker принимает только ответ на текущий reader request с точными ID/scope/ролью/PID, свежим timestamp после запроса, конечным read duration ≤0,5 с, текущим deadline, проверенным профилем и диапазонами. Чтения IOKit не выполняются в broker loop. Ошибка/зависание reader в Fixed закрывают writer и вызывают Auto. Отказ Auto reader сохраняет pending и не мешает остальным допустимым Auto-попыткам; device effects сами по себе не являются доказательством восстановления.
 
-Startup handshake и передача device/probe фреймов имеют ограниченные сроки. После durable closure Auto по-прежнему начинается только после подтверждённого завершения **writer**. Read-only child не пишет; ожидание его возможного kernel read не блокирует Auto. SIGKILL не считается доказательством отмены kernel I/O. Даже три аппаратных Auto-кода оставляют hardware pending и `physicalAutoVerified=false` в outcome. Общий broker содержит отдельный путь restart в Auto; аппаратный запуск, signing/installation и владельческий сеанс остаются открытыми.
+Startup handshake и передача device/probe фреймов имеют ограниченные сроки. После durable closure Auto по-прежнему начинается только после подтверждённого завершения **writer**. Read-only child не пишет; ожидание его возможного kernel read не блокирует Auto. SIGKILL не считается доказательством отмены kernel I/O. Даже три аппаратных Auto-кода оставляют hardware pending и `physicalAutoVerified=false` в outcome. Общий broker содержит отдельный путь restart в Auto; положительный аппаратный запуск, signing/installation и владельческий сеанс остаются открытыми.
 
 ## Одобрение и журнал
 
@@ -70,7 +70,7 @@ Power observer теперь поддерживает отложенный acknow
 
 ## Доступный XPC
 
-`prepareHardwareExperiment` возвращает хеш кандидата и причины `readyForOwnerApproval=false`. `startApprovedHardwareExperiment` отвергает старт с `hardwareRuntimeNotPrepared`, даже если передан правильный хеш; неверный формат — `invalidApprovalRequest`. Отказ проверен настоящим anonymous XPC до старта симуляции. Самостоятельное предъявление digest не выдаёт согласие.
+`prepareHardwareExperiment` возвращает хеш кандидата и причины `readyForOwnerApproval=false`. Обычный anonymous simulation `startApprovedHardwareExperiment` отвергает старт с `hardwareRuntimeNotPrepared`, даже если передан правильный хеш; неверный формат — `invalidApprovalRequest`. Signed installed ветка теперь требует локальный receipt того же connection owner и отдельный preflight; [новый runtime](feature-owner-experiment-runtime.md) проверен настоящим private model XPC. Legacy anonymous отказ также проверен. Самостоятельное предъявление digest не выдаёт согласие.
 
 Новый [installed gate](feature-helper-installation.md) усиляет native identity: точный root-owned bundle, layout, expiry/trust anchors и CDHash текущего процесса. Положительный установленный путь по-прежнему не выполнялся.
 
@@ -80,7 +80,7 @@ Power observer теперь поддерживает отложенный acknow
 
 CLI `--approve-local-model <directory> <ownerUUID> <planSHA> <reviewSHA>` требует non-root TTY. `--approve-local-hardware <ownerUUID> <planSHA> <reviewSHA>` использует фиксированный `/Library/Application Support/Ventilator/Experiment`; перед prepare и confirm проверяет root TTY, профиль, Apple-issued подписи app/helper одной команды, boot и binary hashes, регистрацию `SMAppService.daemon(...).status == .enabled`. Это предварительная проверка допуска службы, не доказательство работающего установленного демона.
 
-Перед вводом выводятся все инструкции и полный candidate. Принимается только `APPROVE <challengeUUID> <planSHA> <reviewSHA>` без дополнительных пробелов. EOF, отказ и неполная строка не одобряют план. После ввода заново проверяются review/identity и 300-секундный срок. Сохранение approval не создаёт consumed ledger и не вызывает устройство; повторная выдача отвергается. Полный model TTY → approval → begin → broker путь проверен; положительный аппаратный issuer не запускался. `readyForOwnerApproval=false` и public hardware start остаются закрытыми.
+Перед вводом выводятся все инструкции и полный candidate. Принимается только `APPROVE <challengeUUID> <planSHA> <reviewSHA>` без дополнительных пробелов. EOF, отказ и неполная строка не одобряют план. После ввода заново проверяются review/identity и 300-секундный срок. Сохранение approval не создаёт consumed ledger и не вызывает устройство; повторная выдача отвергается. Полный model TTY → approval → begin → broker путь проверен; положительный аппаратный issuer не запускался. `readyForOwnerApproval=false` в offline экспорте сохраняется; experimental hardware start подготовлен за отдельными identity/receipt gates, пользовательское управление закрыто.
 
 ## Восстановление после перезапуска broker
 

@@ -127,7 +127,21 @@ PR #4 на старте этого шага открыт (`11f5bb0`); работ
 
 Новая сборка получила [свежий read-only снимок](evidence/experiment-read-only.json) на Mac15,7 / 26A428: Ftst=0, modes=3/3, actual/target=0/0, прежние диапазоны, nominal pressure, чтение 0.002632 с. Открывался только CSMCRead. [Кандидат](evidence/candidate-experiment-plan.json) обновлён по проверенным бинарным хешам и остаётся readyForOwnerApproval=false. [Сводка](evidence/software-verification.txt) связывает результаты с этой сборкой. Подписанный installed positive, административное одобрение, настоящий сон и аппаратная запись не запускались; следующий кодовый шаг — hardware admission/runtime и полный единый сеанс владельца.
 
+### Guarded runtime и остановленная транзакция — 2026-10-01
+
+В main перенесено дерево PR #5 отдельным PR #6 (`87e125d`): исходный PR #5 был смержен в ветку PR #4. Теперь реализован [runtime опыта](../features/feature-owner-experiment-runtime.md): отдельный preflight-процесс до consuming begin, XPC owner binding, private broker, heartbeat/Auto/status и startup recovery оставшихся Auto. Аппаратная ветка требует installed identity, root, enabled service и локальный hardware receipt; положительный нативный путь ещё не выполнялся.
+
+[Четыре модельные проверки runtime](evidence/session-runtime-dry-run.txt) прошли через реальные XPC/Process: явный Auto, invalidation связи, новый daemon при живом broker и после SIGKILL собственного model broker. Повторный Fixed/Auto не допускается, authority/receipt не заменяются. Диагностические status/heartbeat читают защищённые atomic snapshots без транзакционной блокировки, чтобы не мешать writer.
+
+Полный recovery прогон выявил ранее скрытый race: SIGSTOP writer во время durable return удерживал `authority.lock`, и broker не мог сохранить закрытие Fixed. Реализован отдельный fsync-маркер отзыва, не использующий эту блокировку; Fixed проверяет его перед I/O. После подтверждённого выхода собственного writer broker обновляет основной ledger и начинает Auto. Unit-тест удерживает настоящий flock; процессный fault детерминированно останавливает модель внутри транзакции. Обе проверки и все **17 recovery-сценариев** прошли. Завершение процесса по-прежнему не считается доказательством отмены начатой kernel SMC-операции.
+
+Итог: 92 unit-теста, четыре runtime, 6 TTY + 6 restart и прежние installation/control проверки; docs_check — 13 документов/61 BDD. [Сводка](evidence/software-verification.txt) связывает результаты с хешами. [Свежий read-only снимок](evidence/experiment-read-only.json): Ftst=0, modes=3/3, actual/target=0/0, nominal pressure, 0.003418 с. Только CSMCRead, без root/записи. Pending hardware сохраняется даже после кодов Auto, physicalAutoVerified=false. Следующий шаг — клиент владельца и полный единый сеанс подписания/установки/ограниченного опыта; продуктовый hardware control закрыт.
+
 ## Гипотезы и адреса проверки
+
+### Предшествующее решение runtime шага — 2026-10-01
+
+PR #5 был объединён в исходную ветку PR #4; отдельный PR #6 перенёс это дерево в main (`87e125d`). Проверено через Git ancestry, GitHub merge state и повторные 91 unit-тест/12 документов. Следующая **цель реализации** — единый клиент отдельного broker для daemon и модели: bound read-only preflight в отдельном процессе перед consuming begin, явный hardware start только при локальном receipt той же XPC-связи, startup recovery только оставшихся Auto-шагов. Одобрение выдаёт root TTY, а не XPC. Обычный GUI и признак пользовательского hardware control остаются закрытыми. Модель проверит этот же proxy/launch путь без выдачи hardware authority; положительный подписанный установленный сценарий войдёт в единый сеанс владельца.
 
 | Гипотеза | Проверка и момент закрытия |
 |---|---|

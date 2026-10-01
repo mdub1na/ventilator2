@@ -59,6 +59,9 @@ public enum ExperimentObservationError: Error, Equatable {
 public struct TimedExperimentObservation {
     public let observation: ControlObservation
     public let readSeconds: Double
+    public init(observation: ControlObservation, readSeconds: Double) {
+        self.observation = observation; self.readSeconds = readSeconds
+    }
 }
 
 /// Opens a distinct read-only connection. A slow synchronous read is rejected when it returns;

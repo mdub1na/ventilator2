@@ -125,6 +125,7 @@ run_case("SIGKILL helper", target="helper", sent_signal=signal.SIGKILL, reason="
 run_case("SIGSTOP helper", target="helper", sent_signal=signal.SIGSTOP, reason="heartbeatLost")
 run_case("SIGKILL writer", target="writer", sent_signal=signal.SIGKILL, reason="writerExited")
 run_case("SIGSTOP writer", target="writer", sent_signal=signal.SIGSTOP, reason="writerTimeout")
+run_case("Writer SIGSTOP inside authority transaction", "stoppedAuthorityTransaction", reason="writerTimeout")
 run_case("Blocked Fixed after durable effect", "blockedFixed", reason="writerTimeout")
 run_case("Blocked Auto after durable effect", "blockedRestore", target="helper", sent_signal=signal.SIGKILL,
          expected="recoveryRequired", reason="restorerTimeout")

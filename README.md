@@ -24,3 +24,5 @@ open .build/Ventilator.app
 `.build/Ventilator.app/Contents/MacOS/Ventilator --helper-status` выводит диагностику signed/installed gate без изменения регистрации. `python3 scripts/installation-dry-run.py` проверяет отказы ad hoc и подменённого bundle. Подготовлены явные lifecycle CLI и pinned XPC; [границы проверок](docs/features/feature-helper-installation.md).
 
 `python3 scripts/sign-app-without-ui.py` проверяет возможность подписи в отдельной сессии без GUI/TTY. Текущий результат — отказ SessionCreate до обращения к ключу. Настройки keychain и ACL не менялись, helper не устанавливался. Возможные ручные подтверждения войдут в единый сеанс владельца после подготовки всего аппаратного пути.
+
+`python3 scripts/session-runtime-dry-run.py` проверяет новый guarded XPC → receipt → isolated preflight → broker путь на non-root модели, включая чужой owner, disconnect и startup recovery. [Границы runtime](docs/features/feature-owner-experiment-runtime.md): положительный signed installed/hardware запуск ещё не выполнялся.

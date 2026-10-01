@@ -76,6 +76,17 @@ public final class FileSessionJournal: SessionJournal {
         try write(JSONEncoder().encode(outcome), to: "hardware-recovery-result.json")
     }
 
+    public func loadHardwareRecoveryOutcome() throws -> HardwareRecoveryOutcome? {
+        try checkAuthorityDomain(.hardware)
+        guard let data = try read("hardware-recovery-result.json") else { return nil }
+        let outcome = try JSONDecoder().decode(HardwareRecoveryOutcome.self, from: data)
+        guard !outcome.physicalAutoVerified, !outcome.simulationOnly,
+              outcome.elapsedSeconds.isFinite, outcome.elapsedSeconds >= 0 else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        return outcome
+    }
+
     public func loadAuthorityState(domain: ExperimentDomain) throws -> ExperimentAuthorityState? {
         try checkAuthorityDomain(domain)
         guard let data = try read("authority-\(domain.rawValue).json") else { return nil }
@@ -121,6 +132,18 @@ public final class FileSessionJournal: SessionJournal {
             throw CocoaError(.fileWriteUnknown)
         }
         try write(JSONEncoder().encode(state), to: "authority-\(domain.rawValue).json")
+    }
+
+    public func saveFixedRevocation(_ record: FixedRevocationRecord) throws {
+        try checkAuthorityDomain(record.domain)
+        try write(JSONEncoder().encode(record), to: "fixed-revoked-\(record.domain.rawValue).json")
+    }
+    public func loadFixedRevocation(domain: ExperimentDomain) throws -> FixedRevocationRecord? {
+        try checkAuthorityDomain(domain)
+        guard let data = try read("fixed-revoked-\(domain.rawValue).json") else { return nil }
+        let record = try JSONDecoder().decode(FixedRevocationRecord.self, from: data)
+        guard record.domain == domain, record.revokedAt.isFinite, record.revokedAt >= 0 else { throw CocoaError(.fileReadCorruptFile) }
+        return record
     }
 
     private func checkAuthorityDomain(_ domain: ExperimentDomain) throws {
@@ -269,7 +292,7 @@ public struct SimulationRecoveryOutcome: Codable {
 }
 
 /// The prepared broker can record code evidence, but cannot declare physical Auto or clear the marker.
-public struct HardwareRecoveryOutcome: Encodable {
+public struct HardwareRecoveryOutcome: Codable {
     public let sessionID: UUID
     public let phase: String
     public let reason: String?
@@ -277,12 +300,13 @@ public struct HardwareRecoveryOutcome: Encodable {
     public let failedSteps: [ExperimentStep]
     public let elapsedSeconds: Double
     public let powerNotificationsRegistered: Bool
-    public let simulationOnly = false
-    public let physicalAutoVerified = false
+    public let simulationOnly: Bool
+    public let physicalAutoVerified: Bool
     public init(sessionID: UUID, phase: String, reason: String?, events: [String], failedSteps: [ExperimentStep],
                 elapsedSeconds: Double, powerNotificationsRegistered: Bool) {
         self.sessionID = sessionID; self.phase = phase; self.reason = reason; self.events = events
         self.failedSteps = failedSteps; self.elapsedSeconds = elapsedSeconds
         self.powerNotificationsRegistered = powerNotificationsRegistered
+        simulationOnly = false; physicalAutoVerified = false
     }
 }

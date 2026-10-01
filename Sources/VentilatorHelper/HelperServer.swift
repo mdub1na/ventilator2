@@ -17,10 +17,13 @@ final class HelperCoordinator {
     private let queue = DispatchQueue(label: "dev.ventilator.helper.session")
     private let directory: URL
     private var worker: SimulationWorkerClient?
+    private let experiment: ExperimentSessionRuntime?
     private var lastReply = HelperReply(control: ControlReport(phase: .idle))
 
-    init(directory: URL) throws {
+    init(directory: URL, experiment: ExperimentSessionRuntime? = nil) throws {
         self.directory = directory
+        self.experiment = experiment
+        try experiment?.recoverOnStartup()
         let journal = try FileSessionJournal(directory: directory)
         if try journal.load() != nil {
             worker = try SimulationWorkerClient(directory: directory)
@@ -45,6 +48,7 @@ final class HelperCoordinator {
                 default: throw ControlError.wrongOwnerOrSession
                 }
                 if self.worker == nil && action == .start {
+                    guard try self.experiment?.status().phase ?? "idle" == "idle" else { throw ControlError.sessionAlreadyUsed }
                     self.worker = try SimulationWorkerClient(directory: self.directory)
                 }
                 if let worker = self.worker {
@@ -64,6 +68,7 @@ final class HelperCoordinator {
 
     func disconnected(owner: UUID) {
         queue.async {
+            self.experiment?.disconnected(owner: owner)
             if let worker = self.worker {
                 _ = try? worker.request(command: .disconnected, owner: owner)
             }
@@ -74,10 +79,39 @@ final class HelperCoordinator {
         try queue.sync { try worker?.waitForExit() }
     }
 
-    func hardwarePreparation(reply: @escaping (Data) -> Void) {
+    func hardwarePreparation(owner: UUID, reply: @escaping (Data) -> Void) {
         queue.async {
-            let preparation = try? HardwarePreparation(planSHA256: bundledCandidatePlan().sha256())
-            let response = HelperReply(control: self.lastReply.control, errorCode: "hardwareRuntimeNotPrepared", preparation: preparation)
+            let preparation = try? HardwarePreparation(planSHA256: bundledCandidatePlan().sha256(),
+                connectionOwner: owner, runtimePrepared: self.experiment != nil)
+            let response = HelperReply(control: self.lastReply.control, errorCode: self.experiment == nil ? "hardwareRuntimeNotPrepared" : nil, preparation: preparation)
+            reply((try? JSONEncoder().encode(response)) ?? Data())
+        }
+    }
+
+    func experimentRequest(owner: UUID, command: String, identifier: String? = nil, planSHA256: String? = nil,
+                           reply: @escaping (Data) -> Void) {
+        queue.async {
+            var report: HardwareExperimentReport?, errorCode: String?
+            do {
+                guard let experiment = self.experiment else { throw CheckError.failed("hardwareRuntimeNotPrepared") }
+                guard self.worker?.process.isRunning != true else { throw ControlError.sessionAlreadyUsed }
+                if command == "status" { report = try experiment.status() }
+                else {
+                    guard let identifier, identifier.utf8.count == 36, let id = UUID(uuidString: identifier) else {
+                        throw CheckError.failed("invalidApprovalRequest")
+                    }
+                    if command == "start" {
+                        guard let planSHA256, planSHA256.utf8.count == 64,
+                              planSHA256.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }) else {
+                            throw CheckError.failed("invalidApprovalRequest")
+                        }
+                        report = try experiment.start(owner: owner, challengeID: id, planSHA256: planSHA256)
+                    } else {
+                        report = try experiment.ownerRequest(owner: owner, sessionID: id, command: command == "heartbeat" ? .heartbeat : .restore)
+                    }
+                }
+            } catch { errorCode = String(describing: error); report = try? self.experiment?.status() }
+            let response = HelperReply(control: self.lastReply.control, errorCode: errorCode, hardwareExperiment: report)
             reply((try? JSONEncoder().encode(response)) ?? Data())
         }
     }
@@ -117,16 +151,21 @@ final class HelperCoordinator {
 private final class ConnectionEndpoint: NSObject, VentilatorHelperProtocol {
     private let owner = UUID() // Server-generated and never supplied by the client.
     private let coordinator: HelperCoordinator
-    init(_ coordinator: HelperCoordinator) { self.coordinator = coordinator }
     func status(reply: @escaping (Data) -> Void) { coordinator.request(owner: owner, command: "status", sessionID: nil, reply: reply) }
     func installationStatus(_ nonce: String, reply: @escaping (Data) -> Void) { coordinator.installationStatus(nonce: nonce, reply: reply) }
     func startSimulation(reply: @escaping (Data) -> Void) { coordinator.request(owner: owner, command: "start", sessionID: nil, reply: reply) }
     func heartbeat(_ sessionID: String, reply: @escaping (Data) -> Void) { coordinator.request(owner: owner, command: "heartbeat", sessionID: sessionID, reply: reply) }
     func restoreSimulation(_ sessionID: String, reply: @escaping (Data) -> Void) { coordinator.request(owner: owner, command: "restore", sessionID: sessionID, reply: reply) }
-    func prepareHardwareExperiment(reply: @escaping (Data) -> Void) { coordinator.hardwarePreparation(reply: reply) }
+    private let experimental: Bool
+    init(_ coordinator: HelperCoordinator, experimental: Bool) { self.coordinator = coordinator; self.experimental = experimental }
+    func prepareHardwareExperiment(reply: @escaping (Data) -> Void) { coordinator.hardwarePreparation(owner: owner, reply: reply) }
     func startApprovedHardwareExperiment(_ challengeID: String, planSHA256: String, reply: @escaping (Data) -> Void) {
-        coordinator.rejectHardwareStart(challengeID: challengeID, planSHA256: planSHA256, reply: reply)
+        if experimental { coordinator.experimentRequest(owner: owner, command: "start", identifier: challengeID, planSHA256: planSHA256, reply: reply) }
+        else { coordinator.rejectHardwareStart(challengeID: challengeID, planSHA256: planSHA256, reply: reply) }
     }
+    func heartbeatHardwareExperiment(_ sessionID: String, reply: @escaping (Data) -> Void) { coordinator.experimentRequest(owner: owner, command: "heartbeat", identifier: sessionID, reply: reply) }
+    func restoreHardwareExperiment(_ sessionID: String, reply: @escaping (Data) -> Void) { coordinator.experimentRequest(owner: owner, command: "restore", identifier: sessionID, reply: reply) }
+    func hardwareExperimentStatus(reply: @escaping (Data) -> Void) { coordinator.experimentRequest(owner: owner, command: "status", reply: reply) }
     func disconnected() { coordinator.disconnected(owner: owner) }
 }
 
@@ -139,12 +178,18 @@ func bundledCandidatePlan() throws -> CandidateExperimentPlan {
 }
 
 final class HelperServer: NSObject, NSXPCListenerDelegate {
-    enum Acceptance { case anonymousSimulation, signedApplication(proof: SignedBundleProof) }
+    enum Acceptance { case anonymousSimulation, anonymousExperimentModel(boot: UUID), signedApplication(proof: SignedBundleProof) }
     private let acceptance: Acceptance
     private let coordinator: HelperCoordinator
     init(acceptance: Acceptance, directory: URL) throws {
         self.acceptance = acceptance
-        self.coordinator = try HelperCoordinator(directory: directory)
+        let experiment: ExperimentSessionRuntime?
+        switch acceptance {
+        case .anonymousSimulation: experiment = nil
+        case .anonymousExperimentModel(let boot): experiment = try .simulation(directory: directory, boot: boot)
+        case .signedApplication: experiment = try .hardware()
+        }
+        self.coordinator = try HelperCoordinator(directory: directory, experiment: experiment)
     }
 
     func waitForSimulationWorkerExit() throws { try coordinator.waitForSimulationWorkerExit() }
@@ -154,7 +199,9 @@ final class HelperServer: NSObject, NSXPCListenerDelegate {
             guard let requirement = try? SignedBundleInspector.requirement(role: .application, proof: proof) else { return false }
             connection.setCodeSigningRequirement(requirement)
         }
-        let endpoint = ConnectionEndpoint(coordinator)
+        let experimental: Bool
+        if case .anonymousSimulation = acceptance { experimental = false } else { experimental = true }
+        let endpoint = ConnectionEndpoint(coordinator, experimental: experimental)
         connection.exportedInterface = NSXPCInterface(with: VentilatorHelperProtocol.self)
         connection.exportedObject = endpoint
         connection.invalidationHandler = { endpoint.disconnected() }

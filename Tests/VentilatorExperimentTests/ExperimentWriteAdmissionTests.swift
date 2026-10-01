@@ -34,6 +34,26 @@ final class ExperimentWriteAdmissionTests: XCTestCase {
         XCTAssertEqual(try authority.state().ledger?.attempts, [.unlock])
     }
 
+    func testDurableRevocationDoesNotNeedStoppedWritersAuthorityLock() throws {
+        let (folder, authority, reservation) = try fixture()
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let journal = try FileSessionJournal(directory: folder)
+        let ownership = try journal.acquireAuthorityLock(domain: .simulation)
+        defer { withExtendedLifetime(ownership) {} }
+        XCTAssertThrowsError(try authority.closeFixed(sessionID: reservation.ledger.sessionID, now: 2.1))
+        try authority.revokeFixed(sessionID: reservation.ledger.sessionID, now: 2.1)
+        XCTAssertTrue(try authority.fixedRevoked(sessionID: reservation.ledger.sessionID))
+        XCTAssertFalse(try XCTUnwrap(journal.loadAuthorityState(domain: .simulation)?.ledger).fixedClosed)
+        let reopened = try ExperimentAuthority(directory: folder, domain: .simulation)
+        XCTAssertTrue(try reopened.fixedRevoked(sessionID: reservation.ledger.sessionID))
+        XCTAssertThrowsError(try reopened.reserve(step: .manualZero, sessionID: reservation.ledger.sessionID,
+            owner: reservation.ledger.approval.challenge.connectionOwner, boot: reservation.ledger.approval.challenge.bootSession,
+            now: 5, observation: SimulatedStepDevice().observation(at: Date()), date: Date())) {
+            XCTAssertEqual($0 as? ExperimentAuthorityError, .fixedClosed)
+        }
+        XCTAssertThrowsError(try reopened.fixedRevoked(sessionID: UUID()))
+    }
+
     func testExpiredOrBackwardWriteIsRejectedImmediatelyBeforeIO() throws {
         let (folder, authority, reservation) = try fixture()
         defer { try? FileManager.default.removeItem(at: folder) }

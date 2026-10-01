@@ -177,6 +177,7 @@ private final class ProbedModelDevice: ExperimentStepDevice {
         try ExperimentWriteAdmission.validate(reserved: reservation.ledger, current: ledger, step: reservation.step,
             domain: .simulation, sessionID: scope.sessionID, boot: scope.bootSession,
             now: ExperimentMonotonicClock.now(), role: role == .fixed ? .fixed : .restoration)
+        if reservation.step.isFixed, try authority.fixedRevoked(sessionID: scope.sessionID) { throw ExperimentAuthorityError.fixedClosed }
         try model.write(reservation)
         if reservation.step == blockAfterEffect { while true { Thread.sleep(forTimeInterval: 1) } }
     }

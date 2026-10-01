@@ -1,0 +1,13 @@
+Session runtime verification: 2026-10-01T14:12:49+05:00
+UID=501; anonymous XPC and file simulation only, no native open/write, registration or root.
+Runtime XPC model: explicit Auto passed; missing/wrong-owner approval, heartbeat, restore, status and replay; no hardware authority.
+Runtime XPC model: connection invalidation passed; missing/wrong-owner approval, heartbeat, restore, status and replay; no hardware authority.
+Runtime startup model: surviving broker lifetime lock passed; same receipt, no repeated Fixed/Auto.
+Runtime startup model: broker killed, remaining Auto only passed; same receipt, no repeated Fixed/Auto.
+--hardware-broker: non-root refused before native/journal access.
+--hardware-preflight-child: non-root refused before native/journal access.
+Actual route consumed local model approval after isolated nonce/PID/deadline-bound read-only preflight.
+Independent Fixed observation, wrong connection control, explicit Auto, XPC invalidation and spent replay verified.
+Hardware runtime is compiled behind root/installed identity, local hardware receipt and private pipes; positive installed execution remains unverified.
+Hardware pending/physicalAutoVerified=false are retained; no product controls enabled.
+SHA-256 of tested helper: 6d91b2086942d03b3882504810f017a4710c6c31fc0a29f196c46a7ccd65aacc
