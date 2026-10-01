@@ -8,6 +8,10 @@ enum HelperMain {
     static func main() {
         let arguments = Array(CommandLine.arguments.dropFirst())
         do {
+            if arguments == ["--experiment-read-only"] {
+                try experimentReadOnlyCheck()
+                return
+            }
             if arguments.count == 2, arguments[0] == "--approved-model-child" {
                 try runApprovedModelChild(directory: URL(fileURLWithPath: arguments[1], isDirectory: true))
                 return

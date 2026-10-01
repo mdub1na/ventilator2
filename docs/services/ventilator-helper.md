@@ -40,6 +40,10 @@ Worker подключает публичный `IORegisterForSystemPower`: пр�
 
 В helper линкуются `CSMCExperiment` и `VentilatorExperiment`: подготовленные десять нативных операций, проверка подписи/хешей и файловый single-use authority. Нативный factory требует hardware domain и закрытое свидетельство armed recovery, которое текущий worker не выдаёт. Вызовов factory из CLI/XPC нет. `--experiment-protocol-check` проверяет чистые нативные пакеты и полный модельный путь разрешения/записей/Auto на отдельном файле simulation; [подробности](../features/feature-experiment-protocol.md).
 
+`--experiment-read-only` независимо читает FNum/Ftst и обоих вентиляторов без root через `CSMCRead`. Точный профиль/типы, timestamp начала и 0,5-секундный бюджет не позволяют медленному чтению выглядеть свежим. Сам вызов остаётся синхронным и не доказывает cancellable hardware I/O. Native open/write не вызываются; кандидатный preflight не выдаёт одобрение. [Аппаратный read-only результат](../research/evidence/experiment-read-only.json).
+
+Подготовлены `RecoveryProbeClient` и повторная проверка `ExperimentWriteAdmission` перед нативным I/O. Witness требует bound private pipe, hardware domain и свежий ответ на каждый вызов; после ответа вновь читается ledger. Closure отзывает ранее reserved Fixed. Текущий broker модели этим не выдаёт hardware witness; аппаратный handler/issuer всё ещё не подключены.
+
 Отдельный `--approved-model-parent` проверяет надзор за самим writer: private-pipe broker → fixed child → после подтверждённого выхода Auto child. CLI режимы broker/child требуют non-root и наследуемые pipe; domain строго simulation. Протокол scope включает session/owner/boot/hash/lease и nonce. Broker держит отдельный lifetime lock, сохраняет closure до сигнала, не запускает Auto при неподтверждённом выходе и не повторяет зависшую операцию. Файловая модель читается независимо от device-процесса. Это следующий подготовительный путь, ещё не замена симуляционному RPC и не аппаратный восстановитель.
 
 Новый путь использует отложенное подтверждение will-sleep: callback запускает ограниченное восстановление, завершение/отказ освобождает acknowledgement. Старый simulation worker сохраняет синхронный порядок. Реальный сон Mac не запускался. [Проверки broker](../research/evidence/recovery-dry-run.txt) покрывают helper/writer SIGKILL/SIGSTOP, broker SIGTERM, зависания Fixed/Auto, частичный отказ Auto, injected sleep и абсолютный lease. SIGKILL самого broker/питание/SMC-кernel cancellation не доказаны.
@@ -69,6 +73,7 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 | Системные уведомления | `Sources/VentilatorHelper/SystemPowerObserver.swift`, `Sources/CSystemPower/` |
 | Кандидатный план | `Sources/VentilatorControl/CandidateExperimentPlan.swift`, `scripts/prepare-experiment-plan.py` |
 | Подготовленный аппаратный протокол | `Sources/CSMCExperiment/`, `Sources/VentilatorExperiment/`, `Sources/VentilatorControl/ExperimentAuthority.swift` |
+| Read-only наблюдение опыта | `Sources/VentilatorHelper/ExperimentReadOnlyCheck.swift`, `Sources/VentilatorExperiment/ReadOnlyExperimentObserver.swift` |
 | Режимы запуска | `Sources/VentilatorHelper/HelperMain.swift` |
 | Plist и сборка | `Resources/dev.ventilator.helper.plist`, `scripts/build-app.sh` |
 
