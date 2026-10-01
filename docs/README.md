@@ -9,11 +9,12 @@
 - [x] [research-architecture](research/research-architecture.md) — факты о `Mac15,7` на macOS 27, подтверждённое чтение, архитектура и аппаратные ограничения.
 - [x] [research-temperatures](research/research-temperatures.md) — каталог HID/SMC и физическая атрибуция температур.
 
-### Features (3)
+### Features (4)
 
 - [x] [feature-observation](features/feature-observation.md) — read-only показания, шкала и закрытое управление.
 - [x] [feature-control-simulation](features/feature-control-simulation.md) — lease, журнал и восстановление на подставном транспорте.
 - [x] [feature-experiment-protocol](features/feature-experiment-protocol.md) — подготовленный нативный ABI, локальное одобрение полного review, broker/restart модели и закрытый аппаратный старт.
+- [x] [feature-helper-installation](features/feature-helper-installation.md) — подпись/layout, явный lifecycle CLI, pinned XPC диагностика и границы installed проверки.
 
 ### Screens (4)
 

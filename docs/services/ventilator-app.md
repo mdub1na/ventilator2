@@ -16,13 +16,14 @@ publishes: [Ventilator.app]
 
 SwiftPM собирает `VentilatorCore` с read-only C-транспортами `CSMCRead`, `CHIDTemperature` и исполняемый `Ventilator`. Core открывает AppleSMC, читает количество вентиляторов и ключи каждого, декодирует только известные типы. HID независимо читает подтверждённый датчик NAND на точном профиле модели/ОС. Главное приложение опрашивает Core каждые две секунды вне главного потока и передаёт снимок окну и значку. Сетевых интерфейсов и хранилища пользовательских данных нет.
 
-Установленного привилегированного помощника и доступного пути записи из GUI сейчас нет. Bundle содержит [прототип helper](ventilator-helper.md), который не зарегистрирован и не подключён к GUI. Подготовленный writer находится в отдельных модулях, которые GUI не линкует; аппаратный старт helper закрыт. Вызовы `SMAppService.mainApp` присутствуют для будущего автозапуска, но переключатель пока отключён.
+Установленного привилегированного помощника и доступного пути записи из GUI сейчас нет. Bundle содержит [прототип helper](ventilator-helper.md), который не зарегистрирован и не подключён к обычному окну/значку. App CLI теперь содержит signed/installed диагностику и явные lifecycle команды; [проверки и ограничения](../features/feature-helper-installation.md). Приложение не допускает root. Подготовленный writer находится в отдельных модулях, которые GUI не линкует; аппаратный старт helper закрыт. Вызовы `SMAppService.mainApp` присутствуют для будущего автозапуска, но переключатель пока отключён.
 
 ## Code anchors
 
 | Компонент | Code |
 |---|---|
 | Сборка | `Package.swift`, `scripts/build-app.sh` |
+| Подготовленная установка и диагностический XPC | `Sources/VentilatorInstallation/`, `Sources/Ventilator/HelperServiceCLI.swift` |
 | SMC только на чтение | `Sources/CSMCRead/SMCRead.c` |
 | HID NAND и профиль | `Sources/CHIDTemperature/HIDTemperatureRead.c`, `Sources/VentilatorCore/TemperatureSources.swift` |
 | Модель и опрос | `Sources/VentilatorCore/Monitoring.swift` |
