@@ -1,0 +1,13 @@
+Software gates: 2026-10-01T00:56:44+05:00
+Swift tests: 45/45 passed (10 core, 17 control, 18 experiment).
+Independent recovery: 11 process scenarios passed, plus non-quiescence/nonce/clock/late-write unit checks.
+Existing anonymous XPC, worker crash and power callback checks passed.
+Docs: 11 documents, 30 BDD scenarios; docs_check --on-main passed.
+C writer: clang -Wall -Wextra -Werror syntax check passed.
+App/helper: codesign --verify --strict passed (ad hoc); 0 valid identities in keychain.
+GUI: no SMCExperiment open/write symbols; helper contains the prepared writer.
+Candidate schema: 2, readyForOwnerApproval=false, exact binary fingerprints matched.
+Plan SHA-256: f0dbda197bb6e51409339a27a97d20d9555e0e9909bee27b9932ffa1239a25c7
+Helper SHA-256: 335e3dea39dd715d786eca206cd613700531a7c654e2d82999539b129456e072
+No native positive open/write, sudo, installation or actual sleep performed.
+Hardware broker integration, local hardware issuer and signed installed validation remain pending.

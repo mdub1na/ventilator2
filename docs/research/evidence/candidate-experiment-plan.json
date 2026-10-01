@@ -1,0 +1,121 @@
+{
+  "blockers" : [
+    "hardwareRecoveryBrokerNotConnected",
+    "localApprovalIssuerNotConnected",
+    "installedSignedHelperUnverified",
+    "ownerSessionInstructionsPending",
+    "physicalRecoveryUnverified",
+    "realSleepDeliveryUnverified"
+  ],
+  "hardwareWritesExecuted" : 0,
+  "plan" : {
+    "binaries" : {
+      "applicationSHA256" : "bad043bcf40b9b553e9772e59dcf44ba9f48cb5133c21f787923b72d4623821c",
+      "helperSHA256" : "335e3dea39dd715d786eca206cd613700531a7c654e2d82999539b129456e072"
+    },
+    "fans" : [
+      {
+        "index" : 0,
+        "maximumRPM" : 5349,
+        "minimumRPM" : 1350
+      },
+      {
+        "index" : 1,
+        "maximumRPM" : 5777,
+        "minimumRPM" : 1458
+      }
+    ],
+    "fixedObservationDeadlineSeconds" : 5,
+    "fixedWrites" : [
+      {
+        "dataType" : "ui8 ",
+        "key" : "Ftst",
+        "maximumAttempts" : 1,
+        "payloadHex" : "01",
+        "prerequisite" : "approvedPreflightAndArmedRecovery"
+      },
+      {
+        "dataType" : "ui8 ",
+        "key" : "F0Md",
+        "maximumAttempts" : 1,
+        "payloadHex" : "01",
+        "prerequisite" : "threeSecondWaitAndValidLease"
+      },
+      {
+        "dataType" : "ui8 ",
+        "key" : "F1Md",
+        "maximumAttempts" : 1,
+        "payloadHex" : "01",
+        "prerequisite" : "precedingWriteSucceededAndValidLease"
+      },
+      {
+        "dataType" : "flt ",
+        "key" : "F0Tg",
+        "maximumAttempts" : 1,
+        "payloadHex" : "00401c45",
+        "prerequisite" : "bothFansObservedManualAndValidLease"
+      },
+      {
+        "dataType" : "flt ",
+        "key" : "F1Tg",
+        "maximumAttempts" : 1,
+        "payloadHex" : "00401c45",
+        "prerequisite" : "precedingWriteSucceededAndValidLease"
+      }
+    ],
+    "heartbeatSeconds" : 2,
+    "leaseSeconds" : 10,
+    "macOSBuild" : "26A428",
+    "macOSVersion" : "27.0.0",
+    "maximumFixedRuns" : 1,
+    "maximumOwnerRecoveryRuns" : 1,
+    "maximumRestoreRuns" : 1,
+    "modelIdentifier" : "Mac15,7",
+    "operationDeadlineSeconds" : 0.5,
+    "readyForOwnerApproval" : false,
+    "restorationDeadlineSeconds" : 8,
+    "restoreWrites" : [
+      {
+        "dataType" : "ui8 ",
+        "key" : "F0Md",
+        "maximumAttempts" : 1,
+        "payloadHex" : "00",
+        "prerequisite" : "pendingRecordAndWriterExited"
+      },
+      {
+        "dataType" : "ui8 ",
+        "key" : "F1Md",
+        "maximumAttempts" : 1,
+        "payloadHex" : "00",
+        "prerequisite" : "writerExitedEvenIfOtherFanFailed"
+      },
+      {
+        "dataType" : "flt ",
+        "key" : "F0Tg",
+        "maximumAttempts" : 1,
+        "payloadHex" : "00000000",
+        "prerequisite" : "fanZeroObservedNonManual"
+      },
+      {
+        "dataType" : "flt ",
+        "key" : "F1Tg",
+        "maximumAttempts" : 1,
+        "payloadHex" : "00000000",
+        "prerequisite" : "fanOneObservedNonManual"
+      },
+      {
+        "dataType" : "ui8 ",
+        "key" : "Ftst",
+        "maximumAttempts" : 1,
+        "payloadHex" : "00",
+        "prerequisite" : "bothFansObservedNonManual"
+      }
+    ],
+    "schemaVersion" : 2,
+    "stage" : "candidate-unapproved",
+    "targetRPM" : 2500,
+    "unlockWaitSeconds" : 3,
+    "writerQuiescenceDeadlineSeconds" : 1
+  },
+  "planSHA256" : "f0dbda197bb6e51409339a27a97d20d9555e0e9909bee27b9932ffa1239a25c7"
+}

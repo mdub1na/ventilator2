@@ -1,0 +1,18 @@
+[
+  {
+    "checksum": 4.959802845406375,
+    "end": 1790778251.2036061,
+    "phase": "cpu",
+    "start": 1790778241.2034569,
+    "status": "completed",
+    "workers": 2
+  },
+  {
+    "commandsCompleted": 13562,
+    "device": "Apple M3 Pro",
+    "end": 1790778269.346077,
+    "phase": "gpu",
+    "start": 1790778259.345621,
+    "status": "completed"
+  }
+]
