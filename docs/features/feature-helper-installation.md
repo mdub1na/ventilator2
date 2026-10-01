@@ -12,7 +12,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Реализованы диагностика bundle, явные app CLI-команды управления регистрацией и ограниченный XPC handshake. Владелец подписал предыдущий пакет; исправленный inspector и отдельная online qualification подтвердили обе подписи и публичный сертификат. **Root/installed путь не запускался.** Новая сборка ad hoc требует повторной подписи владельцем; helper не зарегистрирован. Это подготовленный gate M2, не аппаратная готовность. GUI-кнопки RPM остаются отключёнными.
+Реализованы диагностика bundle, явные app CLI-команды управления регистрацией и ограниченный XPC handshake. Владелец подписал и установил прежний пакет: native static/dynamic подписи, root ownership, installed path и совпадение seal подтверждены. **Первая регистрация остановилась до framework register**, privileged XPC не проверен. Новая исправленная сборка ad hoc требует подписи/замены владельцем. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
 
 ## Проверки и границы
 
@@ -36,16 +36,18 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 |---|---|
 | `--helper-status` | Диагностика подписи, местоположения, прав, регистрации; при enabled и валидном bundle проверяется XPC. Ошибка отражается в JSON. Регистрацию не меняет. |
 | `--verify-installed-helper` | Та же проверка; exit 78, если helper не подтверждён. |
-| `--register-helper` | После native identity/layout/ownership gate вызывает register только для notRegistered. Enabled/requiresApproval не регистрируются повторно. Системные настройки автоматически не открываются. |
+| `--register-helper` | После native identity/layout/ownership gate один раз вызывает register для notRegistered/notFound. Enabled/requiresApproval не регистрируются повторно. Framework error сохраняется, автоматического retry нет. |
 | `--unregister-helper` | После identity gate и живого enabled XPC запрещает удаление при pending hardware или активной/неопределённой simulation. Для notRegistered — без изменения. |
 
-Положительная регистрация требует административного одобрения по [Apple](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). `enabled` означает допуск службы, не подтверждение процесса. Эти команды подготовлены для единого сеанса владельца и **не выполнялись для установки**. На ad hoc bundle register/unregister отказали до вызова SMAppService; состояние осталось `notFound`. Удаление неготовой/недоступной службы сейчас отказывает; остановка процесса при положительном unregister ещё не проверена.
+Положительная регистрация требует административного одобрения по [Apple](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). `enabled` означает допуск службы, не подтверждение процесса. На ad hoc bundle register/unregister отказывают до framework mutation. На owner-signed installed bundle status=notFound: системный журнал подтвердил отсутствие BTM record, а не повреждённый plist. Прежний код ошибочно превращал это состояние в invalidLayout и не вызывал первую регистрацию; исправлен переход. [Фактический результат](../research/evidence/owner-registration-failure.json). Положительная регистрация, privileged XPC и unregister ещё не проверены.
+
+`owner-session.py replace-installed` допускает только точные прежние signed hashes из manifest, native trusted/root-owned/installed identity, notFound/notRegistered с serviceNotEnabled и отсутствие любого `/Library/Application Support/Ventilator`. Сначала staging копируется/chown/chmod и проверяется native inspector, затем прежняя установка проверяется повторно и сохраняется как backup; только после этого новая переносится на fixed path. Existing stage/backup и одноразовый marker блокируют повтор; ошибка ничего не удаляет. Pure policy и orchestration с mocked внешними командами проверены; реальная privileged замена требует владельца по [полному плану](../owner-session.md).
 
 ## Подпись без диалогов
 
 `scripts/sign-app-without-ui.py` читает public fingerprint настроенных identities, исключает явно flagged записи и требует единственного кандидата. Wrapper `tools/sign_without_ui.swift` сначала создаёт отдельную security session без graphics/TTY и проверяет эти атрибуты. Только после этого разрешён exec `/usr/bin/codesign` для собственного staging bundle в `.build`; исходный ad hoc bundle сохраняется. Keychain не разблокируется, ключи не экспортируются, ACL не изменяются. После обеих подписей нужны strict verify и native inspector.
 
-На текущем Mac SessionCreate вернул `OSStatus=100001`, wrapper завершился до codesign. [Результат](../research/evidence/installation-signing.json): `signed=false`, `signingAttempted=false`, `headlessSecuritySessionUnavailable`. Это результат прежней бездиалоговой попытки. Последующая подпись владельцем прошла, но старый qualification завершился exit 78 из-за нашего недопустимого флага; seal не появился. Исправленная read-only qualification сохранённых файлов прошла с Team `4659S5GD6X` и positive revocation. Новая сборка/план требуют нового пакета и подписи владельцем. Копирование root-owned bundle, административное одобрение и проверка установки входят в [единый сеанс](../owner-session.md). Установка/удаление, настоящий сон и аппаратный опыт остаются непроверенными.
+На текущем Mac SessionCreate вернул `OSStatus=100001`, wrapper завершился до codesign. [Результат](../research/evidence/installation-signing.json): `signed=false`, `signingAttempted=false`, `headlessSecuritySessionUnavailable`. Это прежняя бездиалоговая попытка. Подпись владельцем затем прошла, но старый qualification завершился exit 78 из-за недопустимого флага. После исправления владелец повторно подписал пакет, создал seal и установил root-owned bundle; эти gates подтверждены на реальных файлах. Первая регистрация остановилась на неверной предварительной проверке notFound. Новая сборка требует подписи и ограниченной замены; положительная регистрация/удаление, настоящий сон и аппаратный опыт ещё не проверены.
 
 ## Code anchors
 
@@ -115,3 +117,19 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 **Тогда:** допустимый requirement проходит static/dynamic проверку, чужой identifier отвергается; ошибка invalid flags не маскирует результат.
 
 **Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testValidationFlagsAreAcceptedByNativeAPIAndRejectWrongRequirement`
+
+### Scenario: Первая регистрация не требует существующей BTM record
+
+**Дано:** identity/layout gates прошли, preliminary status notFound либо notRegistered.
+**Когда:** владелец вызывает register.
+**Тогда:** framework вызывается один раз; его ошибка сохраняется без retry, enabled/requiresApproval не регистрируются повторно.
+
+**Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testFirstRegistrationDoesNotRequireExistingServiceRecord`, `Tests/VentilatorInstallationTests/InstallationTests.swift::testFirstRegistrationPreservesFrameworkErrorWithoutRetry`
+
+### Scenario: Замена не затрагивает активную или изменённую установку
+
+**Дано:** pinned previous fingerprint и replacement package.
+**Когда:** registration/identity/hash/journal не удовлетворяют policy либо installed hash меняется во время staging.
+**Тогда:** замена отвергнута; после изменения hash обе mv-команды не выполняются, marker сохраняется. Успех модели сохраняет старый bundle до переноса нового.
+
+**Automated:** `scripts/owner-session-dry-run.py`

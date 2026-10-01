@@ -35,13 +35,18 @@ public enum HelperServiceController {
     public static func register() throws -> HelperServiceReport {
         _ = try SignedBundleInspector.requireCurrentProcess(role: .application)
         let service = SMAppService.daemon(plistName: SignedBundleInspector.plistName)
-        switch service.status {
-        case .notRegistered: try service.register()
+        try registerIfNeeded(status: service.status, registration: service.register)
+        return status()
+    }
+
+    internal static func registerIfNeeded(status: SMAppService.Status, registration: () throws -> Void) throws {
+        switch status {
+        // On this Mac a new daemon has no BTM record and reports notFound before register.
+        // The caller already verified the signed layout; let the framework register or report its error.
+        case .notRegistered, .notFound: try registration()
         case .enabled, .requiresApproval: break
-        case .notFound: throw InstallationError.invalidLayout
         @unknown default: throw InstallationError.serviceNotEnabled
         }
-        return status()
     }
 
     public static func unregister() throws -> HelperServiceReport {

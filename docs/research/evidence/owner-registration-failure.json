@@ -1,0 +1,84 @@
+{
+  "verifiedAt": "2026-10-02T01:18:10+05:00",
+  "ownerRegisterExit": 78,
+  "ownerRegisterError": "invalidLayout",
+  "signedSeal": {
+    "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+    "fingerprint": {
+      "applicationSHA256": "0a1aac6866239bb78eda03b88107c01c17d119c9595874f4c156317fd9f96a9c",
+      "helperSHA256": "9c0a164d1fb6c56651402908471fac49f8704d99d5d1ab62bdefef4914fae7aa",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "notarizationClaimed": false,
+    "positiveRevocation": true,
+    "teamIdentifier": "4659S5GD6X"
+  },
+  "installedReadOnlyStatus": {
+    "error": "serviceNotEnabled",
+    "fingerprint": {
+      "applicationSHA256": "0a1aac6866239bb78eda03b88107c01c17d119c9595874f4c156317fd9f96a9c",
+      "helperSHA256": "9c0a164d1fb6c56651402908471fac49f8704d99d5d1ab62bdefef4914fae7aa",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": false,
+    "installedLocation": true,
+    "registration": "notFound",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "origin": "HelperServiceController.register maps pre-registration SMAppService.Status.notFound to invalidLayout after requireCurrentProcess passed. Framework register was not called.",
+  "scope": "Status only; no developer register/install/private-key access/native writer. No hardware approval/run reported.",
+  "systemLogEvidence": {
+    "time": "2026-10-02 01:13:10.146 +05:00",
+    "process": "backgroundtaskmanagementd",
+    "message": "effectiveItemDisposition: record not found",
+    "applicationURL": "/Applications/Ventilator.app",
+    "daemonPlist": "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist",
+    "label": "dev.ventilator.helper",
+    "configurationSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+  },
+  "interpretation": "Framework resolved the correct installed app and plist/configuration. Its status lookup found no BTM record. Our precondition prevented the first register call. A future actual register result remains unverified.",
+  "correctedBuildPublicCertificateQualification": {
+    "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+    "fingerprint": {
+      "applicationSHA256": "0a1aac6866239bb78eda03b88107c01c17d119c9595874f4c156317fd9f96a9c",
+      "helperSHA256": "9c0a164d1fb6c56651402908471fac49f8704d99d5d1ab62bdefef4914fae7aa",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "notarizationClaimed": false,
+    "positiveRevocation": true,
+    "teamIdentifier": "4659S5GD6X"
+  },
+  "failedPackagePreservedAt": ".build/owner-session-2026-10-02-register-failed",
+  "replacementPackage": {
+    "manifest": {
+      "candidatePlanSHA256": "f648c927618714a724eb9787e5ed9e004d61310e172297d974442f570fec0940",
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "fingerprint": {
+        "applicationSHA256": "4d21fd25f25a81d0992e79abe88963bc20342e212b5234315a57c447ac2a8c89",
+        "helperSHA256": "e9d3bc41f44b41d77f33e9a126a3b7111770361d23493a59dafe447c8d09ba1b",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareWritesExecuted": 0,
+      "installedReplacement": {
+        "applicationSHA256": "0a1aac6866239bb78eda03b88107c01c17d119c9595874f4c156317fd9f96a9c",
+        "helperSHA256": "9c0a164d1fb6c56651402908471fac49f8704d99d5d1ab62bdefef4914fae7aa",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "packageFiles": {
+        "PLAN.md": "115d61d0a99c15f87b01959fa6deb17b30cc4646305c7e43c8f91adf4b50b4be",
+        "session.py": "f2e26ab0ab9a6d90c932bb50c83c477f9075296f3ec063c6f900879f1871dc63"
+      },
+      "schema": 1,
+      "signed": false,
+      "teamIdentifier": "4659S5GD6X"
+    },
+    "signed": false,
+    "installed": false,
+    "hardwareWritesExecuted": 0
+  },
+  "hardwareDirectoryAbsentAtVerification": true,
+  "protectedReplacementExecuted": false,
+  "actualFrameworkRegistrationExecuted": false
+}

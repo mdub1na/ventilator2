@@ -12,8 +12,12 @@ import sys
 CERTIFICATE = "4895C06FF7407EAF5F350E78CF23D0B41AD466C9"
 TEAM = "4659S5GD6X"
 INSTALLED = Path("/Applications/Ventilator.app")
+REPLACEMENT_STAGE = Path("/Applications/Ventilator-registration-fix-staging.app")
+REPLACEMENT_BACKUP = Path("/Applications/Ventilator-before-registration-fix.app")
+HARDWARE_ROOT = Path("/Library/Application Support/Ventilator")
 ROOT = Path(__file__).resolve().parents[1] if Path(__file__).parent.name == "scripts" else None
 SESSION = ROOT / ".build/owner-session" if ROOT else Path(__file__).resolve().parent
+PREVIOUS_SESSION = None
 
 
 def sha(path):
@@ -109,10 +113,18 @@ def prepare():
     shutil.copytree(ROOT / ".build/Ventilator.app", SESSION / "Ventilator.app", symlinks=False)
     shutil.copyfile(__file__, SESSION / "session.py")
     (SESSION / "PLAN.md").write_text(instructions)
-    save("manifest.json", {"schema": 1, "certificateSHA1": CERTIFICATE, "teamIdentifier": TEAM,
+    manifest = {"schema": 1, "certificateSHA1": CERTIFICATE, "teamIdentifier": TEAM,
         "fingerprint": fingerprints(SESSION / "Ventilator.app"), "candidatePlanSHA256": plan["planSHA256"],
         "packageFiles": {n: sha(SESSION / n) for n in ["session.py", "PLAN.md"]},
-        "hardwareWritesExecuted": 0, "signed": False})
+        "hardwareWritesExecuted": 0, "signed": False}
+    if PREVIOUS_SESSION:
+        previous = json.loads((PREVIOUS_SESSION / "sealed.json").read_text())
+        if previous["certificateSHA1"] != CERTIFICATE or previous["teamIdentifier"] != TEAM or not previous["positiveRevocation"]:
+            raise RuntimeError("Unexpected previous signed package")
+        if fingerprints(PREVIOUS_SESSION / "Ventilator.app") != previous["fingerprint"]:
+            raise RuntimeError("Previous signed package changed")
+        manifest["installedReplacement"] = previous["fingerprint"]
+    save("manifest.json", manifest)
     print(f"Prepared {SESSION}. No signing, install, sudo or hardware writes.")
 
 
@@ -156,6 +168,55 @@ def install():
     print("Copied exact signed bundle; registration has not been requested.")
 
 
+def admit_replacement(report, actual, previous, hardware_root_exists):
+    if hardware_root_exists:
+        raise RuntimeError("Hardware journal directory exists; replacement forbidden, retain state for diagnosis")
+    if actual != previous or report.get("fingerprint") != previous:
+        raise RuntimeError("Installed bundle differs from the pinned previous package")
+    if not all(report.get(k) is True for k in ["trustedBundle", "rootOwned", "installedLocation"]):
+        raise RuntimeError("Previous installed identity/ownership not verified")
+    if report.get("registration") not in ["notFound", "notRegistered"] or report.get("error") != "serviceNotEnabled" or \
+            report.get("helperVerified") is not False or report.get("hardwareControlAvailable") is not False:
+        raise RuntimeError("Replacement requires an unregistered, inactive helper")
+
+
+def replace_installed():
+    owner_terminal()
+    manifest = check(sealed=True)
+    previous = manifest.get("installedReplacement")
+    if previous is None:
+        raise RuntimeError("This package has no pinned previous installation")
+
+    def verify_previous():
+        # lstat fails closed on permission errors; any directory, file or symlink blocks replacement.
+        try:
+            HARDWARE_ROOT.lstat()
+            hardware_exists = True
+        except FileNotFoundError:
+            hardware_exists = False
+        report = json.loads(output([files(INSTALLED)["applicationSHA256"], "--helper-status"]))
+        admit_replacement(report, fingerprints(INSTALLED), previous, hardware_exists)
+
+    verify_previous()
+    if os.path.lexists(REPLACEMENT_STAGE) or os.path.lexists(REPLACEMENT_BACKUP):
+        raise RuntimeError("Replacement staging/backup already exists; preserve it and stop")
+    save("replacement-started.json", {"previous": previous, "hardwareWritesExecuted": 0})
+    for command in [["sudo", "/usr/bin/ditto", str(SESSION / "Ventilator.app"), str(REPLACEMENT_STAGE)],
+                    ["sudo", "/usr/sbin/chown", "-R", "root:wheel", str(REPLACEMENT_STAGE)],
+                    ["sudo", "/bin/chmod", "-R", "go-w", str(REPLACEMENT_STAGE)]]:
+        subprocess.run(command, check=True)
+    staged = json.loads(output([files(REPLACEMENT_STAGE)["applicationSHA256"], "--helper-status"]))
+    seal = json.loads((SESSION / "sealed.json").read_text())
+    if staged.get("trustedBundle") is not True or staged.get("rootOwned") is not True or staged.get("fingerprint") != seal["fingerprint"]:
+        raise RuntimeError("Staged signed/root-owned bundle not verified")
+    verify_previous()
+    subprocess.run(["sudo", "/bin/mv", str(INSTALLED), str(REPLACEMENT_BACKUP)], check=True)
+    subprocess.run(["sudo", "/bin/mv", str(REPLACEMENT_STAGE), str(INSTALLED)], check=True)
+    installed_check()
+    save("replacement-completed.json", {"previous": previous, "fingerprint": seal["fingerprint"], "hardwareWritesExecuted": 0})
+    print("Replaced exact unregistered bundle; old signed app preserved at", REPLACEMENT_BACKUP)
+
+
 def service(command):
     owner_terminal(); installed_check()
     subprocess.run([str(files(INSTALLED)["applicationSHA256"]), command], check=True)
@@ -197,19 +258,24 @@ def collect():
 
 
 def main():
-    global SESSION
+    global SESSION, PREVIOUS_SESSION
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["prepare", "check", "sign", "install", "register", "ready", "run", "collect", "unregister"])
+    parser.add_argument("command", choices=["prepare", "check", "sign", "install", "replace-installed", "register", "ready", "run", "collect", "unregister"])
     parser.add_argument("--output", type=Path, help="Repository-only prepare/check output under .build")
+    parser.add_argument("--previous-session", type=Path, help="Prepare a pinned replacement from a preserved signed package under .build")
     args = parser.parse_args()
     if args.output:
         if ROOT is None or args.command not in ["prepare", "check"] or not args.output.resolve().is_relative_to(ROOT / ".build"):
             raise RuntimeError("Custom output allowed only for offline prepare/check under .build")
         SESSION = args.output.resolve()
+    if args.previous_session:
+        if ROOT is None or args.command != "prepare" or not args.previous_session.resolve().is_relative_to(ROOT / ".build"):
+            raise RuntimeError("Previous session allowed only for repository prepare under .build")
+        PREVIOUS_SESSION = args.previous_session.resolve()
     if os.geteuid() == 0:
         raise RuntimeError("Run without root; only listed child commands may use owner sudo")
     actions = {"prepare": prepare, "check": lambda: print(json.dumps(check(sealed=(SESSION / "sealed.json").exists()), indent=2)),
-        "sign": sign, "install": install, "register": lambda: service("--register-helper"), "ready": ready,
+        "sign": sign, "install": install, "replace-installed": replace_installed, "register": lambda: service("--register-helper"), "ready": ready,
         "run": run, "collect": collect, "unregister": lambda: service("--unregister-helper")}
     actions[args.command]()
 
