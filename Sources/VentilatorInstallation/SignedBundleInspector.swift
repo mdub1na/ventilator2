@@ -35,7 +35,9 @@ public enum SignedBundleInspector {
     public static let installedPath = "/Applications/Ventilator.app"
     public static let plistName = "dev.ventilator.helper.plist"
     public static let machService = "dev.ventilator.helper"
-    private static let offlineFlags: SecCSFlags = [.considerExpiration, .checkTrustedAnchors, .noNetworkAccess]
+    // checkTrustedAnchors is rejected by validation on this macOS (errSecCSInvalidFlags).
+    // Apple anchoring is required by the explicit requirement; expiry/network policy stays enforced.
+    internal static let offlineFlags: SecCSFlags = [.considerExpiration, .noNetworkAccess]
     public enum Role: Equatable { case application, helper }
 
     public static func currentBundleURL() -> URL {
@@ -124,6 +126,22 @@ public enum SignedBundleInspector {
             offlineFlags.rawValue)
         let result = SecStaticCodeCheckValidity(code, flags, requirement)
         guard result == errSecSuccess else { throw InstallationError.signatureRejected(result) }
+        // Check X.509 validity/system anchors without requiring a freshly cached OCSP response on
+        // the bounded device path. Code signing/Apple identity is validated above; the owner
+        // qualification separately requires positive online CodeSigning + revocation evaluation.
+        guard let certificates = info[kSecCodeInfoCertificates as String] as? [SecCertificate],
+              !certificates.isEmpty else {
+            throw InstallationError.appleSignatureRequired
+        }
+        var trust: SecTrust?
+        guard SecTrustCreateWithCertificates(certificates as CFArray, SecPolicyCreateBasicX509(), &trust) == errSecSuccess,
+              let trust, SecTrustSetNetworkFetchAllowed(trust, false) == errSecSuccess else {
+            throw InstallationError.appleSignatureRequired
+        }
+        var error: CFError?
+        guard SecTrustEvaluateWithError(trust, &error) else {
+            throw error.map { $0 as Error } ?? InstallationError.appleSignatureRequired
+        }
         return (team, cdhash.map { String(format: "%02x", $0) }.joined())
     }
     internal static func validateRuntimePolicy(flags: UInt32, entitlements: [String: Any]) throws {

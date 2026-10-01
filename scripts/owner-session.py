@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 CERTIFICATE = "4895C06FF7407EAF5F350E78CF23D0B41AD466C9"
-TEAM = "568959LQ99"
+TEAM = "4659S5GD6X"
 INSTALLED = Path("/Applications/Ventilator.app")
 ROOT = Path(__file__).resolve().parents[1] if Path(__file__).parent.name == "scripts" else None
 SESSION = ROOT / ".build/owner-session" if ROOT else Path(__file__).resolve().parent
@@ -43,8 +43,11 @@ def save(name, value):
 
 
 def output(command, timeout=5):
-    return subprocess.run([str(x) for x in command], check=True, capture_output=True,
-                          text=True, timeout=timeout).stdout
+    result = subprocess.run([str(x) for x in command], capture_output=True, text=True, timeout=timeout)
+    if result.returncode != 0:
+        details = result.stderr.strip() or result.stdout.strip() or "No diagnostic output"
+        raise RuntimeError(f"{Path(str(command[0])).name} exited {result.returncode}: {details}")
+    return result.stdout
 
 
 def candidate(bundle):
@@ -65,6 +68,8 @@ def check(sealed=False):
             raise RuntimeError(f"Package changed: {name}")
     reference = json.loads((SESSION / "sealed.json").read_text())["fingerprint"] if sealed else manifest["fingerprint"]
     if fingerprints(SESSION / "Ventilator.app") != reference:
+        if not sealed and (SESSION / "sign-started.json").exists():
+            raise RuntimeError("Signing began but qualification/seal did not complete. Do not repeat sign or install; send the STOP output to the developer")
         raise RuntimeError("Bundle changed")
     if sealed:
         review = json.loads((SESSION / "review.json").read_text())
@@ -183,7 +188,7 @@ def collect():
         ("audit", ["sudo", files(INSTALLED)["helperSHA256"], "--owner-hardware-audit"])]:
         try:
             report[name] = json.loads(output(command, timeout=10))
-        except (subprocess.SubprocessError, ValueError) as error:
+        except (RuntimeError, subprocess.SubprocessError, ValueError) as error:
             report[name] = {"error": str(error)}
     outcome = report.get("audit", {}).get("outcome", {})
     report["independentObservations"] = [{"stage": x["stage"], "sample": json.loads(x["sampleJSON"])} for x in outcome.get("observations", [])]

@@ -1,29 +1,28 @@
-Software gates: 2026-10-01, codex/owner-session-package; base main c0edff5 (merged PR #7).
-Swift tests: 98/98 passed (10 core, 22 control, 56 experiment, 10 installation).
-17 independent recovery cases, 6 TTY/domain groups and 6 broker restart cases passed.
-Four XPC/runtime/startup model cases passed, now asserting persisted independent baseline/Fixed/three Auto snapshots.
-Actual model RPM 2400 is distinct from target 2500; no physical qualification inferred.
-New real-rename/fd tests cover atomic snapshot nlink=0 while preserving hardlink/private-permission/lock rejection.
-Concurrent runtime regression exposed a false permission failure after atomic rename; repaired and full gates rerun successfully.
-Owner package dry-run passed: copied manifest/fingerprints, modified plan refusal, seven Terminal-only mutation refusals,
-full 13449-byte UTF-8 review imported through actual model CLI with identical Python/Swift canonical digest;
-no approval/ledger/device created; wrong digest/symlink and ad hoc/non-root hardware entries refused.
-Installed owner client holds one nonce/CDHash/audit-token verified connection; native positive remains unverified.
-Certificate positive revocation policy is compiled, externally bounded to 20s by owner signing command;
-only ad hoc negative was executed, no private key or online positive tested.
-Strict ad hoc app/helper signature verification and GUI writer-symbol isolation passed.
-Current native read-only sample: Mac15,7 / 27.0.0 / 26A428, UID 501, Ftst 0, modes 3/3,
-actual/target 0/0, exact ranges, nominal pressure. Read duration 0.002569s; no native writer open/write.
-Docs: 13 documents / 65 BDD; docs_check --on-main passed.
-Offline owner package prepared locally in .build/owner-session; manifest copied to owner-session-package.json.
-Manifest binds tested ad hoc binaries, launch plist, full PLAN and session.py; no signing/install performed.
-Signing will change Mach-O; sealed.json and canonical review bind actual signed hashes before one local root TTY APPROVE.
-Candidate schema 3, readyForOwnerApproval=false; all process evidence matches final helper fingerprint.
-Plan SHA-256: 77051690548ba359382a3546703d9160833da518f846f771a756984520a52f8e
-Helper SHA-256: edbc8b0a93eee5693f66eff1903c2901a4fd27f129c70cf6f41fd4e72877f92a
-Application SHA-256: 1bb278033159a5cb0e14c732d167311d9886dc7693ad32eeefb2d8014ee018e8
-Hardware pending is retained even after observed Auto codes; physicalAutoVerified=false; GUI controls remain disabled.
-Prior headless signing SessionCreate failure 100001 is unchanged; candidate identity not positively qualified.
-Positive Apple-issued signing/revocation/installation/root XPC/native runtime/physical Auto and actual sleep remain unverified.
-No root, sudo, install, real sleep, SMCExperimentOpen or SMCExperimentWriteStep performed.
-Next action requires owner: read docs/owner-session.md, sign/qualify/install/enable helper and locally approve one sealed experiment.
+Software gates: 2026-10-02T01:07:15+05:00; codex/fix-owner-signing-validation; base main 8cc9f3a (merged PR #8).
+Swift tests: 99/99 passed (10 core, 22 control, 56 experiment, 11 installation).
+Real Security static/dynamic validation accepted the production offline flags; wrong identifier rejected.
+17 independent process recovery cases, 6 TTY/domain groups and 6 broker restart cases passed on the current helper.
+Four XPC/runtime/startup model cases passed; independent baseline/Fixed/three Auto snapshots retained.
+Control, installation and owner package dry-runs passed without root/native writes.
+Owner full 14548-byte canonical UTF-8 review imported by the real model CLI; Python/Swift digest matched.
+Subprocess errors preserve underlying stderr and exit status; collector continues other diagnostics after a read failure.
+Strict ad hoc app/helper signatures and GUI writer-symbol isolation passed.
+Saved owner-signed previous bundle passed strict codesign and the corrected actual public-certificate CLI qualification;
+certificate 4895C06FF7407EAF5F350E78CF23D0B41AD466C9; actual Team 4659S5GD6X; positiveRevocation=true; notarizationClaimed=false.
+Prior signing gate rejected checkTrustedAnchors with -67070 (invalid flags), not certificate revocation.
+Actual flag matrix, signed hashes, trust diagnostics and qualification are in owner-signing-validation.json.
+Only owner performed private-key signing. Developer diagnostics read existing signatures/public certificate; no signing retry/private-key access.
+Old signed executable validation is faulty; entire failed package preserved in .build/owner-session-2026-10-02-sign-failed.
+Revised unsigned owner package prepared in .build/owner-session and fingerprint check passed; owner must sign the revised binaries.
+Native read-only sample: Mac15,7 / 27.0.0 / 26A428; Ftst=0, modes=3/3, actual/target 0/0;
+ranges F0 1350-5349 / F1 1458-5777; nominal pressure; read duration 0.003014s; hardwareWritesExecuted=0.
+Docs: 13 documents / 67 BDD; docs_check --on-main passed with existing .venv-docs PyYAML.
+Candidate schema 3, readyForOwnerApproval=false; process evidence matches current helper fingerprint.
+Candidate SHA-256: a9e84d825a8c3f7c4c557c1b01970cab9f0fe6221118ad4b56e1d8b1ad0de1f2
+Application SHA-256: 61025c6fcd3d8a9d5c9fa4649fe0b9a4dfe5d3b6c89d2ad4851210a9062a48a9
+Helper SHA-256: ab4571832312b08d9ecedc2ba634b3ca54ae49913f438e1ce76ea36d65f36097
+Owner PLAN SHA-256: 24b91ff96e696056f193295b7317b5e2ee3ebfc02e154094a9c0a80e1303528b
+Owner script SHA-256: df2fd47b3fd9feeb2be31e1dea7d54c0476300f975462e59bdbc242972a67c4c
+No root, sudo, helper installation/registration, real sleep, SMCExperimentOpen or SMCExperimentWriteStep performed.
+New owner-signed/installed root XPC/native Fixed/physical Auto/sleep remain unverified; GUI read-only and physicalAutoVerified=false.
+Next owner sequence: revised check/sign -> install/register/enable/ready -> run in A, local APPROVE in B -> START in A -> collect.

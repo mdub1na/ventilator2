@@ -1,4 +1,4 @@
-M2 simulation verification: 2026-10-01T14:53:07+05:00
+M2 simulation verification: 2026-10-02T01:02:53+05:00
 Effective UID: 501. No helper registration, sudo or SMC writes.
 XPC loopback: status, empty installation refusal, hardware preparation/refusal, malformed approval, simulation start, owner binding, heartbeat and restore passed; hardwareControlAvailable=false
 Experiment protocol: ten native packet descriptions match plan; simulated approval/steps/Auto-code reads passed; persisted approval replay refused. No native open/write called.
@@ -8,8 +8,8 @@ Default daemon mode refused in the ad hoc/non-root test context (exit 78).
 SIGKILL of simulated helper: pending file survived; new process requested simulated Auto only,
 observed three separated Auto-code samples and removed the marker. Temporary directory cleaned.
 SIGKILL of helper with live worker: autoCodeObserved/helperExited; effects fixed2500, auto exactly once; worker finished after 2.33s; power registration=True.
-SIGSTOP of helper with live worker: autoCodeObserved/heartbeatLost; effects fixed2500, auto exactly once; worker finished after 4.34s; power registration=True.
+SIGSTOP of helper with live worker: autoCodeObserved/heartbeatLost; effects fixed2500, auto exactly once; worker finished after 4.32s; power registration=True.
 SIGTERM of simulation worker: autoCodeObserved/systemShutdown; effects fixed2500, auto exactly once; worker finished after 3.34s; power registration=True.
 Restore failure after helper SIGKILL: recoveryRequired/transportFailure; effects fixed2500, auto exactly once; worker finished after 0.24s; power registration=True.
 These checks do not prove physical fan changes or Auto restoration on hardware.
-SHA-256 of tested helper: edbc8b0a93eee5693f66eff1903c2901a4fd27f129c70cf6f41fd4e72877f92a
+SHA-256 of tested helper: ab4571832312b08d9ecedc2ba634b3ca54ae49913f438e1ce76ea36d65f36097

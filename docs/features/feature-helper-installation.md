@@ -12,15 +12,15 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Реализованы диагностика bundle, явные app CLI-команды управления регистрацией и ограниченный XPC handshake. **Положительный Apple-signed/root/installed путь не запускался.** Текущий bundle ad hoc; helper не зарегистрирован. Это подготовленный gate M2, не аппаратная готовность. GUI-кнопки RPM остаются отключёнными.
+Реализованы диагностика bundle, явные app CLI-команды управления регистрацией и ограниченный XPC handshake. Владелец подписал предыдущий пакет; исправленный inspector и отдельная online qualification подтвердили обе подписи и публичный сертификат. **Root/installed путь не запускался.** Новая сборка ad hoc требует повторной подписи владельцем; helper не зарегистрирован. Это подготовленный gate M2, не аппаратная готовность. GUI-кнопки RPM остаются отключёнными.
 
 ## Проверки и границы
 
 `SignedBundleInspector` проверяет точный Info/LaunchDaemon layout, регулярные app/helper/plist без symlink, Apple anchor/identifiers/общий Team ID, строгие подписи всех архитектур и вложенного кода. Для операций lifecycle и root helper требуется `/Applications/Ventilator.app`, все элементы bundle принадлежат root и не доступны для group/other write. Неполный обход файлов отвергается. Снимок связывает SHA-256 app/helper/plist и CDHash обеих программ. Это проверка кода/файлов; она не подтверждает регистрацию или живой процесс.
 
-Проверяются expiration и системные trust anchors; network lookup отключён в этих диагностических/device путях. Последнее подтверждение online revocation/notarization этим gate не заявляется и входит в отдельную квалификацию подписанной сборки перед владельческим опытом. Выбор флагов прочитан из `Security/CSCommon.h` SDK.
+Проверяются expiration и системные trust anchors; network lookup отключён в этих диагностических/device путях. Строгая code-signature проверка требует explicit Apple anchor/identifier/leaf OU; отдельный BasicX509 trust использует системные anchors без network fetch. Online CodeSigning + обязательный положительный revocation-ответ проверяются отдельным процессом до seal, с внешним сроком 20 с; notarization не заявляется. SDK-флаг `checkTrustedAnchors` оказался недопустимым для validation на macOS 27 (`-67070`); оставлены реально проверенные `considerExpiration`/`noNetworkAccess`. [Матрица флагов и qualification](../research/evidence/owner-signing-validation.json).
 
-Для signed installed ветки требуется Hardened Runtime без разрешений debugger, DYLD injection, unsigned executable memory, JIT или отключения library validation. Signing wrapper задаёт runtime; native gate сверяет flags/entitlements. Эта policy проверена на данных модели; положительная подписанная сборка ещё не квалифицирована.
+Для signed installed ветки требуется Hardened Runtime без разрешений debugger, DYLD injection, unsigned executable memory, JIT или отключения library validation. Signing wrapper задаёт runtime; native gate сверяет flags/entitlements. Эта policy проверена на данных модели и на сохранённом подписанном владельцем пакете. Исправленные executable ещё нужно подписать; старый пакет с ошибкой validation устанавливать нельзя.
 
 Перед запуском обычного daemon, root simulation worker и подготовленного аппаратного device проверяется также динамическая подпись текущего процесса по CDHash. Приложение явно отказывается запускаться от root. Root-owned расположение — наш выбор для фиксированного M2 bundle, не требование Apple ко всем приложениям SMAppService.
 
@@ -45,7 +45,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 `scripts/sign-app-without-ui.py` читает public fingerprint настроенных identities, исключает явно flagged записи и требует единственного кандидата. Wrapper `tools/sign_without_ui.swift` сначала создаёт отдельную security session без graphics/TTY и проверяет эти атрибуты. Только после этого разрешён exec `/usr/bin/codesign` для собственного staging bundle в `.build`; исходный ad hoc bundle сохраняется. Keychain не разблокируется, ключи не экспортируются, ACL не изменяются. После обеих подписей нужны strict verify и native inspector.
 
-На текущем Mac SessionCreate вернул `OSStatus=100001`, wrapper завершился до codesign. [Результат](../research/evidence/installation-signing.json): `signed=false`, `signingAttempted=false`, `headlessSecuritySessionUnavailable`. Это не доказывает, что настроенная identity неисправна. Обычная подпись, возможный запрос keychain, копирование root-owned bundle, административное одобрение и проверки установки должны войти в **один полный сеанс владельца** из задания после подготовки аппаратного runtime и восстановления. Положительная подпись, установка/удаление, настоящий сон и аппаратный опыт остаются непроверенными.
+На текущем Mac SessionCreate вернул `OSStatus=100001`, wrapper завершился до codesign. [Результат](../research/evidence/installation-signing.json): `signed=false`, `signingAttempted=false`, `headlessSecuritySessionUnavailable`. Это результат прежней бездиалоговой попытки. Последующая подпись владельцем прошла, но старый qualification завершился exit 78 из-за нашего недопустимого флага; seal не появился. Исправленная read-only qualification сохранённых файлов прошла с Team `4659S5GD6X` и positive revocation. Новая сборка/план требуют нового пакета и подписи владельцем. Копирование root-owned bundle, административное одобрение и проверка установки входят в [единый сеанс](../owner-session.md). Установка/удаление, настоящий сон и аппаратный опыт остаются непроверенными.
 
 ## Code anchors
 
@@ -57,6 +57,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 | Server/client requirements | `Sources/VentilatorHelper/HelperServer.swift`, `Sources/VentilatorHelper/HelperMain.swift` |
 | Native gate | `Sources/VentilatorExperiment/NativeExperimentDevice.swift` |
 | Signing gate | `tools/sign_without_ui.swift`, `scripts/sign-app-without-ui.py` |
+| Owner seal и online public certificate qualification | `scripts/owner-session.py`, `Sources/VentilatorInstallation/CertificateQualification.swift` |
 | Проверки | `Tests/VentilatorInstallationTests/InstallationTests.swift`, `scripts/installation-dry-run.py` |
 
 ### Scenario: Ad hoc bundle не устанавливает helper
@@ -106,3 +107,11 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 **Тогда:** codesign не вызывается; исходный bundle, keychain и hardware не изменяются.
 
 **Automated:** `scripts/sign-app-without-ui.py`
+
+### Scenario: Нативный validation принимает флаги и проверяет requirement
+
+**Дано:** подписанный XCTest executable и текущий процесс.
+**Когда:** Security API вызывается с используемыми offline-флагами.
+**Тогда:** допустимый requirement проходит static/dynamic проверку, чужой identifier отвергается; ошибка invalid flags не маскирует результат.
+
+**Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testValidationFlagsAreAcceptedByNativeAPIAndRejectWrongRequirement`
