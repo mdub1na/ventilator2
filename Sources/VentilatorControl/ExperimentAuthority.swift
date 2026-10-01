@@ -78,11 +78,13 @@ public final class ExperimentWriteReservation {
 public final class ExperimentAuthority {
     public static let approvalSeconds = 300.0
     private let journal: FileSessionJournal
+    public let directory: URL
     public let domain: ExperimentDomain
 
     public init(directory: URL, domain: ExperimentDomain) throws {
         if domain == .hardware && geteuid() != 0 { throw ExperimentAuthorityError.hardwareRequiresRoot }
         journal = try FileSessionJournal(directory: directory)
+        self.directory = directory
         self.domain = domain
     }
 

@@ -16,6 +16,10 @@ enum HelperMain {
                 try runApprovedModelChild(directory: URL(fileURLWithPath: arguments[1], isDirectory: true))
                 return
             }
+            if arguments.count == 2, arguments[0] == "--prepared-hardware-child" {
+                try runPreparedHardwareChild(directory: URL(fileURLWithPath: arguments[1], isDirectory: true))
+                return
+            }
             if arguments.count == 2, arguments[0] == "--approved-model-broker" {
                 try runApprovedModelBroker(directory: URL(fileURLWithPath: arguments[1], isDirectory: true))
                 return

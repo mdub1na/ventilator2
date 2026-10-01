@@ -24,6 +24,7 @@
 - [x] Реализовать файловые challenge/одноразовое решение и учёт каждой попытки до I/O; проверить подмену, replay, restart, частичную ошибку и разделение simulation/hardware.
 - [x] Добавить отдельный broker надзора за writer: durable closure, подтверждённый выход перед Auto, ограниченные device-процессы, private IPC и отложенный sleep acknowledgement; проверить на файловой модели.
 - [x] Подготовить независимое read-only наблюдение опыта, отзыв reservation перед I/O и свежий bound recovery probe; проверить чтение на Mac и IPC/ошибки на моделях.
+- [x] Подготовить общую связку broker/Fixed/Auto/read-only reader и private recovery handler; проверить отказ reader и сохранение pending на модели.
 - [ ] Сделать аппаратный протокол с проверяемым одобрением конкретного плана и привязкой записей к точной модели/сборке ОС, диапазонам и сроку lease. Симуляция такого одобрения не выдаёт.
 - [ ] Подключить файловый маркер, реальные системные события и независимый ограниченный восстановитель к аппаратному helper; доказать восстановление в утверждённом опыте.
 - [x] Добавить предварительные проверки машины/показаний и отдельные критерии наблюдаемого изменения RPM и устойчивого кода Auto на подставных снимках.
@@ -31,13 +32,13 @@
 - [ ] Подготовить единый план сеанса владельца с SHA-256 проверенного бинарника и полным перечнем SMC-записей; запросить одно одобрение.
 - [ ] После одобрения выполнить ровно один ограниченный аппаратный опыт и проверить устойчивый возврат Auto.
 
-Проверено 2026-09-30: [симуляция](docs/features/feature-control-simulation.md), независимый процесс восстановления, [подготовленный протокол](docs/features/feature-experiment-protocol.md) и [dry-run](docs/research/evidence/control-dry-run.txt). Для аппаратного runtime ещё нужны recovery broker и локальный issuer; кандидатный план не готов к одобрению. GUI по-прежнему read-only; hardwareControlAvailable=false. Локально 0 valid code-signing identities: установленный signed helper не проверен.
+Проверено 2026-09-30: [симуляция](docs/features/feature-control-simulation.md), независимый процесс восстановления, [подготовленный протокол](docs/features/feature-experiment-protocol.md) и [dry-run](docs/research/evidence/control-dry-run.txt). Для аппаратного runtime ещё нужны подключение подготовленного broker, restart/re-arm, локальный issuer и installed gate; кандидатный план не готов к одобрению. GUI по-прежнему read-only; hardwareControlAvailable=false. До PR #2 локально было 0 valid identities; сейчас команда сообщает 2, одна помечена revoked. Подпись второй identity и установленный helper ещё не проверены.
 
-2026-10-01: [отдельный broker](docs/research/evidence/recovery-dry-run.txt) проверен для точных одобренных шагов **модели**, включая аварии самого writer и блокирующий эффект. Аппаратная привязка broker/локальный issuer остаются открытыми; свидетельство `ArmedHardwareRecovery` не выдаётся.
+2026-10-01: [отдельный broker](docs/research/evidence/recovery-dry-run.txt) проверен для точных одобренных шагов **модели**, включая аварии самого writer и блокирующий эффект. На тот момент аппаратная привязка broker/локальный issuer оставались открытыми; свидетельство `ArmedHardwareRecovery` не выдавалось.
 
 После создания [PR #1](https://github.com/mdub1na/ventilator2/pull/1) продолжена подготовка: [read-only наблюдатель](docs/research/evidence/experiment-read-only.json) прочитал FNum/Ftst/вентиляторы; новая admission проверка отзывает старый Fixed permit, recovery probe требует свежий private-pipe ответ. Это подготовленный код, не разрешение аппаратного старта.
 
-PR #1 объединён в main во время продолжения работы. Новые подготовительные изменения вынесены в [PR #2](https://github.com/mdub1na/ventilator2/pull/2).
+PR #1 и [PR #2](https://github.com/mdub1na/ventilator2/pull/2) объединены владельцем в main. Следующий шаг: общий process loop и native child boundary подготовлены, модельный reader изолирован. Hardware entry, restart/re-arm, локальный issuer и signed/installed проверка остаются открытыми; аппаратный запуск не разрешён.
 
 ## M3 — управление и поставка
 

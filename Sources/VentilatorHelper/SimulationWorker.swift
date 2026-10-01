@@ -61,11 +61,11 @@ final class WorkerChannel {
         return nil
     }
 
-    func send<T: Encodable>(_ value: T) throws {
+    func send<T: Encodable>(_ value: T, deadline suppliedDeadline: Double? = nil) throws {
         var data = try JSONEncoder().encode(value)
         guard data.count <= 4096 else { throw CheckError.failed("Oversized worker frame") }
         data.append(10)
-        let deadline = HelperClock.now() + 1
+        let deadline = suppliedDeadline ?? (HelperClock.now() + 1)
         guard deadline.isFinite else { throw CheckError.failed("Worker clock unavailable") }
         try data.withUnsafeBytes { bytes in
             var offset = 0

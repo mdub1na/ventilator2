@@ -19,6 +19,11 @@ if os.geteuid() == 0:
 lines = [f"Independent recovery verification: {datetime.datetime.now().astimezone().isoformat(timespec='seconds')}",
          "Non-root. File-backed model only. No native open/write, installation, sudo or actual sleep."]
 
+with tempfile.TemporaryDirectory(prefix="hardware-child-denial-", dir=root / ".build") as denied_folder:
+    denied = subprocess.run([str(binary), "--prepared-hardware-child", denied_folder], capture_output=True, text=True, timeout=2)
+    assert denied.returncode == 78 and not list(Path(denied_folder).iterdir())
+lines.append("Prepared hardware child rejects non-root before journal/device access; no approval or hardware witness issued.")
+
 
 def wait_file(path, timeout=16):
     deadline = time.monotonic() + timeout
@@ -51,7 +56,7 @@ def run_case(name, mode="hold", target=None, sent_signal=None, expected="autoCod
                     time.sleep(0.02)
                 else:
                     raise RuntimeError(f"{name}: fixed steps not observed")
-                pid = parent.pid if target == "helper" else ready["writerPID"] if target == "writer" else ready["brokerPID"]
+                pid = parent.pid if target == "helper" else ready["writerPID"] if target == "writer" else ready["readerPID"] if target == "reader" else ready["brokerPID"]
                 os.kill(pid, sent_signal)  # Every PID comes from the exact non-root child tree created above.
             result = wait_file(folder / "recovery-result.json")
             ledger = json.loads((folder / "authority-simulation.json").read_text())["ledger"]
@@ -64,6 +69,8 @@ def run_case(name, mode="hold", target=None, sent_signal=None, expected="autoCod
             assert 0 <= result["elapsedSeconds"] < 19, result
             assert ledger["fixedClosed"] and len(ledger["attempts"]) == len(set(ledger["attempts"]))
             events = result["events"]
+            assert events.count("fixedProbeConfirmed") >= 1 and events.count("readerProbeConfirmed") >= 1
+            assert events.count("restoreProbeConfirmed") >= 1
             assert events.index("fixedClosed") < events.index("writerStopRequested") < events.index("writerExited")
             assert events.index("writerExited") < events.index("restorationStarted") < events.index("autoStep5Requested")
             if expected == "autoCodesObserved":
@@ -81,6 +88,10 @@ def run_case(name, mode="hold", target=None, sent_signal=None, expected="autoCod
                     assert state["modes"] == [1, 3]  # The other fan's Auto proceeds despite fan zero's error.
                 elif mode == "blockedRestore":
                     assert ledger["attempts"] == list(range(6)) and state["effects"] == list(range(6))
+                elif mode in {"blockedAutoReader", "earlyAutoReaderFailure"}:
+                    assert ledger["attempts"] == list(range(10)) and state["effects"] == list(range(10))
+                    assert state["modes"] == [3, 3] and state["testMode"] == 0
+                    assert "autoReaderFailed" in events  # Device effects do not become independent evidence.
             if mode == "sleep":
                 assert events.index("autoCodesObserved") < events.index("sleepAcknowledged")
             lines.append(f"{name}: {result['phase']}/{result['reason']}, {result['elapsedSeconds']:.2f}s; "
@@ -122,6 +133,13 @@ run_case("Fan zero Auto failure", "restoreFailure", target="helper", sent_signal
 run_case("SIGTERM broker", target="broker", sent_signal=signal.SIGTERM, reason="systemShutdown")
 run_case("Injected sleep with delayed acknowledgement", "sleep", reason="systemSleep")
 run_case("Ten-second lease despite heartbeat", reason="leaseExpired")
+run_case("SIGSTOP independent reader", target="reader", sent_signal=signal.SIGSTOP, reason="readerTimeout")
+run_case("Blocked independent Fixed reader", "blockedReader", reason="readerTimeout")
+run_case("Independent reader failure", "readerFailure", reason="readerFailure")
+run_case("Blocked independent Auto reader", "blockedAutoReader", target="helper", sent_signal=signal.SIGKILL,
+         expected="recoveryRequired", reason="restorationReaderFailure")
+run_case("Early Auto reader failure preserves all Auto attempts", "earlyAutoReaderFailure", target="helper", sent_signal=signal.SIGKILL,
+         expected="recoveryRequired", reason="restorationReaderFailure")
 lines += ["Writer non-quiescence is also unit tested: no Auto starts and the pending ledger remains.",
           "Process termination is model proof only; it does not prove cancellation of a kernel SMC operation.",
           "Broker SIGKILL/power loss and hardware recovery remain unverified; hardware startup stays disabled.",

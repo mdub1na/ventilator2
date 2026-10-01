@@ -11,8 +11,8 @@ public enum NativeExperimentError: Error, Equatable {
     case writeRejected(step: ExperimentStep, status: Int32, kernel: Int32, smcResult: UInt8, smcStatus: UInt8)
 }
 
-/// This factory is not connected to an XPC/CLI start command. Runtime recovery arming is still required
-/// before wiring it to a hardware experiment. The GUI does not link this module.
+/// Prepared child factory. Public XPC start remains closed until the trusted local issuer and installed
+/// validation are implemented. The GUI does not link this module.
 public final class NativeExperimentDevice: ExperimentStepDevice {
     public let domain: ExperimentDomain = .hardware
     private let connection: OpaquePointer
@@ -82,8 +82,8 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
     }
 }
 
-/// Only the future recovery broker in this module may issue a live witness. It has no public initializer
-/// and cannot be decoded from an XPC payload. No hardware witness is issued by the current simulation worker.
+/// The scoped hardware child may issue this witness only from a live broker probe and consumed hardware
+/// ledger. It has no public initializer and cannot be decoded from XPC. Simulation never issues it.
 public final class ArmedHardwareRecovery {
     private let probe: RecoveryProbeClient
     var sessionID: UUID { probe.scope.sessionID }
@@ -104,14 +104,14 @@ public final class ArmedHardwareRecovery {
     }
 }
 
-private func currentBootSession() -> UUID? {
+internal func currentBootSession() -> UUID? {
     var bytes = [CChar](repeating: 0, count: 64)
     var size = bytes.count
     guard sysctlbyname("kern.bootsessionuuid", &bytes, &size, nil, 0) == 0 else { return nil }
     return bytes.withUnsafeBufferPointer { UUID(uuidString: String(cString: $0.baseAddress!)) }
 }
 
-private func trustedHelperAndApplication() -> Bool {
+internal func trustedHelperAndApplication() -> Bool {
     var code: SecCode?, helperRequirement: SecRequirement?
     guard SecCodeCopySelf([], &code) == errSecSuccess, let code,
           SecRequirementCreateWithString("anchor apple generic and identifier \"dev.ventilator.helper\"" as CFString, [], &helperRequirement) == errSecSuccess,

@@ -58,6 +58,10 @@ public final class FileSessionJournal: SessionJournal {
         guard let data = try read("recovery-result.json") else { return nil }
         return try JSONDecoder().decode(SimulationRecoveryOutcome.self, from: data)
     }
+    public func saveHardwareRecoveryOutcome(_ outcome: HardwareRecoveryOutcome) throws {
+        try checkAuthorityDomain(.hardware)
+        try write(JSONEncoder().encode(outcome), to: "hardware-recovery-result.json")
+    }
 
     public func loadAuthorityState(domain: ExperimentDomain) throws -> ExperimentAuthorityState? {
         try checkAuthorityDomain(domain)
@@ -243,5 +247,24 @@ public struct SimulationRecoveryOutcome: Codable {
         self.events = events; self.failedSteps = failedSteps; self.elapsedSeconds = elapsedSeconds
         self.powerNotificationsRegistered = powerNotificationsRegistered
         simulationOnly = true
+    }
+}
+
+/// The prepared broker can record code evidence, but cannot declare physical Auto or clear the marker.
+public struct HardwareRecoveryOutcome: Encodable {
+    public let sessionID: UUID
+    public let phase: String
+    public let reason: String?
+    public let events: [String]
+    public let failedSteps: [ExperimentStep]
+    public let elapsedSeconds: Double
+    public let powerNotificationsRegistered: Bool
+    public let simulationOnly = false
+    public let physicalAutoVerified = false
+    public init(sessionID: UUID, phase: String, reason: String?, events: [String], failedSteps: [ExperimentStep],
+                elapsedSeconds: Double, powerNotificationsRegistered: Bool) {
+        self.sessionID = sessionID; self.phase = phase; self.reason = reason; self.events = events
+        self.failedSteps = failedSteps; self.elapsedSeconds = elapsedSeconds
+        self.powerNotificationsRegistered = powerNotificationsRegistered
     }
 }

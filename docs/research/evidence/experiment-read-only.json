@@ -1,6 +1,5 @@
 {
   "build": "26A428",
-  "effectiveUID": 501,
   "fans": [
     {
       "actualRPM": 0,
@@ -21,12 +20,13 @@
   ],
   "hardwareControlAvailable": false,
   "hardwareWritesExecuted": 0,
-  "helperSHA256": "9b354ef620ca5d75cc153067bea29d72f9e3d2bc0ea3fecb6a6b01a4dc403208",
   "model": "Mac15,7",
   "preflight": "candidatePassed",
-  "readSeconds": 0.002635125012602657,
-  "sampleStartedAt": "2026-10-01T04:29:42Z",
+  "readSeconds": 0.0026670833467505872,
+  "sampleStartedAt": "2026-10-01T05:10:46Z",
   "testMode": 0,
   "thermalPressure": "nominal",
-  "version": "27.0.0"
+  "version": "27.0.0",
+  "effectiveUID": 501,
+  "helperSHA256": "5a897036d6e083d38e2d731ff23352c69c47766c82691380e4e86f5913048e93"
 }
