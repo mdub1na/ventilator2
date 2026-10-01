@@ -1,13 +1,16 @@
-Software gates: 2026-10-01T00:56:44+05:00
-Swift tests: 45/45 passed (10 core, 17 control, 18 experiment).
-Independent recovery: 11 process scenarios passed, plus non-quiescence/nonce/clock/late-write unit checks.
-Existing anonymous XPC, worker crash and power callback checks passed.
-Docs: 11 documents, 30 BDD scenarios; docs_check --on-main passed.
+Software gates: 2026-10-01T09:31:01+05:00
+Swift tests: 64/64 passed (10 core, 17 control, 37 experiment).
+Independent recovery: 11 process scenarios passed; prior anonymous XPC/worker checks also passed.
+Read-only observer: actual Mac15,7 / 27.0.0 / 26A428, UID 501, FNum 2, Ftst 0, modes 3/3, RPM 0/0, nominal pressure.
+Full read duration: 0.002635s; timestamp taken before reads; no sudo or writes.
+Model/pipe tests: revoked reservation, scope/domain/boot/role/deadline, malformed/slow reads, nonce/phase/deadline/EOF/timeout, no probe retry and no simulation hardware witness.
+Docs: 11 documents, 36 BDD scenarios; docs_check --on-main passed.
 C writer: clang -Wall -Wextra -Werror syntax check passed.
-App/helper: codesign --verify --strict passed (ad hoc); 0 valid identities in keychain.
+App/helper: codesign --verify --strict passed (ad hoc); 0 valid signing identities.
 GUI: no SMCExperiment open/write symbols; helper contains the prepared writer.
-Candidate schema: 2, readyForOwnerApproval=false, exact binary fingerprints matched.
-Plan SHA-256: f0dbda197bb6e51409339a27a97d20d9555e0e9909bee27b9932ffa1239a25c7
-Helper SHA-256: 335e3dea39dd715d786eca206cd613700531a7c654e2d82999539b129456e072
-No native positive open/write, sudo, installation or actual sleep performed.
-Hardware broker integration, local hardware issuer and signed installed validation remain pending.
+Candidate schema: 2, readyForOwnerApproval=false; binary fingerprints and read-only evidence matched.
+Plan SHA-256: 265ae1c2ebe0a938486c811a74ead4ec4a6f2c7d69e7702323d3cbe9448b28d0
+Helper SHA-256: 9b354ef620ca5d75cc153067bea29d72f9e3d2bc0ea3fecb6a6b01a4dc403208
+No SMCExperimentOpen/WriteStep, sudo, installation or actual sleep experiment performed. The hardware check opened only CSMCRead.
+Hardware broker handler/issuer and signed installed validation remain pending; hardware start stays closed.
+PR: https://github.com/mdub1na/ventilator2/pull/1

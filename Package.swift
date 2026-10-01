@@ -24,7 +24,7 @@ let package = Package(
         .target(name: "VentilatorControl", dependencies: ["VentilatorCore"]),
         .target(name: "CSMCExperiment", publicHeadersPath: "include",
                 linkerSettings: [.linkedFramework("IOKit")]),
-        .target(name: "VentilatorExperiment", dependencies: ["VentilatorControl", "CSMCExperiment"]),
+        .target(name: "VentilatorExperiment", dependencies: ["VentilatorControl", "CSMCRead", "CSMCExperiment"]),
         .target(name: "CSystemPower", publicHeadersPath: "include"),
         .executableTarget(name: "VentilatorHelper", dependencies: ["VentilatorControl", "VentilatorExperiment", "CSystemPower"],
                           swiftSettings: [.swiftLanguageMode(.v5)]),

@@ -115,4 +115,17 @@ final class RecoveryMonitorTests: XCTestCase {
         XCTAssertEqual(try authority.state().ledger?.attempts, [.unlock])
         XCTAssertThrowsError(try FileSimulatedStepDevice(directory: directory, sessionID: ledger.sessionID))
     }
+
+    func testWriterProbeCannotRenewHeartbeatOrRespondAfterClosure() throws {
+        let (directory, _, _, monitor) = try fixture()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let request = RecoveryProbeRequest(id: UUID(), scope: monitor.scope, deadline: 3.5)
+        XCTAssertEqual(try monitor.reply(to: request, now: 3.1).phase, .fixed)
+        let tooLong = RecoveryProbeRequest(id: UUID(), scope: monitor.scope, deadline: 4)
+        XCTAssertThrowsError(try monitor.reply(to: tooLong, now: 3.2))
+        monitor.tick(now: 4)
+        XCTAssertEqual(monitor.reason, "heartbeatLost")
+        let late = RecoveryProbeRequest(id: UUID(), scope: monitor.scope, deadline: 4.4)
+        XCTAssertThrowsError(try monitor.reply(to: late, now: 4.1))
+    }
 }

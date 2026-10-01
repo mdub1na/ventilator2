@@ -1,4 +1,4 @@
-M2 simulation verification: 2026-10-01T00:53:20+05:00
+M2 simulation verification: 2026-10-01T09:26:24+05:00
 Effective UID: 501. No helper registration, sudo or SMC writes.
 XPC loopback: status, hardware preparation/refusal, malformed approval, simulation start, owner binding, heartbeat and restore passed; hardwareControlAvailable=false
 Experiment protocol: ten native packet descriptions match plan; simulated approval/steps/Auto-code reads passed; persisted approval replay refused. No native open/write called.
@@ -7,9 +7,9 @@ Power notifications registered=true; injected sleep callback restores before ack
 Default daemon mode refused in the ad hoc/non-root test context (exit 78).
 SIGKILL of simulated helper: pending file survived; new process requested simulated Auto only,
 observed three separated Auto-code samples and removed the marker. Temporary directory cleaned.
-SIGKILL of helper with live worker: autoCodeObserved/helperExited; effects fixed2500, auto exactly once; worker finished after 2.34s; power registration=True.
-SIGSTOP of helper with live worker: autoCodeObserved/heartbeatLost; effects fixed2500, auto exactly once; worker finished after 4.33s; power registration=True.
+SIGKILL of helper with live worker: autoCodeObserved/helperExited; effects fixed2500, auto exactly once; worker finished after 2.33s; power registration=True.
+SIGSTOP of helper with live worker: autoCodeObserved/heartbeatLost; effects fixed2500, auto exactly once; worker finished after 4.32s; power registration=True.
 SIGTERM of simulation worker: autoCodeObserved/systemShutdown; effects fixed2500, auto exactly once; worker finished after 3.33s; power registration=True.
 Restore failure after helper SIGKILL: recoveryRequired/transportFailure; effects fixed2500, auto exactly once; worker finished after 0.24s; power registration=True.
 These checks do not prove physical fan changes or Auto restoration on hardware.
-SHA-256 of tested helper: 335e3dea39dd715d786eca206cd613700531a7c654e2d82999539b129456e072
+SHA-256 of tested helper: 9b354ef620ca5d75cc153067bea29d72f9e3d2bc0ea3fecb6a6b01a4dc403208

@@ -60,6 +60,19 @@ public final class RecoveryMonitor {
         heartbeatDeadline = min(now + 2, scope.expiresAt)
     }
 
+    /// A writer probe checks current broker state without renewing the owner's heartbeat or operation budget.
+    public func reply(to request: RecoveryProbeRequest, now: Double) throws -> RecoveryProbeReply {
+        guard request.scope == scope else { throw RecoveryProbeError.binding }
+        tick(now: now)
+        guard [.fixed, .restoring].contains(phase) else { throw RecoveryProbeError.wrongPhase }
+        let sessionDeadline = phase == .fixed ? scope.expiresAt : restorationStartedAt! + 8
+        guard request.deadline.isFinite, request.deadline > now,
+              request.deadline <= min(sessionDeadline, now + CandidateExperimentPlan.operationSeconds) else {
+            throw RecoveryProbeError.expired
+        }
+        return .init(id: request.id, scope: scope, phase: phase, deadline: request.deadline)
+    }
+
     public func beginOperation(id: UUID, now: Double) throws {
         tick(now: now)
         guard [.fixed, .restoring].contains(phase), pendingOperation == nil else { throw RecoveryFailure.phase }

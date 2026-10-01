@@ -1,0 +1,32 @@
+{
+  "build": "26A428",
+  "effectiveUID": 501,
+  "fans": [
+    {
+      "actualRPM": 0,
+      "index": 0,
+      "maximumRPM": 5349,
+      "minimumRPM": 1350,
+      "mode": 3,
+      "targetRPM": 0
+    },
+    {
+      "actualRPM": 0,
+      "index": 1,
+      "maximumRPM": 5777,
+      "minimumRPM": 1458,
+      "mode": 3,
+      "targetRPM": 0
+    }
+  ],
+  "hardwareControlAvailable": false,
+  "hardwareWritesExecuted": 0,
+  "helperSHA256": "9b354ef620ca5d75cc153067bea29d72f9e3d2bc0ea3fecb6a6b01a4dc403208",
+  "model": "Mac15,7",
+  "preflight": "candidatePassed",
+  "readSeconds": 0.002635125012602657,
+  "sampleStartedAt": "2026-10-01T04:29:42Z",
+  "testMode": 0,
+  "thermalPressure": "nominal",
+  "version": "27.0.0"
+}

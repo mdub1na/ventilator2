@@ -26,6 +26,9 @@ public final class ApprovedStepExecutor {
             let reservation = try authority.reserve(step: step, sessionID: session.sessionID,
                 owner: session.approval.challenge.connectionOwner, boot: session.approval.challenge.bootSession,
                 now: now, observation: observation, date: date)
+            guard let current = try authority.state().ledger else { throw ExperimentAuthorityError.wrongSession }
+            try ExperimentWriteAdmission.validate(reserved: reservation.ledger, current: current, step: step,
+                domain: device.domain, sessionID: session.sessionID, boot: session.approval.challenge.bootSession, now: now)
             try device.write(reservation)
         } catch {
             // A failed call may already have changed hardware. Keep the marker and close fixed.
