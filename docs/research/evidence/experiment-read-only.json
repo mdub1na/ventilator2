@@ -1,32 +1,30 @@
 {
-  "build": "26A428",
-  "fans": [
+  "build" : "26A428",
+  "fans" : [
     {
-      "actualRPM": 0,
-      "index": 0,
-      "maximumRPM": 5349,
-      "minimumRPM": 1350,
-      "mode": 3,
-      "targetRPM": 0
+      "actualRPM" : 0,
+      "index" : 0,
+      "maximumRPM" : 5349,
+      "minimumRPM" : 1350,
+      "mode" : 3,
+      "targetRPM" : 0
     },
     {
-      "actualRPM": 0,
-      "index": 1,
-      "maximumRPM": 5777,
-      "minimumRPM": 1458,
-      "mode": 3,
-      "targetRPM": 0
+      "actualRPM" : 0,
+      "index" : 1,
+      "maximumRPM" : 5777,
+      "minimumRPM" : 1458,
+      "mode" : 3,
+      "targetRPM" : 0
     }
   ],
-  "hardwareControlAvailable": false,
-  "hardwareWritesExecuted": 0,
-  "model": "Mac15,7",
-  "preflight": "candidatePassed",
-  "readSeconds": 0.0026670833467505872,
-  "sampleStartedAt": "2026-10-01T05:10:46Z",
-  "testMode": 0,
-  "thermalPressure": "nominal",
-  "version": "27.0.0",
-  "effectiveUID": 501,
-  "helperSHA256": "5a897036d6e083d38e2d731ff23352c69c47766c82691380e4e86f5913048e93"
+  "hardwareControlAvailable" : false,
+  "hardwareWritesExecuted" : 0,
+  "model" : "Mac15,7",
+  "preflight" : "candidatePassed",
+  "readSeconds" : 0.0023670416558161378,
+  "sampleStartedAt" : "2026-10-01T06:28:32Z",
+  "testMode" : 0,
+  "thermalPressure" : "nominal",
+  "version" : "27.0.0"
 }

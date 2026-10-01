@@ -20,7 +20,7 @@ tags: [macOS, SMC, approval, preparation]
 
 Перед записью повторно проверяются профиль, два вентилятора, свежая метаинформация ключа и условия шага. Для Fixed также проверяются точные диапазоны, порядок, трёхсекундное ожидание после unlock и deadline непосредственно перед IOKit. Повтор одного шага на соединении запрещён; ошибка закрывает дальнейший Fixed. Kernel failure, неверный размер ответа, SMC result и неквалифицированный nonzero status отвергаются. Это проверено чистыми пакетами и компиляцией; сам аппаратный путь **не запускался**.
 
-`NativeExperimentDevice` дополнительно требует аппаратный журнал, текущую загрузку ОС, совпадающие хеши, Apple-issued подписи app/helper одной команды и `ArmedHardwareRecovery`. Свидетельство восстановления нельзя декодировать из XPC и у него нет публичного конструктора. Симуляция его не выдаёт. Подготовленный аппаратный child может получить его из bound probe и consumed hardware ledger; public hardware start и локальный issuer ещё не подключены. Синхронный IOKit вызов не имеет доказанного здесь верхнего предела задержки: проверки deadline не гарантируют отмену уже начатого вызова.
+`NativeExperimentDevice` дополнительно требует аппаратный журнал, текущую загрузку ОС, совпадающие хеши, Apple-issued подписи app/helper одной команды и `ArmedHardwareRecovery`. Свидетельство восстановления нельзя декодировать из XPC и у него нет публичного конструктора. Симуляция его не выдаёт. Подготовленный аппаратный child может получить его из bound probe и consumed hardware ledger; public hardware start ещё закрыт; локальный issuer только сохраняет approval. Синхронный IOKit вызов не имеет доказанного здесь верхнего предела задержки: проверки deadline не гарантируют отмену уже начатого вызова.
 
 GUI не зависит от `VentilatorExperiment`/`CSMCExperiment`; отсутствие writer-symbols проверяется на собранном executable.
 
@@ -38,19 +38,19 @@ Timestamp берётся **до** первого чтения. Бюджет чт
 
 `RecoveryProbeClient` использует наследуемые pipe и новый request ID для каждого обращения. Ответ должен совпасть по session/owner/boot/hash/nonce, роли/фазе и deadline запроса; окно не более 0,5 с. Неверный или поздний ответ, EOF, ошибка clock либо oversized frame навсегда закрывают данный probe без retry. `RecoveryMonitor.reply` не продлевает heartbeat владельца или срок операции. Установка `F_SETNOSIGPIPE` на свои дескрипторы защищает процесс при закрытом peer; проверена локальными pipe-тестами.
 
-`ArmedHardwareRecovery` теперь требует bound probe и hardware ledger, а нативный factory и каждая запись требуют свежего ответа. Публичного конструктора/декодирования witness по-прежнему нет. Проверено IPC на модели и отказ превращения model probe в hardware witness; подготовленный аппаратный child содержит guarded issuance, но **positive signed/root ветка не запускалась**. Эта подготовка не включает аппаратный запуск или локальный hardware issuer.
+`ArmedHardwareRecovery` теперь требует bound probe и hardware ledger, а нативный factory и каждая запись требуют свежего ответа. Публичного конструктора/декодирования witness по-прежнему нет. Проверено IPC на модели и отказ превращения model probe в hardware witness; подготовленный аппаратный child содержит guarded issuance, но **positive signed/root ветка не запускалась**. Локальный issuer описан ниже; он не запускает broker или устройство.
 
 ## Общий процессный runtime
 
-`ExperimentRecoveryBroker` используется модельным harness и содержит внутренний подготовленный hardware entry. Аппаратный entry не вызывается CLI/XPC; локальный issuer не реализован. Одна схема IPC обслуживает отдельные Fixed/Auto/reader children. `ScopedExperimentChild` проверяет domain/scope/phase/роль до probe/device open; native factory сохраняет собственные root/signature/boot/hash проверки. Private child mode `--prepared-hardware-child` отвергает non-root, обычный терминал и отсутствие bound аппаратного ledger. Симуляционные faults в аппаратном domain запрещены.
+`ExperimentRecoveryBroker` используется модельным harness и содержит внутренний подготовленный hardware entry. Аппаратный entry не вызывается CLI/XPC или issuer. Одна схема IPC обслуживает отдельные Fixed/Auto/reader children. `ScopedExperimentChild` проверяет domain/scope/phase/роль до probe/device open; native factory сохраняет собственные root/signature/boot/hash проверки. Private child mode `--prepared-hardware-child` отвергает non-root, обычный терминал и отсутствие bound аппаратного ledger. Симуляционные faults в аппаратном domain запрещены.
 
 Reader не имеет executor, а его снимок не содержит reservation. Broker принимает только ответ на текущий reader request с точными ID/scope/ролью/PID, свежим timestamp после запроса, конечным read duration ≤0,5 с, текущим deadline, проверенным профилем и диапазонами. Чтения IOKit не выполняются в broker loop. Ошибка/зависание reader в Fixed закрывают writer и вызывают Auto. Отказ Auto reader сохраняет pending и не мешает остальным допустимым Auto-попыткам; device effects сами по себе не являются доказательством восстановления.
 
-Startup handshake и передача device/probe фреймов имеют ограниченные сроки. После durable closure Auto по-прежнему начинается только после подтверждённого завершения **writer**. Read-only child не пишет; ожидание его возможного kernel read не блокирует Auto. SIGKILL не считается доказательством отмены kernel I/O. Даже три аппаратных Auto-кода оставляют hardware pending и `physicalAutoVerified=false` в outcome. Подготовленный broker принимает только свежий consumed ledger; hardware restart/re-arm, signing/installation и владельческий сеанс остаются открытыми.
+Startup handshake и передача device/probe фреймов имеют ограниченные сроки. После durable closure Auto по-прежнему начинается только после подтверждённого завершения **writer**. Read-only child не пишет; ожидание его возможного kernel read не блокирует Auto. SIGKILL не считается доказательством отмены kernel I/O. Даже три аппаратных Auto-кода оставляют hardware pending и `physicalAutoVerified=false` в outcome. Общий broker содержит отдельный путь restart в Auto; аппаратный запуск, signing/installation и владельческий сеанс остаются открытыми.
 
 ## Одобрение и журнал
 
-`ExperimentAuthority` создаёт challenge для серверного owner ID, точного хеша плана, двух binary fingerprints и boot UUID. Challenge действует 300 с. Решение выдаётся локально; XPC метода выдачи нет. Hardware domain требует root и локальный Terminal для выдачи решения; соответствующий CLI issuer и installed проверка **ещё не подключены**. Отдельные файлы simulation/hardware, проверка владельца/прав и domain не позволяют использовать симуляционное решение для нативного устройства.
+`ExperimentAuthority` создаёт challenge для серверного owner ID, точного хеша плана, двух binary fingerprints, boot UUID и digest полного review. Challenge действует 300 с. Решение выдаётся локально; XPC метода выдачи нет. Hardware domain требует root, локальный Terminal и digest полного review. CLI issuer подготовлен; положительный installed сценарий ещё не проверен. Отдельные файлы simulation/hardware, проверка владельца/прав и domain не позволяют использовать симуляционное решение для нативного устройства.
 
 Начало атомарно сохраняет consumed ledger с pending restoration **до первой операции**. `flock` сериализует транзакции, `fsync` предшествует I/O. Каждая попытка резервируется до вызова и получает одноразовый недекодируемый `ExperimentWriteReservation`. Неудачный вызов может уже изменить оборудование; поэтому попытка остаётся потраченной, Fixed закрывается и сохраняется срок восстановления. Повторное закрытие не продлевает срок. Новый экземпляр не возобновляет Fixed и не принимает потраченное одобрение даже после Auto.
 
@@ -66,11 +66,27 @@ Startup handshake и передача device/probe фреймов имеют о�
 
 Power observer теперь поддерживает отложенный acknowledgement. В новом пути он отправляется после ограниченного восстановления либо его отказа с pending marker. Подставной sleep проверен; реальная доставка сна по-прежнему не проверена. Успешный обычный путь и SIGKILL/SIGSTOP helper/writer проверены отдельными процессами; [результаты](../research/evidence/recovery-dry-run.txt).
 
-Проверка `Process.isRunning=false` подтверждает завершение процесса согласно [Apple](https://developer.apple.com/documentation/foundation/process/isrunning); **она не доказывает отмену уже начатой SMC-операции в ядре**. SIGKILL самого broker, потеря питания и физический возврат Auto не проверены. Аппаратная интеграция и локальный hardware issuer остаются блокерами, GUI read-only. Candidate schema 2 включает сроки ответа/остановки и условие завершения writer перед Auto.
+Проверка `Process.isRunning=false` подтверждает завершение процесса согласно [Apple](https://developer.apple.com/documentation/foundation/process/isrunning); **она не доказывает отмену уже начатой SMC-операции в ядре**. SIGKILL самого broker проверен отдельно на модели; потеря питания и физический возврат Auto не проверены. Аппаратная интеграция и signed/installed проверка остаются блокерами, GUI read-only. Candidate schema 3 включает сроки ответа/остановки, условие завершения writer перед Auto и политику restart.
 
 ## Доступный XPC
 
 `prepareHardwareExperiment` возвращает хеш кандидата и причины `readyForOwnerApproval=false`. `startApprovedHardwareExperiment` отвергает старт с `hardwareRuntimeNotPrepared`, даже если передан правильный хеш; неверный формат — `invalidApprovalRequest`. Отказ проверен настоящим anonymous XPC до старта симуляции. Самостоятельное предъявление digest не выдаёт согласие.
+
+## Локальное подтверждение полного сеанса
+
+`LocalApprovalReview` содержит domain, точный кандидат и полный текст инструкций владельцу. Канонический SHA-256 связывает всё содержимое. Защищённый `local-review-<domain>.json` ограничен 16 KiB; инструкции — 8192 UTF-8 байт, без управляющих символов кроме LF/tab. Пустой текст, symlink, неверные права/владелец, domain, candidate или digest отвергаются. Полнота реального владельческого сеанса остаётся отдельным review gate: формат не доказывает, что автор перечислил все действия.
+
+CLI `--approve-local-model <directory> <ownerUUID> <planSHA> <reviewSHA>` требует non-root TTY. `--approve-local-hardware <ownerUUID> <planSHA> <reviewSHA>` использует фиксированный `/Library/Application Support/Ventilator/Experiment`; перед prepare и confirm проверяет root TTY, профиль, Apple-issued подписи app/helper одной команды, boot и binary hashes, регистрацию `SMAppService.daemon(...).status == .enabled`. Это предварительная проверка допуска службы, не доказательство работающего установленного демона.
+
+Перед вводом выводятся все инструкции и полный candidate. Принимается только `APPROVE <challengeUUID> <planSHA> <reviewSHA>` без дополнительных пробелов. EOF, отказ и неполная строка не одобряют план. После ввода заново проверяются review/identity и 300-секундный срок. Сохранение approval не создаёт consumed ledger и не вызывает устройство; повторная выдача отвергается. Полный model TTY → approval → begin → broker путь проверен; положительный аппаратный issuer не запускался. `readyForOwnerApproval=false` и public hardware start остаются закрытыми.
+
+## Восстановление после перезапуска broker
+
+Каждый writer/restorer удерживает domain-specific device lifetime lock до закрытия устройства. Новый broker сверяет тот же session/boot/current binary hashes/candidate digest, сохраняет closure Fixed и до 1 с пытается получить эту блокировку. PID не сохраняется; новый broker не посылает сигналы старым процессам. При занятом устройстве результат `deviceStillActive`, pending остаётся, новая restoration epoch не создаётся.
+
+После подтверждения свободного устройства broker начинает только Auto с новым nonce. Продолжаются лишь ещё не зарезервированные шаги 5–9; прежние попытки не повторяются. Уже сохранённая restoration epoch и исходный срок 8 с не продлеваются; смена boot/бинарников/плана или истёкший срок отвергают restart. Каждый успешный возврат device.write записывается как audit `successfulReturns`. Это не физическая проверка. Прежняя Auto-попытка без return вызывает `ambiguousAutoAttempt`: остальные допустимые шаги выполняются, но pending не снимается даже при Auto-кодах модели.
+
+[Процессная проверка](../research/evidence/local-approval-restart-dry-run.txt) покрывает SIGKILL broker в Fixed и частичном Auto, независимый процесс с занятым device lock, неизвестный результат Auto, истёкший исходный срок и другую boot session. Hardware positive restart не запускался; общий внутренний entry подготовлен, автоматическое подключение к установленному daemon остаётся задачей M2.
 
 ## Code anchors
 
@@ -78,6 +94,8 @@ Power observer теперь поддерживает отложенный acknow
 |---|---|
 | Фиксированный C ABI и операции | `Sources/CSMCExperiment/SMCExperiment.c`, `Sources/CSMCExperiment/include/SMCExperiment.h` |
 | Challenge, решение, budget | `Sources/VentilatorControl/ExperimentAuthority.swift` |
+| Полный review и локальный issuer | `Sources/VentilatorExperiment/LocalApprovalIssuer.swift`, `Sources/VentilatorHelper/LocalApprovalCLI.swift` |
+| Перезапуск в Auto с исходным бюджетом | `Sources/VentilatorExperiment/BrokerRestartRecovery.swift`, `Tests/VentilatorExperimentTests/BrokerRestartRecoveryTests.swift` |
 | Приватные файлы и транзакционная блокировка | `Sources/VentilatorControl/FileSessionJournal.swift` |
 | Передача зарезервированной операции | `Sources/VentilatorExperiment/ApprovedStepExecutor.swift` |
 | Нативные подписи/хеши/scope | `Sources/VentilatorExperiment/NativeExperimentDevice.swift` |
@@ -90,6 +108,7 @@ Power observer теперь поддерживает отложенный acknow
 | XPC и встроенный dry-run | `Sources/VentilatorControl/HelperProtocol.swift`, `Sources/VentilatorHelper/ExperimentProtocolCheck.swift` |
 | Исполняемые проверки | `Tests/VentilatorExperimentTests/`, `scripts/control-dry-run.py` |
 | Проверка изоляции writer | `Tests/VentilatorExperimentTests/RecoveryMonitorTests.swift`, `scripts/recovery-dry-run.py` |
+| TTY и авария broker | `Tests/VentilatorExperimentTests/LocalApprovalIssuerTests.swift`, `scripts/local-approval-restart-dry-run.py` |
 
 ### Scenario: Одобрение для точного запроса
 
@@ -266,3 +285,75 @@ Power observer теперь поддерживает отложенный acknow
 **Тогда:** physicalAutoVerified остаётся false; non-root не может сохранить аппаратный result.
 
 **Automated:** `Tests/VentilatorExperimentTests/BrokerObservationTests.swift::testHardwareOutcomeNeverClaimsPhysicalAutoAndNonRootCannotPersistIt`
+
+### Scenario: Точное локальное согласие без начала опыта
+
+**Дано:** защищённый полный review с candidate и двумя digest.
+**Когда:** владелец вводит точную confirmation строку в TTY.
+**Тогда:** сохраняется одно approval; ledger/устройство не создаются, replay отвергается.
+
+**Automated:** `Tests/VentilatorExperimentTests/LocalApprovalIssuerTests.swift::testExactReviewAndConfirmationPersistSingleApprovalWithoutStarting`, `scripts/local-approval-restart-dry-run.py`
+
+### Scenario: Отказ или неполное подтверждение
+
+**Дано:** показанный локальный review.
+**Когда:** поступает EOF, отказ, короткое согласие или строка с лишними пробелами.
+**Тогда:** approval не выдаётся.
+
+**Automated:** `Tests/VentilatorExperimentTests/LocalApprovalIssuerTests.swift::testDeclineEOFAndPartialConsentNeverApprove`
+
+### Scenario: Подмена review или identity
+
+**Дано:** challenge для показанного review и текущих бинарников.
+**Когда:** изменён текст после показа, digest, binary/domain либо истёк challenge.
+**Тогда:** подтверждение отвергнуто до approval и I/O.
+
+**Automated:** `Tests/VentilatorExperimentTests/LocalApprovalIssuerTests.swift::testReviewChangedAfterDisplayOrWrongDigestCannotApprove`, `Tests/VentilatorExperimentTests/LocalApprovalIssuerTests.swift::testChangedBinaryDomainOrExpiredChallengeAreRejected`
+
+### Scenario: Небезопасный review или неверный domain issuer
+
+**Дано:** локальный файл review.
+**Когда:** файл является symlink, превышает лимит, содержит ESC или non-root пытается создать hardware issuer.
+**Тогда:** review/issuer отвергнуты; аппаратного approval нет.
+
+**Automated:** `Tests/VentilatorExperimentTests/LocalApprovalIssuerTests.swift::testSymlinkOversizedOrUnsafeInstructionsCannotBeReviewed`, `Tests/VentilatorExperimentTests/LocalApprovalIssuerTests.swift::testNonRootCannotConstructHardwareIssuerOrWriteHardwareReview`
+
+### Scenario: Новый broker продолжает только Auto
+
+**Дано:** consumed ledger после SIGKILL broker и освобождённое устройство.
+**Когда:** новый broker принимает тот же boot/hash/session.
+**Тогда:** Fixed закрыт; новый nonce и только оставшиеся Auto-шаги, без повторного согласия или Fixed.
+
+**Automated:** `Tests/VentilatorExperimentTests/BrokerRestartRecoveryTests.swift::testRestartClosesFixedAndIssuesOnlyRemainingAutoWithNewNonce`, `scripts/local-approval-restart-dry-run.py`
+
+### Scenario: Устройство ещё занято после аварии
+
+**Дано:** другой процесс удерживает device lifetime lock.
+**Когда:** broker запускает restart.
+**Тогда:** Fixed закрывается, Auto не начинается; pending остаётся, новая restoration epoch отсутствует.
+
+**Automated:** `Tests/VentilatorExperimentTests/BrokerRestartRecoveryTests.swift::testLiveDeviceLockPreventsAutoAndDoesNotCreateRestorationEpoch`, `scripts/local-approval-restart-dry-run.py`
+
+### Scenario: Исходный срок и попытки переживают restart
+
+**Дано:** начатое Auto с сохранённой epoch и одной выполненной попыткой.
+**Когда:** broker перезапускается до или после исходного восьмисекундного срока.
+**Тогда:** срок не продлевается, попытка не повторяется; истёкший restart отвергается.
+
+**Automated:** `Tests/VentilatorExperimentTests/BrokerRestartRecoveryTests.swift::testOriginalRestorationDeadlineAndAttemptBudgetSurviveRestart`, `scripts/local-approval-restart-dry-run.py`
+
+### Scenario: Неизвестный результат прежнего Auto
+
+**Дано:** Auto был зарезервирован, но успешный return не сохранён.
+**Когда:** новый broker исполняет оставшиеся допустимые шаги.
+**Тогда:** прежняя попытка не повторена; даже при Auto-кодах результат ambiguousAutoAttempt и pending сохраняется.
+
+**Automated:** `Tests/VentilatorExperimentTests/BrokerRestartRecoveryTests.swift::testUnreturnedAutoIsNeverRepeatedOrDeclaredSuccessful`, `scripts/local-approval-restart-dry-run.py`
+
+### Scenario: Другая загрузка или сборка при restart
+
+**Дано:** pending ledger для точной boot/session/binary связки.
+**Когда:** предъявлен другой boot, session или hash.
+**Тогда:** restart отвергнут до closure и device доступа; попытки не изменены.
+
+**Automated:** `Tests/VentilatorExperimentTests/BrokerRestartRecoveryTests.swift::testWrongBootHashOrSessionCannotCloseOrRestore`

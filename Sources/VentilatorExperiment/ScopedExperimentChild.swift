@@ -105,7 +105,7 @@ public final class ScopedExperimentChild {
             self.model = model; observer = nil
             if role == .reader { try probe.confirm(); device = nil; executor = nil }
             else {
-                let device = ProbedModelDevice(authority: authority, scope: scope, role: role, model: model, probe: probe)
+                let device = try ProbedModelDevice(authority: authority, scope: scope, role: role, model: model, probe: probe)
                 try probe.confirm()
                 self.device = device
                 executor = try ApprovedStepExecutor(authority: authority, sessionID: ledger.sessionID, device: device)
@@ -147,6 +147,12 @@ public final class ScopedExperimentChild {
         guard authority.domain == .simulation, let model else { throw NativeExperimentError.invalidScope }
         model.failBeforeStep = step
     }
+    public func simulateBlock(afterEffect step: ExperimentStep) throws {
+        guard authority.domain == .simulation, let device = device as? ProbedModelDevice else {
+            throw NativeExperimentError.invalidScope
+        }
+        device.blockAfterEffect = step
+    }
 }
 
 private final class ProbedModelDevice: ExperimentStepDevice {
@@ -156,8 +162,13 @@ private final class ProbedModelDevice: ExperimentStepDevice {
     let role: ExperimentChildRole
     let model: FileSimulatedStepDevice
     let probe: RecoveryProbeClient
+    let executionLock: SessionJournalLock
+    var blockAfterEffect: ExperimentStep?
     init(authority: ExperimentAuthority, scope: RecoveryScope, role: ExperimentChildRole,
-         model: FileSimulatedStepDevice, probe: RecoveryProbeClient) {
+         model: FileSimulatedStepDevice, probe: RecoveryProbeClient) throws {
+        executionLock = try FileSessionJournal(directory: authority.directory).acquireDeviceExecutionLock(domain: .simulation)
+        guard let current = try authority.state().ledger, scope.matches(current),
+              role == .fixed ? !current.fixedClosed : current.fixedClosed else { throw NativeExperimentError.invalidScope }
         self.authority = authority; self.scope = scope; self.role = role; self.model = model; self.probe = probe
     }
     func write(_ reservation: ExperimentWriteReservation) throws {
@@ -167,5 +178,6 @@ private final class ProbedModelDevice: ExperimentStepDevice {
             domain: .simulation, sessionID: scope.sessionID, boot: scope.bootSession,
             now: ExperimentMonotonicClock.now(), role: role == .fixed ? .fixed : .restoration)
         try model.write(reservation)
+        if reservation.step == blockAfterEffect { while true { Thread.sleep(forTimeInterval: 1) } }
     }
 }

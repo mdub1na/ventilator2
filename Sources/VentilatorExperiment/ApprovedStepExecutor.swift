@@ -30,6 +30,7 @@ public final class ApprovedStepExecutor {
             try ExperimentWriteAdmission.validate(reserved: reservation.ledger, current: current, step: step,
                 domain: device.domain, sessionID: session.sessionID, boot: session.approval.challenge.bootSession, now: now)
             try device.write(reservation)
+            try authority.recordSuccessfulReturn(step: step, sessionID: session.sessionID)
         } catch {
             // A failed call may already have changed hardware. Keep the marker and close fixed.
             _ = try? authority.closeFixedAndBeginRestoration(sessionID: session.sessionID, now: now, date: date)

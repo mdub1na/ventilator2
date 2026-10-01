@@ -1,18 +1,23 @@
-Software gates: 2026-10-01T10:15:08+05:00
-Branch: codex/hardware-broker; base: merged PR #1 and #2 (main 534cf11).
-Swift tests: 71/71 passed (10 core, 17 control, 44 experiment).
-Independent recovery: 16 process scenarios passed; prior anonymous XPC/worker checks also passed.
-Added process cases: reader SIGSTOP/block/failure; blocked Auto reader; early Auto reader failure preserves all remaining Auto attempts and pending.
-Prepared hardware child: non-root invocation refused before journal/device access (exit 78).
-Read-only observer: Mac15,7 / 27.0.0 / 26A428, UID 501, Ftst 0, modes 3/3, RPM and targets 0/0, exact ranges, nominal pressure.
-Full read duration: 0.002667s; timestamp taken before reads; no sudo or writes.
-Docs: 11 documents, 41 BDD scenarios; docs_check --on-main passed.
+Software gates: 2026-10-01T11:33:11+05:00
+Branch: codex/local-approval-restart; base: merged PR #3 (main cef07d9).
+Swift tests: 82/82 passed (10 core, 17 control, 55 experiment).
+LocalApprovalIssuerTests: 6/6 also passed after adding the 16 KiB protected-file boundary assertion.
+Local approval/restart: six TTY/domain case groups and six broker restart process scenarios passed.
+Exact TTY confirmation binds challenge, complete owner review digest, plan digest, boot and binary fingerprints; replay, EOF, decline and review substitution rejected.
+Complete model TTY -> approval -> consumed begin -> broker -> SIGKILL/restart path passed with the same receipt.
+Device lifetime lock busy: Auto refused, pending retained, no new restoration epoch. No persisted PID or unknown-process signals.
+Partial Auto restart: only unattempted steps, original eight-second epoch preserved. Unknown Auto return: remaining steps attempted once, pending retained.
+Wrong boot and expired original Auto deadline: rejected before further device effects.
+Independent recovery: all prior 16 process scenarios passed; anonymous XPC/worker checks also passed.
+Read-only observer: Mac15,7 / 27.0.0 / 26A428, UID 501, Ftst 0, modes 3/3, actual/target RPM 0/0, exact ranges, nominal pressure.
+Full read duration: 0.002367s; timestamp taken before reads; no sudo or writes.
+Docs: 11 documents, 50 BDD scenarios; docs_check --on-main passed.
 App/helper: codesign --verify --strict passed (ad hoc).
-Signing inspection: command reports 2 identities; first flagged revoked, second an unverified candidate. No Apple-issued signing or private-key access.
+Signing inspection unchanged from preceding evidence: 2 identities reported, first revoked, second an unverified candidate. No Apple-issued signing/private-key access this step.
 GUI: no SMCExperiment open/write symbols; helper contains the prepared writer.
-Candidate schema: 2, readyForOwnerApproval=false; binary fingerprints and read-only evidence matched.
-Plan SHA-256: 3e40c6ea2cd2daa2b8f2a1d3ddb1cb1e94c85edbca391d90a67190139f533cf1
-Helper SHA-256: 5a897036d6e083d38e2d731ff23352c69c47766c82691380e4e86f5913048e93
-No SMCExperimentOpen/WriteStep, sudo, installation or actual sleep experiment performed. Actual hardware check opened only CSMCRead.
-Prepared native child and common broker loop compiled but positive signed/root hardware branch was not run.
-Public hardware start, local issuer, hardware restart/re-arm and signed installed validation remain pending; hardware start stays closed.
+Candidate schema: 3, readyForOwnerApproval=false; binary fingerprints and all process evidence matched.
+Plan SHA-256: 9556344ab1e116580567d802b2bc7b761013691a15a455b8349590f11284e720
+Helper SHA-256: cf2e61b524eed27e8c86574e3c58318f413074ca1ebd23822cadf672ec7ade0e
+No SMCExperimentOpen/WriteStep, root, sudo, installation or actual sleep experiment performed. Actual hardware check opened only CSMCRead.
+Hardware local issuer and common restart branch compiled; positive root/Apple-signed/installed execution was not run.
+Public hardware start, signed installed validation, daemon integration and the single complete owner-session plan remain pending.

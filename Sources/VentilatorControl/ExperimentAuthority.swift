@@ -17,6 +17,7 @@ public struct OwnerApprovalChallenge: Codable, Equatable {
     public let bootSession: UUID
     public let issuedAt: Double
     public let expiresAt: Double
+    public let ownerReviewSHA256: String?
 }
 
 public struct OwnerApproval: Codable, Equatable {
@@ -39,6 +40,7 @@ public struct ApprovedExperimentLedger: Codable, Equatable {
     public var unlockReservedAt: Double?
     public var attempts: [ExperimentStep]
     public var lastClock: Double
+    public var successfulReturns: [ExperimentStep]? = nil
 }
 
 public struct ExperimentAuthorityState: Codable {
@@ -54,6 +56,7 @@ public enum ExperimentAuthorityError: Error, Equatable {
     case wrongSession, leaseExpired, fixedClosed, stepOrder, stepAlreadyAttempted, unsafeObservation
     case restoreNotStarted, restorationExpired, unverifiedRestoration
     case reservationConsumed, reservationScope
+    case approvalAlreadyIssued, reviewMismatch
 }
 
 /// Non-Codable and constructible only after the authority's durable reservation transaction.
@@ -94,27 +97,32 @@ public final class ExperimentAuthority {
         return try journal.loadAuthorityState(domain: domain) ?? ExperimentAuthorityState()
     }
 
-    public func prepare(owner: UUID, plan: CandidateExperimentPlan, boot: UUID, now: Double) throws -> OwnerApprovalChallenge {
+    public func prepare(owner: UUID, plan: CandidateExperimentPlan, boot: UUID, now: Double,
+                        ownerReviewSHA256: String? = nil) throws -> OwnerApprovalChallenge {
         try checkClock(now)
         guard plan == CandidateExperimentPlan(binaries: plan.binaries), validHash(plan.binaries.applicationSHA256),
               validHash(plan.binaries.helperSHA256) else { throw ExperimentAuthorityError.planMismatch }
+        guard ownerReviewSHA256.map(validHash) ?? (domain == .simulation) else { throw ExperimentAuthorityError.reviewMismatch }
         return try transaction { state in
             guard state.ledger == nil else { throw ExperimentAuthorityError.experimentAlreadyConsumed }
             if let previous = state.challenge, now >= previous.issuedAt, now < previous.expiresAt {
                 guard previous.connectionOwner == owner, previous.bootSession == boot,
-                      previous.planSHA256 == (try plan.sha256()) else { throw ExperimentAuthorityError.pendingChallenge }
+                      previous.planSHA256 == (try plan.sha256()), previous.ownerReviewSHA256 == ownerReviewSHA256 else {
+                    throw ExperimentAuthorityError.pendingChallenge
+                }
                 return previous
             }
             let challenge = OwnerApprovalChallenge(id: UUID(), connectionOwner: owner, planSHA256: try plan.sha256(),
                                                     binaries: plan.binaries, bootSession: boot,
-                                                    issuedAt: now, expiresAt: now + Self.approvalSeconds)
+                                                    issuedAt: now, expiresAt: now + Self.approvalSeconds, ownerReviewSHA256: ownerReviewSHA256)
             state.challenge = challenge
             state.approval = nil
             return challenge
         }
     }
 
-    public func approveLocally(challengeID: UUID, planSHA256: String, boot: UUID, now: Double) throws {
+    public func approveLocally(challengeID: UUID, planSHA256: String, boot: UUID, now: Double,
+                               ownerReviewSHA256: String? = nil) throws {
         try checkClock(now)
         if domain == .hardware && (geteuid() != 0 || isatty(STDIN_FILENO) != 1 || isatty(STDOUT_FILENO) != 1) {
             throw ExperimentAuthorityError.localTerminalRequired
@@ -125,6 +133,9 @@ public final class ExperimentAuthority {
                   challenge.planSHA256 == planSHA256, challenge.bootSession == boot else {
                 throw ExperimentAuthorityError.challengeMismatch
             }
+            guard state.approval == nil else { throw ExperimentAuthorityError.approvalAlreadyIssued }
+            guard challenge.ownerReviewSHA256 == ownerReviewSHA256,
+                  domain == .simulation || ownerReviewSHA256 != nil else { throw ExperimentAuthorityError.reviewMismatch }
             guard now >= challenge.issuedAt, now < challenge.expiresAt else { throw ExperimentAuthorityError.approvalExpired }
             state.approval = OwnerApproval(domain: domain, challenge: challenge, approvedAt: now)
         }
@@ -199,6 +210,17 @@ public final class ExperimentAuthority {
             guard var ledger = state.ledger, ledger.sessionID == sessionID else { throw ExperimentAuthorityError.wrongSession }
             guard now >= ledger.lastClock else { throw ExperimentAuthorityError.invalidClock }
             ledger.fixedClosed = true; ledger.lastClock = now
+            state.ledger = ledger
+        }
+    }
+
+    /// A returned call is audit data, never physical proof. A missing return keeps Auto ambiguous on restart.
+    public func recordSuccessfulReturn(step: ExperimentStep, sessionID: UUID) throws {
+        try transaction { state in
+            guard var ledger = state.ledger, ledger.sessionID == sessionID, ledger.pendingRestoration,
+                  ledger.attempts.last == step, !(ledger.successfulReturns ?? []).contains(step),
+                  !step.isFixed || !ledger.fixedClosed else { throw ExperimentAuthorityError.wrongSession }
+            ledger.successfulReturns = (ledger.successfulReturns ?? []) + [step]
             state.ledger = ledger
         }
     }

@@ -36,7 +36,7 @@ Worker подключает публичный `IORegisterForSystemPower`: пр�
 
 ## Черновик аппаратного плана
 
-`--candidate-plan` экспортирует план из `CandidateExperimentPlan`, SHA-256 app/helper и канонический хеш плана. Worker использует тот же helper binary. Перечень предполагаемых записей и их пределы хранится в коде плана. Экспорт не читает/не пишет SMC, не принимает одобрение и не устанавливает helper. `readyForOwnerApproval=false`: не подключены аппаратный recovery broker, локальный issuer и installed проверка; единый сеанс владельца с инструкциями ещё не готов.
+`--candidate-plan` экспортирует план из `CandidateExperimentPlan`, SHA-256 app/helper и канонический хеш плана. Worker использует тот же helper binary. Перечень предполагаемых записей и их пределы хранится в коде плана; schema 3 добавляет restart policy. Экспорт не читает/не пишет SMC, не принимает одобрение и не устанавливает helper. `readyForOwnerApproval=false`: аппаратный recovery broker не подключён к public start, положительный signed/installed issuer не проверен; единый сеанс владельца с инструкциями ещё не готов.
 
 В helper линкуются `CSMCExperiment` и `VentilatorExperiment`: подготовленные десять нативных операций, проверка подписи/хешей и файловый single-use authority. Нативный factory требует hardware domain и закрытое свидетельство armed recovery, которое текущий worker не выдаёт. Factory доступен только подготовленному private hardware child; public XPC start его не вызывает. `--experiment-protocol-check` проверяет чистые нативные пакеты и полный модельный путь разрешения/записей/Auto на отдельном файле simulation; [подробности](../features/feature-experiment-protocol.md).
 
@@ -46,9 +46,15 @@ Worker подключает публичный `IORegisterForSystemPower`: пр�
 
 Отдельный `--approved-model-parent` проверяет надзор за самим writer: private-pipe broker → fixed child → после подтверждённого выхода Auto child. CLI режимы broker/child требуют non-root и наследуемые pipe; domain строго simulation. Протокол scope включает session/owner/boot/hash/lease и nonce. Broker держит отдельный lifetime lock, сохраняет closure до сигнала, не запускает Auto при неподтверждённом выходе и не повторяет зависшую операцию. Модель читается в отдельном reader child; broker loop больше не читает устройство синхронно. Это следующий подготовительный путь, ещё не замена симуляционному RPC и не аппаратный восстановитель.
 
-`ExperimentRecoveryBroker.swift` содержит общий process loop и private recovery probe handler. Модельный harness использует simulation domain; внутренний `runPreparedHardwareBroker` и native-ветка `ScopedExperimentChild` подготовлены, но никто не вызывает hardware broker entry. `--prepared-hardware-child` — узкая private-pipe ветка для root/consumed hardware ledger, не команда выдачи одобрения. Witness не создаётся из model probe. Read-only child лишён executor; брокер проверяет scope/роль/PID/ID, точный профиль/диапазоны и freshness снимка. При раннем отказе Auto reader оставшиеся допустимые Auto-попытки выполняются, но pending не снимается. Аппаратный outcome фиксирует physicalAutoVerified=false; hardware restart/re-arm и installed gate не готовы.
+`ExperimentRecoveryBroker.swift` содержит общий process loop и private recovery probe handler. Модельный harness использует simulation domain; внутренний `runPreparedHardwareBroker` и native-ветка `ScopedExperimentChild` подготовлены, но никто не вызывает hardware broker entry. `--prepared-hardware-child` — узкая private-pipe ветка для root/consumed hardware ledger, не команда выдачи одобрения. Witness не создаётся из model probe. Read-only child лишён executor; брокер проверяет scope/роль/PID/ID, точный профиль/диапазоны и freshness снимка. При раннем отказе Auto reader оставшиеся допустимые Auto-попытки выполняются, но pending не снимается. Аппаратный outcome фиксирует physicalAutoVerified=false. Restart-путь подготовлен в общем loop и проверен на модели; положительный hardware/installed путь не запускался.
 
-Новый путь использует отложенное подтверждение will-sleep: callback запускает ограниченное восстановление, завершение/отказ освобождает acknowledgement. Старый simulation worker сохраняет синхронный порядок. Реальный сон Mac не запускался. [Проверки broker](../research/evidence/recovery-dry-run.txt) покрывают helper/writer SIGKILL/SIGSTOP, broker SIGTERM, зависания Fixed/Auto, частичный отказ Auto, reader SIGSTOP/зависание/ошибку, потерю независимого Auto-подтверждения, injected sleep и абсолютный lease. SIGKILL самого broker/питание/SMC-кernel cancellation не доказаны.
+Новый путь использует отложенное подтверждение will-sleep: callback запускает ограниченное восстановление, завершение/отказ освобождает acknowledgement. Старый simulation worker сохраняет синхронный порядок. Реальный сон Mac не запускался. [Проверки broker](../research/evidence/recovery-dry-run.txt) покрывают helper/writer SIGKILL/SIGSTOP, broker SIGTERM, зависания Fixed/Auto, частичный отказ Auto, reader SIGSTOP/зависание/ошибку, потерю независимого Auto-подтверждения, injected sleep и абсолютный lease. SIGKILL/restart самого broker покрыт отдельным модельным harness; питание/SMC-kernel cancellation не доказаны.
+
+## Локальный issuer и restart
+
+`LocalApprovalCLI` показывает защищённый полный `LocalApprovalReview` и принимает только challenge UUID с точными SHA-256 плана/review. Перед confirm заново проверяет identity/файл/300-секундный срок. Hardware CLI имеет фиксированный каталог, требует root TTY, подписи одной команды, текущую модель/ОС/boot и enabled SMAppService; positive путь не запускался. Approval само по себе не создаёт ledger, не запускает процессы и не пишет SMC. Model CLI non-root и отдельный domain; подробности и лимиты — в [протоколе](../features/feature-experiment-protocol.md).
+
+`BrokerRestartRecovery` требует точную boot/session/hash связку, durable closure и свободный device lifetime lock. После proof lock передаётся единственному Auto child; прежний Fixed уже отозван. Broker не сохраняет PID и не ищет/убивает старые процессы. Новый nonce, исходный срок и запрет повтора каждой попытки сохраняются. Недостоверный прежний Auto return оставляет pending даже при успешных оставшихся шагах. `--approved-model-parent` умеет потребить готовое локальное approval; новые [процессные проверки](../research/evidence/local-approval-restart-dry-run.txt) проходят весь путь TTY → receipt → broker → restart.
 
 ## Проверка
 
@@ -57,6 +63,7 @@ Worker подключает публичный `IORegisterForSystemPower`: пр�
 ```sh
 python3 scripts/control-dry-run.py
 python3 scripts/recovery-dry-run.py
+python3 scripts/local-approval-restart-dry-run.py
 python3 scripts/prepare-experiment-plan.py
 SWIFTPM_MODULECACHE_OVERRIDE="$PWD/.build/swift-module-cache" swift test --disable-sandbox --scratch-path .build
 ```
@@ -77,6 +84,7 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 | Подготовленный аппаратный протокол | `Sources/CSMCExperiment/`, `Sources/VentilatorExperiment/`, `Sources/VentilatorControl/ExperimentAuthority.swift` |
 | Read-only наблюдение опыта | `Sources/VentilatorHelper/ExperimentReadOnlyCheck.swift`, `Sources/VentilatorExperiment/ReadOnlyExperimentObserver.swift` |
 | Режимы запуска | `Sources/VentilatorHelper/HelperMain.swift` |
+| Локальное одобрение и restart | `Sources/VentilatorHelper/LocalApprovalCLI.swift`, `Sources/VentilatorExperiment/LocalApprovalIssuer.swift`, `Sources/VentilatorExperiment/BrokerRestartRecovery.swift`, `scripts/local-approval-restart-dry-run.py` |
 | Plist и сборка | `Resources/dev.ventilator.helper.plist`, `scripts/build-app.sh` |
 
 См. [подставные сценарии](../features/feature-control-simulation.md) и [архитектуру](../research/research-architecture.md).

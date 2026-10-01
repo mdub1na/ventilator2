@@ -17,4 +17,6 @@ open .build/Ventilator.app
 
 `.build/Ventilator.app/Contents/MacOS/VentilatorHelper --experiment-read-only` читает отдельный снимок FNum/Ftst/вентиляторов и сообщает кандидатный preflight без root. Он не выдаёт аппаратное одобрение; [проверенный результат](docs/research/evidence/experiment-read-only.json).
 
-В подготовленном общем runtime writer, восстановитель и read-only reader разделены по процессам и связаны свежими private recovery probes. Аппаратный entry/локальный issuer и проверка установленной подписи ещё не подключены; GUI остаётся только на чтение.
+`python3 scripts/local-approval-restart-dry-run.py` проверяет полный путь локального подтверждения плана/инструкций через TTY и восстановление после SIGKILL broker. Новый broker допускает только оставшиеся Auto-шаги, сохраняет исходный срок и pending при неизвестном результате прежней попытки. [Результаты](docs/research/evidence/local-approval-restart-dry-run.txt) относятся к модели без root и аппаратных записей.
+
+В подготовленном общем runtime writer, восстановитель и read-only reader разделены по процессам и связаны свежими private recovery probes. Локальный issuer реализован; положительная проверка установленной подписи и подключение аппаратного entry остаются открытыми. GUI остаётся только на чтение.

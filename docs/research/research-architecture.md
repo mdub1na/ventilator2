@@ -103,6 +103,18 @@ PR #1 был объединён в main во время этой работы. �
 
 Задание перечисляет CPU, GPU и SSD как обязательные показания. На дату исследования для `Mac15,7` + macOS 27 установлен источник одного NAND-канала SSD, но **не установлены достоверные источники CPU/GPU**. Прототип показывает «нет данных» и источник/статус датчика там, где атрибуция не подтверждена; нельзя объявлять произвольный `T…` ключ «температурой CPU» ради полного экрана. Это временное отклонение снимается после воспроизводимой проверки оставшихся источников.
 
+### Локальное одобрение и restart — 2026-10-01, работа после PR #3
+
+Владелец объединил [PR #3](https://github.com/mdub1na/ventilator2/pull/3); новая ветка основана на main `cef07d9`. Прочитанный и скомпилированный код добавляет `LocalApprovalIssuer`, полный `LocalApprovalReview` и `BrokerRestartRecovery`. 82 unit-теста прошли, включая точное подтверждение/отказ/replay/подмену review и восстановление оставшихся Auto-шагов с исходным deadline. Положительный root/Apple-signed/installed путь пока не выполнялся.
+
+Одобрение связывает candidate schema 3 и полный текст инструкций двумя SHA-256. Выбрано точное локальное подтверждение challenge + обоих digest вместо короткого yes: изменение текста сеанса должно отменять ранее показанное подтверждение. Hardware issuer требует root TTY, проверенные app/helper одной команды, профиль и `SMAppService.status == .enabled`. По [Apple](https://developer.apple.com/documentation/servicemanagement/smappservice/status-swift.enum/enabled), это регистрация и право запускаться; статус не доказывает работу процесса. Поэтому он остаётся предварительным installed gate, положительный установленный сценарий ещё нужен.
+
+Решение restart: каждый device writer/restorer держит отдельный lifetime flock до закрытия соединения. Новый broker сначала закрывает Fixed в журнале, затем требует эту блокировку; сохранённых PID нет. При занятом устройстве Auto не начинается. После освобождения используются новый nonce, только ещё не зарезервированные Auto-шаги и исходный восьмисекундный срок. Возвращённые вызовы отмечаются отдельно от попыток; отсутствующий return у прежнего Auto не разрешает повтор и сохраняет pending. Это механизм контроля процессов, не доказательство отмены kernel I/O или физического Auto.
+
+[TTY/restart dry-run](evidence/local-approval-restart-dry-run.txt) прошёл шесть групп проверки issuer и шесть restart-сценариев на текущем helper: полный review показан до ввода, approval не запускает устройство; SIGKILL в Fixed и частичном Auto продолжены без повторов; неизвестный Auto return, занятое устройство, исходный timeout и чужой boot сохраняют pending. Одобрение в этих процессных случаях получено через TTY и потреблено настоящим model begin, а не подставлено в JSON. Старые 16 recovery-сценариев и anonymous XPC/worker dry-run также прошли. Обновлённый helper повторно прочитал реальный SMC без root; [снимок](evidence/experiment-read-only.json). Нативный writer не открывался.
+
+Наблюдение при разработке harness: на этом Mac остановленный SIGSTOP writer исчезал после SIGKILL его broker; такой случай не моделирует живое старое соединение или незавершённую kernel операцию. Для проверки отказа нового broker независимый non-root процесс удерживал device lock. Положительный отказ `deviceStillActive` и отсутствие новой epoch подтверждены этой файловой моделью; аппаратную отмену это не устанавливает.
+
 ## Гипотезы и адреса проверки
 
 | Гипотеза | Проверка и момент закрытия |
@@ -145,6 +157,7 @@ PR #1 был объединён в main во время этой работы. �
 | Независимый процесс симуляции | `Sources/VentilatorHelper/SimulationWorker.swift`, `Sources/VentilatorControl/FileSessionJournal.swift` |
 | Неисполняемый кандидатный план | `Sources/VentilatorControl/CandidateExperimentPlan.swift`, `scripts/prepare-experiment-plan.py` |
 | Подготовленный ABI и authority | `Sources/CSMCExperiment/SMCExperiment.c`, `Sources/VentilatorControl/ExperimentAuthority.swift`, `Sources/VentilatorExperiment/` |
+| Полный локальный review и restart | `Sources/VentilatorExperiment/LocalApprovalIssuer.swift`, `Sources/VentilatorHelper/LocalApprovalCLI.swift`, `Sources/VentilatorExperiment/BrokerRestartRecovery.swift`, `scripts/local-approval-restart-dry-run.py` |
 | Надзор за writer и модельные device-процессы | `Sources/VentilatorExperiment/RecoveryMonitor.swift`, `Sources/VentilatorHelper/ExperimentRecoveryBroker.swift`, `Sources/VentilatorHelper/ApprovedModelRecovery.swift`, `scripts/recovery-dry-run.py` |
 | Независимые чтения и допуск перед I/O | `Sources/VentilatorExperiment/ReadOnlyExperimentObserver.swift`, `Sources/VentilatorExperiment/ExperimentWriteAdmission.swift`, `Sources/VentilatorExperiment/RecoveryProbe.swift` |
 

@@ -1,0 +1,17 @@
+Local approval/restart verification: 2026-10-01T11:26:31+05:00
+UID=501; TTY model approval, file-backed device only; no root, native open/write, installation or actual sleep.
+Exact local confirmation: verified; no ledger or device effect. Exact consent replay rejected.
+Declined confirmation: verified; no ledger or device effect.
+EOF confirmation: verified; no ledger or device effect.
+Wrong review digest: verified; no ledger or device effect.
+Review changed after display: verified; no ledger or device effect.
+Hardware-domain review, non-root hardware issuer and non-TTY model issuer rejected before approval; no native device opened.
+Broker SIGKILL in Fixed: autoCodesObserved/brokerRestart; steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False; same receipt, no repeated Fixed/Auto, original deadline preserved.
+Device lock held by another process: recoveryRequired/deviceStillActive; steps=[0, 1, 2, 3, 4]; pending=True; same receipt, no repeated Fixed/Auto, original deadline preserved.
+Partially returned Auto: autoCodesObserved/brokerRestart; steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False; same receipt, no repeated Fixed/Auto, original deadline preserved.
+Ambiguous Auto: recoveryRequired/ambiguousAutoAttempt; steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=True; same receipt, no repeated Fixed/Auto, original deadline preserved.
+Expired original Auto deadline: recoveryRequired/restartRejected; steps=[0, 1, 2, 3, 4, 5]; pending=True; same receipt, no repeated Fixed/Auto, original deadline preserved.
+Wrong boot session: recoveryRequired/restartRejected; steps=[0, 1, 2, 3, 4]; pending=True; same receipt, no repeated Fixed/Auto, original deadline preserved.
+Six TTY/domain cases and six broker restart cases passed; hardware positive issuer/start and physical recovery remain unverified.
+No PID is persisted or used by production restart. A live device lock prevents Auto; ambiguous attempted Auto is never retried.
+SHA-256 of tested helper: cf2e61b524eed27e8c86574e3c58318f413074ca1ebd23822cadf672ec7ade0e

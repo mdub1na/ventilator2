@@ -3,23 +3,31 @@ import Foundation
 import VentilatorControl
 import VentilatorExperiment
 
-enum ModelRecoveryCase: String, Codable { case normal, hold, sleep, blockedFixed, blockedRestore, restoreFailure, blockedReader, readerFailure, blockedAutoReader, earlyAutoReaderFailure }
+enum ModelRecoveryCase: String, Codable { case normal, hold, sleep, delayedAutoZero, blockedFixed, blockedRestore, restoreFailure, blockedReader, readerFailure, blockedAutoReader, earlyAutoReaderFailure }
 
 /// A harness proxy supplies heartbeat while the dedicated broker owns the experiment model.
 func runApprovedModelParent(directory: URL, fault: ModelRecoveryCase) throws {
     guard geteuid() != 0 else { throw CheckError.failed("Recovery model must run without root") }
     let journal = try FileSessionJournal(directory: directory)
-    guard try journal.loadSimulationDevice() == nil, try journal.loadAuthorityState(domain: .simulation) == nil else {
+    guard try journal.loadSimulationDevice() == nil, try journal.loadAuthorityState(domain: .simulation)?.ledger == nil else {
         throw CheckError.failed("Model directory already used")
     }
-    try journal.saveSimulationDevice(SimulationDeviceState())
     let authority = try ExperimentAuthority(directory: directory, domain: .simulation)
-    let plan = try bundledCandidatePlan(), owner = UUID(), boot = UUID()
-    let challenge = try authority.prepare(owner: owner, plan: plan, boot: boot, now: HelperClock.now())
-    try authority.approveLocally(challengeID: challenge.id, planSHA256: plan.sha256(), boot: boot, now: HelperClock.now())
+    let plan = try bundledCandidatePlan()
+    let challenge: OwnerApprovalChallenge
+    if let approval = try authority.state().approval {
+        guard approval.domain == .simulation, approval.challenge.planSHA256 == (try plan.sha256()),
+              approval.challenge.binaries == plan.binaries else { throw CheckError.failed("Local model approval binding") }
+        challenge = approval.challenge
+    } else {
+        // Legacy fault harness only. A saved local receipt follows the same consuming begin path below.
+        challenge = try authority.prepare(owner: UUID(), plan: plan, boot: UUID(), now: HelperClock.now())
+        try authority.approveLocally(challengeID: challenge.id, planSHA256: plan.sha256(), boot: challenge.bootSession, now: HelperClock.now())
+    }
     let baseline = SimulatedStepDevice(), date = Date()
-    let ledger = try authority.begin(owner: owner, challengeID: challenge.id, plan: plan, binaries: plan.binaries,
-        boot: boot, now: HelperClock.now(), observation: baseline.observation(at: date), date: date)
+    let ledger = try authority.begin(owner: challenge.connectionOwner, challengeID: challenge.id, plan: plan, binaries: plan.binaries,
+        boot: challenge.bootSession, now: HelperClock.now(), observation: baseline.observation(at: date), date: date)
+    try journal.saveSimulationDevice(SimulationDeviceState())
     let process = Process(), input = Pipe(), output = Pipe()
     let channel = try WorkerChannel(input: output.fileHandleForReading.fileDescriptor, output: input.fileHandleForWriting.fileDescriptor)
     process.executableURL = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
@@ -36,7 +44,11 @@ func runApprovedModelParent(directory: URL, fault: ModelRecoveryCase) throws {
     var nextHeartbeat = HelperClock.now(), restoreSent = false
     while process.isRunning {
         let now = HelperClock.now()
-        if !restoreSent, [.normal, .sleep].contains(fault), try journal.loadSimulationDevice()?.effects.contains(.targetOne) == true {
+        if let data = try? channel.readLine(waitSeconds: 0),
+           let event = try? JSONDecoder().decode(BrokerProcessEvent.self, from: data), event.scope == ready.scope {
+            print(String(decoding: try JSONEncoder().encode(event), as: UTF8.self)); fflush(stdout)
+        }
+        if !restoreSent, [.normal, .sleep, .delayedAutoZero].contains(fault), try journal.loadSimulationDevice()?.effects.contains(.targetOne) == true {
             try channel.send(BrokerOwnerRequest(scope: ready.scope, command: fault == .sleep ? .sleep : .restore)); restoreSent = true
         } else if now >= nextHeartbeat && !restoreSent {
             try? channel.send(BrokerOwnerRequest(scope: ready.scope, command: .heartbeat)); nextHeartbeat = now + 0.25

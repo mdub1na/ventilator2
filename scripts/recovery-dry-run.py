@@ -142,7 +142,7 @@ run_case("Early Auto reader failure preserves all Auto attempts", "earlyAutoRead
          expected="recoveryRequired", reason="restorationReaderFailure")
 lines += ["Writer non-quiescence is also unit tested: no Auto starts and the pending ledger remains.",
           "Process termination is model proof only; it does not prove cancellation of a kernel SMC operation.",
-          "Broker SIGKILL/power loss and hardware recovery remain unverified; hardware startup stays disabled.",
+          "Broker SIGKILL/restart is covered separately by local-approval-restart-dry-run.py; power loss and hardware recovery remain unverified.",
           "SHA-256 of tested helper: " + hashlib.sha256(binary.read_bytes()).hexdigest()]
 report = "\n".join(lines) + "\n"
 (root / "docs/research/evidence/recovery-dry-run.txt").write_text(report)

@@ -39,6 +39,19 @@ public final class FileSessionJournal: SessionJournal {
     }
 
     public func acquireRecoveryBrokerLock() throws -> SessionJournalLock { try acquireLock("recovery-broker.lock") }
+    /// Held by each writer/restorer until its device connection closes. A broker never kills a persisted PID.
+    public func acquireDeviceExecutionLock(domain: ExperimentDomain) throws -> SessionJournalLock {
+        try checkAuthorityDomain(domain)
+        return try acquireLock("device-execution-\(domain.rawValue).lock")
+    }
+    public func loadLocalReview(domain: ExperimentDomain) throws -> Data? {
+        try checkAuthorityDomain(domain)
+        return try read("local-review-\(domain.rawValue).json", maximumBytes: 16_384)
+    }
+    public func saveLocalReview(_ data: Data, domain: ExperimentDomain) throws {
+        try checkAuthorityDomain(domain)
+        try write(data, to: "local-review-\(domain.rawValue).json", maximumBytes: 16_384)
+    }
     public func acquireSimulationDeviceLock() throws -> SessionJournalLock { try acquireLock("simulation-device.lock") }
     public func loadSimulationDevice() throws -> SimulationDeviceState? {
         guard let data = try read("simulation-device.json") else { return nil }
@@ -74,7 +87,10 @@ public final class FileSessionJournal: SessionJournal {
         func validChallenge(_ challenge: OwnerApprovalChallenge) -> Bool {
             challenge.issuedAt.isFinite && challenge.issuedAt >= 0 &&
                 challenge.expiresAt == challenge.issuedAt + ExperimentAuthority.approvalSeconds &&
-                challenge.planSHA256.utf8.count == 64
+                challenge.planSHA256.utf8.count == 64 &&
+                (challenge.ownerReviewSHA256.map({ value in
+                    value.utf8.count == 64 && value.utf8.allSatisfy { (48...57).contains($0) || (97...102).contains($0) }
+                }) ?? (domain == .simulation))
         }
         if let challenge = state.challenge, !validChallenge(challenge) { throw CocoaError(.fileReadCorruptFile) }
         if let approval = state.approval {
@@ -88,6 +104,8 @@ public final class FileSessionJournal: SessionJournal {
                   ledger.expiresAt == ledger.startedAt + ControlSession.leaseSeconds,
                   ledger.lastClock.isFinite, ledger.lastClock >= ledger.startedAt,
                   Set(ledger.attempts).count == ledger.attempts.count,
+                  Set(ledger.successfulReturns ?? []).count == (ledger.successfulReturns ?? []).count,
+                  Set(ledger.successfulReturns ?? []).isSubset(of: Set(ledger.attempts)),
                   (ledger.restoreStartedAt == nil) == (ledger.restoreRequestedDate == nil),
                   ledger.restoreStartedAt.map({ $0.isFinite && $0 >= ledger.startedAt && ledger.fixedClosed }) ?? true else {
                 throw CocoaError(.fileReadCorruptFile)
@@ -136,7 +154,7 @@ public final class FileSessionJournal: SessionJournal {
 
     public func clearWorkerOutcome() throws { try remove("worker-result.json") }
 
-    private func read(_ name: String) throws -> Data? {
+    private func read(_ name: String, maximumBytes: Int = 4096) throws -> Data? {
         let directoryFD = try openDirectory()
         defer { close(directoryFD) }
         let descriptor = openat(directoryFD, name, O_RDONLY | O_NOFOLLOW | O_CLOEXEC)
@@ -146,8 +164,8 @@ public final class FileSessionJournal: SessionJournal {
         }
         let file = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
         try checkFile(descriptor)
-        let data = try file.read(upToCount: 4097) ?? Data()
-        guard data.count <= 4096 else { throw CocoaError(.fileReadCorruptFile) }
+        let data = try file.read(upToCount: maximumBytes + 1) ?? Data()
+        guard data.count <= maximumBytes else { throw CocoaError(.fileReadCorruptFile) }
         return data
     }
 
@@ -159,8 +177,8 @@ public final class FileSessionJournal: SessionJournal {
         }
     }
 
-    private func write(_ data: Data, to name: String) throws {
-        guard data.count <= 4096 else { throw CocoaError(.fileWriteInvalidFileName) }
+    private func write(_ data: Data, to name: String, maximumBytes: Int = 4096) throws {
+        guard data.count <= maximumBytes else { throw CocoaError(.fileWriteInvalidFileName) }
         let directoryFD = try openDirectory()
         defer { close(directoryFD) }
         let temporary = ".session-\(UUID().uuidString).tmp"

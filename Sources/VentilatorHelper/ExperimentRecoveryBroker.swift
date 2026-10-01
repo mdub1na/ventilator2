@@ -25,10 +25,19 @@ private struct BrokerChildReply: Codable {
     let error: String?
     let observation: BrokerObservation?
 }
-struct BrokerBootstrap: Codable { let sessionID: UUID; let fault: ModelRecoveryCase }
+struct BrokerBootstrap: Codable {
+    let sessionID: UUID
+    let fault: ModelRecoveryCase
+    let restarting: Bool
+    let modelBootSession: UUID?
+    init(sessionID: UUID, fault: ModelRecoveryCase, restarting: Bool = false, modelBootSession: UUID? = nil) {
+        self.sessionID = sessionID; self.fault = fault; self.restarting = restarting; self.modelBootSession = modelBootSession
+    }
+}
 enum BrokerOwnerCommand: String, Codable { case heartbeat, restore, sleep }
 struct BrokerOwnerRequest: Codable { let scope: RecoveryScope; let command: BrokerOwnerCommand }
-struct BrokerReady: Codable { let scope: RecoveryScope; let brokerPID: Int32; let writerPID: Int32; let readerPID: Int32 }
+struct BrokerReady: Codable { let scope: RecoveryScope; let brokerPID: Int32; let writerPID: Int32; let readerPID: Int32; let restorerPID: Int32? }
+struct BrokerProcessEvent: Codable { let scope: RecoveryScope; let role: ExperimentChildRole; let pid: Int32 }
 
 private func privateChannel(domain: ExperimentDomain = .simulation) throws -> WorkerChannel {
     var input = stat(), output = stat()
@@ -39,7 +48,7 @@ private func privateChannel(domain: ExperimentDomain = .simulation) throws -> Wo
     return try WorkerChannel(input: STDIN_FILENO, output: STDOUT_FILENO)
 }
 
-/// Private child entry points share the same broker protocol. Hardware startup has no public issuer.
+/// Private child entry points share the same broker protocol. Local approval does not start hardware.
 func runApprovedModelChild(directory: URL) throws { try runExperimentChild(directory: directory, domain: .simulation) }
 func runPreparedHardwareChild(directory: URL) throws { try runExperimentChild(directory: directory, domain: .hardware) }
 
@@ -54,6 +63,8 @@ private func runExperimentChild(directory: URL, domain: ExperimentDomain) throws
     let child = try ScopedExperimentChild(authority: authority, scope: bootstrap.scope, role: bootstrap.role,
         phase: bootstrap.phase, input: STDIN_FILENO, output: STDOUT_FILENO)
     if bootstrap.fault == .restoreFailure { try child.simulateFailure(before: .autoZero) }
+    if bootstrap.fault == .blockedFixed && bootstrap.role == .fixed { try child.simulateBlock(afterEffect: .unlock) }
+    if bootstrap.fault == .blockedRestore && bootstrap.role == .restore { try child.simulateBlock(afterEffect: .autoZero) }
     try channel.send(BrokerChildReply(id: nil, scope: bootstrap.scope, role: bootstrap.role, pid: getpid(), error: nil, observation: nil))
     while true {
         guard let data = try channel.readLine(waitSeconds: 0.25) else { continue }
@@ -81,9 +92,9 @@ private func runExperimentChild(directory: URL, domain: ExperimentDomain) throws
                 observation = BrokerObservation(try child.sample())
             } else if let step = request.step {
                 try child.perform(step)
-                if (bootstrap.fault == .blockedFixed && step == .unlock) ||
-                    (bootstrap.fault == .blockedRestore && step == .autoZero) {
-                    while true { Thread.sleep(forTimeInterval: 1) }
+                if bootstrap.fault == .delayedAutoZero && step == .autoZero {
+                    // Model-only crash window after a durable successful return, before its IPC acknowledgement.
+                    Thread.sleep(forTimeInterval: 0.2)
                 }
             }
             guard HelperClock.now() < request.deadline else { throw CheckError.failed("Late child operation") }
@@ -165,23 +176,69 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
           domain == .simulation || bootstrap.fault == .normal else {
         throw CheckError.failed("Broker ledger binding")
     }
-    let monitor = try RecoveryMonitor(ledger: ledger, now: HelperClock.now())
     var events: [String] = [], failedSteps: [ExperimentStep] = []
-    var reader = try ExperimentChildClient(directory: directory,
-        bootstrap: .init(scope: monitor.scope, role: .reader, fault: bootstrap.fault, phase: .fixed),
-        monitor: monitor, events: { events.append($0) })
-    defer { reader.killOwnedChild() }
+    var restart: BrokerRestartRecovery?
+    let monitor: RecoveryMonitor
+    if bootstrap.restarting {
+        let boot: UUID
+        if domain == .hardware {
+            boot = try HardwareRecoveryIdentity.currentBoot()
+        } else { boot = bootstrap.modelBootSession ?? ledger.approval.challenge.bootSession }
+        let deadline = HelperClock.now() + CandidateExperimentPlan.writerQuiescenceSeconds
+        repeat {
+            do {
+                restart = try BrokerRestartRecovery(authority: authority, sessionID: ledger.sessionID, boot: boot,
+                    binaries: bundledCandidatePlan().binaries, now: HelperClock.now(), date: Date())
+                break
+            } catch BrokerRestartError.deviceStillActive {
+                if HelperClock.now() >= deadline {
+                    try persistBrokerOutcome(journal: journal, domain: domain, ledger: ledger, phase: .recoveryRequired,
+                        reason: "deviceStillActive", events: ["restartFixedClosed", "deviceLockUnavailable"], failedSteps: [], registered: false)
+                    return
+                }
+                RunLoop.current.run(until: Date().addingTimeInterval(0.02))
+            } catch {
+                try persistBrokerOutcome(journal: journal, domain: domain, ledger: ledger, phase: .recoveryRequired,
+                    reason: "restartRejected", events: [String(describing: error)], failedSteps: [], registered: false)
+                return
+            }
+        } while true
+        monitor = try RecoveryMonitor(restarting: restart!, now: HelperClock.now())
+        events += ["restartFixedClosed", "deviceLockAcquired", "restorationStarted"]
+        restart!.releaseForAutoChild()
+    } else { monitor = try RecoveryMonitor(ledger: ledger, now: HelperClock.now()) }
+    var reader: ExperimentChildClient?
     var retiredReaders: [ExperimentChildClient] = []
-    defer { retiredReaders.forEach { $0.killOwnedChild() } }
-    let writer = try ExperimentChildClient(directory: directory,
-        bootstrap: .init(scope: monitor.scope, role: .fixed, fault: bootstrap.fault, phase: .fixed),
-        monitor: monitor, events: { events.append($0) })
-    events.append("writerReady"); events.append("readerReady")
-    var restorer: ExperimentChildClient?
-    defer { writer.killOwnedChild(); restorer?.killOwnedChild(); reader.killOwnedChild() }
-    var baseline: MonitorSnapshot?, restorationRequestedAt: Date?
-    var readerRequest: (id: UUID, date: Date, deadline: Double)?
     var readerFailed = false
+    let writer: ExperimentChildClient?
+    var restorer: ExperimentChildClient?
+    if bootstrap.restarting {
+        writer = nil
+        restorer = try ExperimentChildClient(directory: directory,
+            bootstrap: .init(scope: monitor.scope, role: .restore, fault: bootstrap.fault, phase: .restoring),
+            monitor: monitor, events: { events.append($0) })
+        events.append("restorerReady")
+    } else {
+        writer = try ExperimentChildClient(directory: directory,
+            bootstrap: .init(scope: monitor.scope, role: .fixed, fault: bootstrap.fault, phase: .fixed),
+            monitor: monitor, events: { events.append($0) })
+        events.append("writerReady")
+    }
+    defer { writer?.killOwnedChild(); restorer?.killOwnedChild(); reader?.killOwnedChild(); retiredReaders.forEach { $0.killOwnedChild() } }
+    do {
+        reader = try ExperimentChildClient(directory: directory,
+            bootstrap: .init(scope: monitor.scope, role: .reader, fault: bootstrap.fault, phase: monitor.phase),
+            monitor: monitor, events: { events.append($0) })
+        events.append("readerReady")
+    } catch {
+        if !bootstrap.restarting { throw error }
+        readerFailed = true; events.append("autoReaderSetupFailed")
+    }
+    var restoreSteps = restart?.remainingSteps ?? ExperimentStep.allCases.filter { !$0.isFixed }
+    let ambiguousAuto = restart?.ambiguousAutoSteps ?? []
+    var baseline: MonitorSnapshot?
+    var restorationRequestedAt = restart?.ledger.restoreRequestedDate
+    var readerRequest: (id: UUID, date: Date, deadline: Double)?
     var nextRead = HelperClock.now()
     var writerKillSent = false, ownerConnected = true, terminating = false, sleeping = false
     var nextFixed = 0, nextRestore = 0
@@ -197,7 +254,7 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
     let termination = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
     termination.setEventHandler { terminating = true }; termination.resume()
     defer { termination.cancel() }
-    try ownerChannel.send(BrokerReady(scope: monitor.scope, brokerPID: getpid(), writerPID: writer.process.processIdentifier, readerPID: reader.process.processIdentifier))
+    try ownerChannel.send(BrokerReady(scope: monitor.scope, brokerPID: getpid(), writerPID: writer?.process.processIdentifier ?? 0, readerPID: reader?.process.processIdentifier ?? 0, restorerPID: restorer?.process.processIdentifier))
 
     while [.fixed, .quiescing, .restoring].contains(monitor.phase) {
         var now = HelperClock.now()
@@ -218,17 +275,17 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
             } catch { ownerConnected = false; monitor.stop(reason: "helperExited", now: HelperClock.now()) }
         }
         now = HelperClock.now()
-        if monitor.phase == .fixed && !writer.process.isRunning { monitor.stop(reason: "writerExited", now: now) }
+        if monitor.phase == .fixed && writer?.process.isRunning == false { monitor.stop(reason: "writerExited", now: now) }
         if monitor.phase == .quiescing {
             if !writerKillSent {
                 do {
                     try authority.closeFixed(sessionID: ledger.sessionID, now: HelperClock.now())
                     events.append("fixedClosed")
                 } catch { monitor.fail(reason: "journalClosureFailure") }
-                events.append("writerStopRequested"); writer.killOwnedChild(); writerKillSent = true
+                events.append("writerStopRequested"); writer?.killOwnedChild(); writerKillSent = true
             }
             // A stop signal or a timeout is not enough: wait for this child's completed termination.
-            if monitor.phase == .quiescing && !writer.process.isRunning {
+            if monitor.phase == .quiescing && writer?.process.isRunning == false {
                 do {
                     now = HelperClock.now()
                     events.append("writerExited")
@@ -238,14 +295,17 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                     guard let requestedAt = closed.restoreRequestedDate else { throw CheckError.failed("Restoration timestamp missing") }
                     restorationRequestedAt = requestedAt
                     pendingStep = nil
-                    reader.killOwnedChild()
-                    retiredReaders.append(reader)
+                    reader?.killOwnedChild()
+                    if let reader { retiredReaders.append(reader) }
                     readerRequest = nil; nextRead = HelperClock.now(); readerFailed = false
                     // Auto child reads independently of the broker's reader; reader failure cannot prevent its setup.
                     restorer = try ExperimentChildClient(directory: directory,
                         bootstrap: .init(scope: monitor.scope, role: .restore, fault: bootstrap.fault, phase: .restoring),
                         monitor: monitor, events: { events.append($0) })
                     events.append("restorerReady")
+                    restoreSteps = ExperimentStep.allCases.filter { !$0.isFixed && !closed.attempts.contains($0) }
+                    try? ownerChannel.send(BrokerProcessEvent(scope: monitor.scope, role: .restore, pid: restorer!.process.processIdentifier),
+                        deadline: HelperClock.now() + 0.05)
                     do {
                         reader = try ExperimentChildClient(directory: directory,
                             bootstrap: .init(scope: monitor.scope, role: .reader, fault: bootstrap.fault, phase: .restoring),
@@ -256,7 +316,7 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
         }
 
         if [.fixed, .restoring].contains(monitor.phase) {
-            let child = monitor.phase == .fixed ? writer : restorer!
+            let child = monitor.phase == .fixed ? writer! : restorer!
             do {
                 if let data = try child.channel.readLine(waitSeconds: 0) {
                     if try child.serveProbe(data, monitor: monitor, events: { events.append($0) }) { continue }
@@ -282,7 +342,7 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
         now = HelperClock.now()
         if !readerFailed, [.fixed, .restoring].contains(monitor.phase) {
             do {
-                guard reader.process.isRunning else { throw CheckError.failed("Reader exited") }
+                guard let reader, reader.process.isRunning else { throw CheckError.failed("Reader exited") }
                 if let pending = readerRequest, now >= pending.deadline { throw CheckError.failed("Reader timeout") }
                 if let data = try reader.channel.readLine(waitSeconds: 0) {
                     guard let pending = readerRequest else { throw CheckError.failed("Unsolicited reader frame") }
@@ -307,7 +367,7 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                             if !fixedObserved { events.append("fixedRPMObserved") }
                             fixedObserved = true
                         } else if nextFixed == 5 && fixedObserved { monitor.stop(reason: "fixedNotObserved", now: HelperClock.now()) }
-                    } else if nextRestore == 5, monitor.pendingOperation == nil,
+                    } else if nextRestore == restoreSteps.count, monitor.pendingOperation == nil,
                               observation.testModeCode == 0, observation.snapshot.fans.allSatisfy({ $0.modeCode == 0 || $0.modeCode == 3 }),
                               let requestedAt = restorationRequestedAt, observation.snapshot.sampledAt > requestedAt,
                               autoSamples.last.map({ observation.snapshot.sampledAt.timeIntervalSince($0.snapshot.sampledAt) >= 1 }) ?? true {
@@ -323,7 +383,7 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                 if monitor.phase == .fixed {
                     monitor.stop(reason: readerRequest.map { HelperClock.now() >= $0.deadline } == true ? "readerTimeout" : "readerFailure", now: HelperClock.now())
                 } else {
-                    readerFailed = true; reader.killOwnedChild(); events.append("autoReaderFailed")
+                    readerFailed = true; reader?.killOwnedChild(); events.append("autoReaderFailed")
                 }
             }
         }
@@ -341,7 +401,7 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                         let id = UUID()
                         try monitor.beginOperation(id: id, now: now)
                         let deadline = min(now + CandidateExperimentPlan.operationSeconds, ledger.expiresAt)
-                        try writer.channel.send(BrokerChildRequest(id: id, scope: monitor.scope, step: step,
+                        try writer!.channel.send(BrokerChildRequest(id: id, scope: monitor.scope, step: step,
                             deadline: deadline), deadline: deadline)
                         pendingStep = step
                         if step != nil { nextFixed += 1 }
@@ -353,18 +413,19 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
 
         if monitor.phase == .restoring {
             do {
-                if monitor.pendingOperation == nil && nextRestore < 5 {
-                    let step = ExperimentStep(rawValue: UInt32(5 + nextRestore))!, id = UUID()
+                if monitor.pendingOperation == nil && nextRestore < restoreSteps.count {
+                    let step = restoreSteps[nextRestore], id = UUID()
                     try monitor.beginOperation(id: id, now: HelperClock.now())
                     let deadline = min(HelperClock.now() + CandidateExperimentPlan.operationSeconds, monitor.restorationStartedAt! + 8)
                     try restorer!.channel.send(BrokerChildRequest(id: id, scope: monitor.scope, step: step,
                         deadline: deadline), deadline: deadline)
                     events.append("autoStep\(step.rawValue)Requested")
                     pendingStep = step; nextRestore += 1
-                } else if monitor.pendingOperation == nil && nextRestore == 5 {
+                } else if monitor.pendingOperation == nil && nextRestore == restoreSteps.count {
                     let date = Date()
                     if failedSteps.contains(where: { !$0.isFixed }) { monitor.fail(reason: "restoreStepFailure"); continue }
                     if readerFailed { monitor.fail(reason: "restorationReaderFailure"); continue }
+                    if !ambiguousAuto.isEmpty { monitor.fail(reason: "ambiguousAutoAttempt"); continue }
                     if autoSamples.count >= 3 {
                         // The final acknowledgement is received; close the sole Auto child before clearing the model marker.
                         restorer!.killOwnedChild()
@@ -384,24 +445,27 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
         RunLoop.current.run(until: Date().addingTimeInterval(0.02))
     }
     // End the scoped Auto child too, then persist the result. Never retry an attempted step.
-    restorer?.killOwnedChild(); reader.killOwnedChild(); retiredReaders.forEach { $0.killOwnedChild() }
+    restorer?.killOwnedChild(); reader?.killOwnedChild(); retiredReaders.forEach { $0.killOwnedChild() }
     let exitDeadline = HelperClock.now() + 1
-    while (restorer?.process.isRunning == true || reader.process.isRunning || retiredReaders.contains(where: { $0.process.isRunning })), HelperClock.now() < exitDeadline {
+    while (restorer?.process.isRunning == true || reader?.process.isRunning == true || retiredReaders.contains(where: { $0.process.isRunning })), HelperClock.now() < exitDeadline {
         RunLoop.current.run(until: Date().addingTimeInterval(0.02))
     }
     if restorer?.process.isRunning == true { monitor.fail(reason: "restorerNotQuiescent") }
-    if reader.process.isRunning || retiredReaders.contains(where: { $0.process.isRunning }) { monitor.fail(reason: "readerNotQuiescent") }
+    if reader?.process.isRunning == true || retiredReaders.contains(where: { $0.process.isRunning }) { monitor.fail(reason: "readerNotQuiescent") }
     sleepAcknowledgements.forEach { $0() }; sleepAcknowledgements.removeAll()
-    let elapsed = HelperClock.now() - ledger.startedAt
-    if domain == .simulation {
-        try journal.saveRecoveryOutcome(.init(sessionID: ledger.sessionID, phase: monitor.phase.rawValue,
-            reason: monitor.reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed,
-            powerNotificationsRegistered: power.registered))
-    } else {
-        // Code observations retain the hardware pending ledger. They never become owner physical proof.
-        try journal.saveHardwareRecoveryOutcome(.init(sessionID: ledger.sessionID, phase: monitor.phase.rawValue,
-            reason: monitor.reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed,
-            powerNotificationsRegistered: power.registered))
-    }
+    try persistBrokerOutcome(journal: journal, domain: domain, ledger: ledger, phase: monitor.phase,
+        reason: monitor.reason, events: events, failedSteps: failedSteps, registered: power.registered)
     withExtendedLifetime(power) {}
+}
+
+private func persistBrokerOutcome(journal: FileSessionJournal, domain: ExperimentDomain, ledger: ApprovedExperimentLedger,
+                                  phase: RecoveryPhase, reason: String?, events: [String], failedSteps: [ExperimentStep], registered: Bool) throws {
+    let elapsed = max(0, HelperClock.now() - ledger.startedAt)
+    if domain == .simulation {
+        try journal.saveRecoveryOutcome(.init(sessionID: ledger.sessionID, phase: phase.rawValue,
+            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered))
+    } else {
+        try journal.saveHardwareRecoveryOutcome(.init(sessionID: ledger.sessionID, phase: phase.rawValue,
+            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered))
+    }
 }
