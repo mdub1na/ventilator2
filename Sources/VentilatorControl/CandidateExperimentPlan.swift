@@ -50,9 +50,10 @@ public struct CandidateExperimentPlan: Codable, Equatable {
     public let maximumRestoreRuns: Int
     public let maximumOwnerRecoveryRuns: Int
     public let readyForOwnerApproval: Bool
+    public let restartPolicy: String
 
     public init(binaries: Binaries) {
-        schemaVersion = 2
+        schemaVersion = 3
         stage = "candidate-unapproved"
         modelIdentifier = "Mac15,7"
         macOSVersion = "27.0.0"
@@ -86,6 +87,7 @@ public struct CandidateExperimentPlan: Codable, Equatable {
         maximumRestoreRuns = 1
         maximumOwnerRecoveryRuns = 1 // A separately invoked contingency, never an automatic retry.
         readyForOwnerApproval = false
+        restartPolicy = "closeFixed;requireDeviceLifetimeLock;continueUnattemptedAuto;keepOriginalDeadline;noCrossBoot;ambiguousAutoKeepsPending"
     }
 
     public func canonicalJSON() throws -> Data {

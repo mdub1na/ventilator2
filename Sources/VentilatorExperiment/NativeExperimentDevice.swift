@@ -11,8 +11,8 @@ public enum NativeExperimentError: Error, Equatable {
     case writeRejected(step: ExperimentStep, status: Int32, kernel: Int32, smcResult: UInt8, smcStatus: UInt8)
 }
 
-/// Prepared child factory. Public XPC start remains closed until the trusted local issuer and installed
-/// validation are implemented. The GUI does not link this module.
+/// Prepared child factory. Public XPC start remains closed until installed validation and the owner
+/// session are ready. The GUI does not link this module.
 public final class NativeExperimentDevice: ExperimentStepDevice {
     public let domain: ExperimentDomain = .hardware
     private let connection: OpaquePointer
@@ -20,6 +20,7 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
     private let authority: ExperimentAuthority
     private let role: ExperimentDeviceRole
     private let recovery: ArmedHardwareRecovery
+    private let executionLock: SessionJournalLock
 
     public init(authority: ExperimentAuthority, sessionID: UUID, restorationOnly: Bool,
                 recovery: ArmedHardwareRecovery? = nil) throws {
@@ -27,8 +28,10 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
             throw NativeExperimentError.simulationCannotOpenHardware
         }
         guard geteuid() == 0 else { throw NativeExperimentError.rootRequired }
+        let executionLock = try FileSessionJournal(directory: authority.directory).acquireDeviceExecutionLock(domain: .hardware)
         guard let session = try authority.state().ledger, session.sessionID == sessionID,
-              session.domain == .hardware, session.approval.domain == .hardware else { throw NativeExperimentError.invalidScope }
+              session.domain == .hardware, session.approval.domain == .hardware,
+              session.approval.challenge.ownerReviewSHA256 != nil else { throw NativeExperimentError.invalidScope }
         guard currentBootSession() == session.approval.challenge.bootSession else { throw NativeExperimentError.wrongBootSession }
         guard let recovery else { throw NativeExperimentError.recoveryNotArmed }
         guard trustedHelperAndApplication() else { throw NativeExperimentError.untrustedSignature }
@@ -57,9 +60,10 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
         self.authority = authority
         self.role = restorationOnly ? .restoration : .fixed
         self.recovery = recovery
+        self.executionLock = executionLock
     }
 
-    deinit { SMCExperimentClose(connection) }
+    deinit { withExtendedLifetime(executionLock) { SMCExperimentClose(connection) } }
 
     public func write(_ reservation: ExperimentWriteReservation) throws {
         guard let beforeProbe = try authority.state().ledger else { throw NativeExperimentError.invalidScope }
@@ -109,6 +113,17 @@ internal func currentBootSession() -> UUID? {
     var size = bytes.count
     guard sysctlbyname("kern.bootsessionuuid", &bytes, &size, nil, 0) == 0 else { return nil }
     return bytes.withUnsafeBufferPointer { UUID(uuidString: String(cString: $0.baseAddress!)) }
+}
+
+public enum HardwareRecoveryIdentity {
+    /// Read-only identity validation. Restart recovery never accepts a boot UUID from IPC or a saved PID.
+    public static func currentBoot() throws -> UUID {
+        guard geteuid() == 0, ExperimentMachine.current() == .candidate, trustedHelperAndApplication() else {
+            throw NativeExperimentError.untrustedSignature
+        }
+        guard let boot = currentBootSession() else { throw NativeExperimentError.wrongBootSession }
+        return boot
+    }
 }
 
 internal func trustedHelperAndApplication() -> Bool {

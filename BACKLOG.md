@@ -25,6 +25,7 @@
 - [x] Добавить отдельный broker надзора за writer: durable closure, подтверждённый выход перед Auto, ограниченные device-процессы, private IPC и отложенный sleep acknowledgement; проверить на файловой модели.
 - [x] Подготовить независимое read-only наблюдение опыта, отзыв reservation перед I/O и свежий bound recovery probe; проверить чтение на Mac и IPC/ошибки на моделях.
 - [x] Подготовить общую связку broker/Fixed/Auto/read-only reader и private recovery handler; проверить отказ reader и сохранение pending на модели.
+- [x] Реализовать локальный TTY issuer полного review и recovery после restart broker: device lifetime lock, только оставшиеся Auto-шаги, исходный deadline, сохранение pending при неизвестном Auto; проверить полный путь на модели.
 - [ ] Сделать аппаратный протокол с проверяемым одобрением конкретного плана и привязкой записей к точной модели/сборке ОС, диапазонам и сроку lease. Симуляция такого одобрения не выдаёт.
 - [ ] Подключить файловый маркер, реальные системные события и независимый ограниченный восстановитель к аппаратному helper; доказать восстановление в утверждённом опыте.
 - [x] Добавить предварительные проверки машины/показаний и отдельные критерии наблюдаемого изменения RPM и устойчивого кода Auto на подставных снимках.
@@ -32,13 +33,13 @@
 - [ ] Подготовить единый план сеанса владельца с SHA-256 проверенного бинарника и полным перечнем SMC-записей; запросить одно одобрение.
 - [ ] После одобрения выполнить ровно один ограниченный аппаратный опыт и проверить устойчивый возврат Auto.
 
-Проверено 2026-09-30: [симуляция](docs/features/feature-control-simulation.md), независимый процесс восстановления, [подготовленный протокол](docs/features/feature-experiment-protocol.md) и [dry-run](docs/research/evidence/control-dry-run.txt). Для аппаратного runtime ещё нужны подключение подготовленного broker, restart/re-arm, локальный issuer и installed gate; кандидатный план не готов к одобрению. GUI по-прежнему read-only; hardwareControlAvailable=false. До PR #2 локально было 0 valid identities; сейчас команда сообщает 2, одна помечена revoked. Подпись второй identity и установленный helper ещё не проверены.
+Проверено 2026-09-30: [симуляция](docs/features/feature-control-simulation.md), независимый процесс восстановления, [подготовленный протокол](docs/features/feature-experiment-protocol.md) и [dry-run](docs/research/evidence/control-dry-run.txt). На текущем шаге локальный issuer и restart подготовлены и проверены на модели; для аппаратного runtime нужны подключение broker к daemon/public start и положительный signed/installed gate. Кандидатный план не готов к одобрению. GUI по-прежнему read-only; hardwareControlAvailable=false. До PR #2 локально было 0 valid identities; последняя команда сообщает 2, одна помечена revoked. Подпись второй identity и установленный helper ещё не проверены.
 
 2026-10-01: [отдельный broker](docs/research/evidence/recovery-dry-run.txt) проверен для точных одобренных шагов **модели**, включая аварии самого writer и блокирующий эффект. На тот момент аппаратная привязка broker/локальный issuer оставались открытыми; свидетельство `ArmedHardwareRecovery` не выдавалось.
 
 После создания [PR #1](https://github.com/mdub1na/ventilator2/pull/1) продолжена подготовка: [read-only наблюдатель](docs/research/evidence/experiment-read-only.json) прочитал FNum/Ftst/вентиляторы; новая admission проверка отзывает старый Fixed permit, recovery probe требует свежий private-pipe ответ. Это подготовленный код, не разрешение аппаратного старта.
 
-PR #1 и [PR #2](https://github.com/mdub1na/ventilator2/pull/2) объединены владельцем в main. Следующий шаг: общий process loop и native child boundary подготовлены, модельный reader изолирован. Hardware entry, restart/re-arm, локальный issuer и signed/installed проверка остаются открытыми; аппаратный запуск не разрешён.
+PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https://github.com/mdub1na/ventilator2/pull/3) объединены владельцем в main. После PR #3 полный model TTY → approval → begin → broker → restart проверен в [новом dry-run](docs/research/evidence/local-approval-restart-dry-run.txt). Новый broker не возобновляет Fixed, не повторяет попытки Auto и не продлевает исходные 8 с. Положительный root/Apple-signed/installed issuer и аппаратный restart ещё не запускались. Следующий шаг: signed/installed подготовка и подключение hardware admission/runtime; до первого действия владельца подготовить единый полный сеанс.
 
 ## M3 — управление и поставка
 

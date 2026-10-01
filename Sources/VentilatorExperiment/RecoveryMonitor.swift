@@ -53,6 +53,16 @@ public final class RecoveryMonitor {
         lastClock = now
     }
 
+    /// A new nonce revokes old broker replies; no Fixed phase and no fresh eight-second budget.
+    public init(restarting recovery: BrokerRestartRecovery, now: Double) throws {
+        let ledger = recovery.ledger
+        guard ledger.fixedClosed, ledger.pendingRestoration, !ledger.autoCodesObserved,
+              let started = ledger.restoreStartedAt, now.isFinite, now >= ledger.lastClock,
+              now < started + 8 else { throw RecoveryFailure.phase }
+        scope = RecoveryScope(ledger: ledger); heartbeatDeadline = ledger.expiresAt; lastClock = now
+        phase = .restoring; reason = "brokerRestart"; restorationStartedAt = started
+    }
+
     public func heartbeat(scope received: RecoveryScope, now: Double) throws {
         guard received == scope else { throw RecoveryFailure.binding }
         tick(now: now)

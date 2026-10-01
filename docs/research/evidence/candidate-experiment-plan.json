@@ -1,7 +1,7 @@
 {
   "blockers" : [
     "hardwareRecoveryBrokerNotConnected",
-    "localApprovalIssuerNotConnected",
+    "localApprovalIssuerHardwarePathUnverified",
     "installedSignedHelperUnverified",
     "ownerSessionInstructionsPending",
     "physicalRecoveryUnverified",
@@ -10,8 +10,8 @@
   "hardwareWritesExecuted" : 0,
   "plan" : {
     "binaries" : {
-      "applicationSHA256" : "b587abede3413692d904a8b4daa3ec531f2b15127e27cb4083f7f486d19a14ba",
-      "helperSHA256" : "5a897036d6e083d38e2d731ff23352c69c47766c82691380e4e86f5913048e93"
+      "applicationSHA256" : "edc1615f07cf4ab652b8d449fee4629f1466736b94cff9aea939459e545caafa",
+      "helperSHA256" : "cf2e61b524eed27e8c86574e3c58318f413074ca1ebd23822cadf672ec7ade0e"
     },
     "fans" : [
       {
@@ -73,6 +73,7 @@
     "modelIdentifier" : "Mac15,7",
     "operationDeadlineSeconds" : 0.5,
     "readyForOwnerApproval" : false,
+    "restartPolicy" : "closeFixed;requireDeviceLifetimeLock;continueUnattemptedAuto;keepOriginalDeadline;noCrossBoot;ambiguousAutoKeepsPending",
     "restorationDeadlineSeconds" : 8,
     "restoreWrites" : [
       {
@@ -111,11 +112,11 @@
         "prerequisite" : "bothFansObservedNonManual"
       }
     ],
-    "schemaVersion" : 2,
+    "schemaVersion" : 3,
     "stage" : "candidate-unapproved",
     "targetRPM" : 2500,
     "unlockWaitSeconds" : 3,
     "writerQuiescenceDeadlineSeconds" : 1
   },
-  "planSHA256" : "3e40c6ea2cd2daa2b8f2a1d3ddb1cb1e94c85edbca391d90a67190139f533cf1"
+  "planSHA256" : "9556344ab1e116580567d802b2bc7b761013691a15a455b8349590f11284e720"
 }

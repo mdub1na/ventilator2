@@ -33,7 +33,7 @@ public struct HardwarePreparation: Codable {
     public init(planSHA256: String) {
         self.planSHA256 = planSHA256
         self.readyForOwnerApproval = false
-        self.blockers = ["hardwareRecoveryBrokerNotConnected", "localApprovalIssuerNotConnected",
+        self.blockers = ["hardwareRecoveryBrokerNotConnected", "localApprovalIssuerHardwarePathUnverified",
                          "installedSignedHelperUnverified", "ownerSessionInstructionsPending"]
     }
 }

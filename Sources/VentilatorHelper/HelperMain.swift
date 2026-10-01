@@ -8,6 +8,16 @@ enum HelperMain {
     static func main() {
         let arguments = Array(CommandLine.arguments.dropFirst())
         do {
+            if arguments.count == 4, arguments[0] == "--approve-local-hardware", let owner = UUID(uuidString: arguments[1]) {
+                try runLocalApproval(domain: .hardware, directory: hardwareExperimentDirectory, owner: owner,
+                    planSHA256: arguments[2], reviewSHA256: arguments[3])
+                return
+            }
+            if arguments.count == 5, arguments[0] == "--approve-local-model", let owner = UUID(uuidString: arguments[2]) {
+                try runLocalApproval(domain: .simulation, directory: URL(fileURLWithPath: arguments[1], isDirectory: true), owner: owner,
+                    planSHA256: arguments[3], reviewSHA256: arguments[4])
+                return
+            }
             if arguments == ["--experiment-read-only"] {
                 try experimentReadOnlyCheck()
                 return
