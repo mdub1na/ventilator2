@@ -22,19 +22,22 @@ let package = Package(
         ),
         .target(name: "VentilatorCore", dependencies: ["CSMCRead", "CHIDTemperature"]),
         .target(name: "VentilatorControl", dependencies: ["VentilatorCore"]),
+        .target(name: "VentilatorInstallation", dependencies: ["VentilatorControl"],
+                swiftSettings: [.swiftLanguageMode(.v5)]),
         .target(name: "CSMCExperiment", publicHeadersPath: "include",
                 linkerSettings: [.linkedFramework("IOKit")]),
-        .target(name: "VentilatorExperiment", dependencies: ["VentilatorControl", "CSMCRead", "CSMCExperiment"]),
+        .target(name: "VentilatorExperiment", dependencies: ["VentilatorControl", "VentilatorInstallation", "CSMCRead", "CSMCExperiment"]),
         .target(name: "CSystemPower", publicHeadersPath: "include"),
-        .executableTarget(name: "VentilatorHelper", dependencies: ["VentilatorControl", "VentilatorExperiment", "CSystemPower"],
+        .executableTarget(name: "VentilatorHelper", dependencies: ["VentilatorControl", "VentilatorExperiment", "VentilatorInstallation", "CSystemPower"],
                           swiftSettings: [.swiftLanguageMode(.v5)]),
         .executableTarget(
             name: "Ventilator",
-            dependencies: ["VentilatorCore"],
+            dependencies: ["VentilatorCore", "VentilatorInstallation"],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .testTarget(name: "VentilatorCoreTests", dependencies: ["VentilatorCore"]),
         .testTarget(name: "VentilatorControlTests", dependencies: ["VentilatorControl"]),
-        .testTarget(name: "VentilatorExperimentTests", dependencies: ["VentilatorExperiment", "CSMCExperiment"])
+        .testTarget(name: "VentilatorExperimentTests", dependencies: ["VentilatorExperiment", "CSMCExperiment"]),
+        .testTarget(name: "VentilatorInstallationTests", dependencies: ["VentilatorInstallation"])
     ]
 )

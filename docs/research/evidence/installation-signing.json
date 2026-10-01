@@ -1,0 +1,26 @@
+{
+  "blocker": "headlessSecuritySessionUnavailable",
+  "bundle": null,
+  "candidateCertificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+  "checkedAt": "2026-10-01T12:28:56+05:00",
+  "effectiveUID": 501,
+  "hardwareWritesExecuted": 0,
+  "identities": [
+    {
+      "certificateSHA1": "0BADB1AFB0ECE3A1CC74C58BFC379372FC0BC6FD",
+      "revoked": true
+    },
+    {
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "revoked": false
+    }
+  ],
+  "installed": false,
+  "keychainSettingsChanged": false,
+  "ownerSessionStillRequired": true,
+  "sessionProbe": "headless-sign: SessionCreate OSStatus=100001",
+  "sessionProbeExitCode": 78,
+  "signed": false,
+  "signingAttempted": false,
+  "wrapperSHA256": "8c14da8a64dec52798ad3069f47c7755e484364fc4215324745ecc4ee0b32470"
+}

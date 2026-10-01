@@ -115,6 +115,18 @@ PR #1 был объединён в main во время этой работы. �
 
 Наблюдение при разработке harness: на этом Mac остановленный SIGSTOP writer исчезал после SIGKILL его broker; такой случай не моделирует живое старое соединение или незавершённую kernel операцию. Для проверки отказа нового broker независимый non-root процесс удерживал device lock. Положительный отказ `deviceStillActive` и отсутствие новой epoch подтверждены этой файловой моделью; аппаратную отмену это не устанавливает.
 
+### Signed/installed gate — 2026-10-01, продолжение после PR #4
+
+PR #4 на старте этого шага открыт (`11f5bb0`); работа продолжается в отдельной ветке поверх него. Повторное read-only `security find-identity` подтвердило прежние две записи: первая явно revoked, вторая — кандидат без этой пометки. Приватный ключ не экспортировался, ACL/keychain не изменялись.
+
+До возможного codesign проверен отдельный процесс `tools/sign_without_ui.swift`: публичный `SessionCreate` должен был создать security session без graphics/TTY, затем exec наследует её. SDK `Security/AuthSession.h` и [Apple SessionCreate](https://developer.apple.com/documentation/security/sessioncreate%28_%3A_%3A%29) подтверждают область одного процесса, наследование и потерю его прежних security rights. На текущем Mac API вернул `OSStatus=100001`; wrapper остановился **до exec codesign и обращения к приватному ключу**. Это отказ создания headless session, не доказательство неисправной identity. Бездиалоговая подпись не подтверждена; обычный codesign может потребовать участия владельца и будет включён в единый сеанс из задания, а не запущен вслепую.
+
+Решение installed gate: отдельно проверять целостность/Apple-issued подписи и точный app/helper/LaunchDaemon layout, расположение `/Applications/Ventilator.app`, root ownership без group/other write, затем enabled регистрацию и живой XPC ответ. XPC обеих сторон получает requirement с Team ID и CDHash конкретного counterpart; ответ сверяется с audit-token UID/PID, nonce, digest бинарников/plist и сроком 2 с. Регистрация по [Apple](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29) требует административного одобрения для LaunchDaemon; поэтому такой positive сценарий пока не выполняется.
+
+На текущей сборке прошли 91 unit-тест (9 новых installation policy/native-negative), [отказы установки](evidence/installation-dry-run.txt), anonymous XPC/worker, все 16 recovery и 6 TTY + 6 restart process-сценариев. Actual ad hoc app отказал register/unregister до изменения SMAppService; состояние осталось `notFound`. Подменённый launch layout и symlink отвергнуты настоящим inspector. Проверка требований использовала нативный Security parser; root peer/fingerprint/deadline/removal policies проверены на модели, не на установленном daemon. `codesign --verify --strict` прошёл для ad hoc app/helper; GUI по-прежнему без writer symbols. Hardened Runtime без debugger/injection/JIT exceptions обязателен для signed ветки; положительная подпись ещё не получена. Expiration/trust anchors проверяются offline с `noNetworkAccess`; online revocation/notarization этим gate не подтверждены.
+
+Новая сборка получила [свежий read-only снимок](evidence/experiment-read-only.json) на Mac15,7 / 26A428: Ftst=0, modes=3/3, actual/target=0/0, прежние диапазоны, nominal pressure, чтение 0.002632 с. Открывался только CSMCRead. [Кандидат](evidence/candidate-experiment-plan.json) обновлён по проверенным бинарным хешам и остаётся readyForOwnerApproval=false. [Сводка](evidence/software-verification.txt) связывает результаты с этой сборкой. Подписанный installed positive, административное одобрение, настоящий сон и аппаратная запись не запускались; следующий кодовый шаг — hardware admission/runtime и полный единый сеанс владельца.
+
 ## Гипотезы и адреса проверки
 
 | Гипотеза | Проверка и момент закрытия |
@@ -158,6 +170,7 @@ PR #1 был объединён в main во время этой работы. �
 | Неисполняемый кандидатный план | `Sources/VentilatorControl/CandidateExperimentPlan.swift`, `scripts/prepare-experiment-plan.py` |
 | Подготовленный ABI и authority | `Sources/CSMCExperiment/SMCExperiment.c`, `Sources/VentilatorControl/ExperimentAuthority.swift`, `Sources/VentilatorExperiment/` |
 | Полный локальный review и restart | `Sources/VentilatorExperiment/LocalApprovalIssuer.swift`, `Sources/VentilatorHelper/LocalApprovalCLI.swift`, `Sources/VentilatorExperiment/BrokerRestartRecovery.swift`, `scripts/local-approval-restart-dry-run.py` |
+| Подпись и installed gate | `Sources/VentilatorInstallation/`, `Sources/Ventilator/HelperServiceCLI.swift`, `Tests/VentilatorInstallationTests/`, `tools/sign_without_ui.swift`, `scripts/sign-app-without-ui.py`, `scripts/installation-dry-run.py` |
 | Надзор за writer и модельные device-процессы | `Sources/VentilatorExperiment/RecoveryMonitor.swift`, `Sources/VentilatorHelper/ExperimentRecoveryBroker.swift`, `Sources/VentilatorHelper/ApprovedModelRecovery.swift`, `scripts/recovery-dry-run.py` |
 | Независимые чтения и допуск перед I/O | `Sources/VentilatorExperiment/ReadOnlyExperimentObserver.swift`, `Sources/VentilatorExperiment/ExperimentWriteAdmission.swift`, `Sources/VentilatorExperiment/RecoveryProbe.swift` |
 

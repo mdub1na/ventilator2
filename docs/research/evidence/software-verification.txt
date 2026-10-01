@@ -1,23 +1,29 @@
-Software gates: 2026-10-01T11:33:11+05:00
-Branch: codex/local-approval-restart; base: merged PR #3 (main cef07d9).
-Swift tests: 82/82 passed (10 core, 17 control, 55 experiment).
-LocalApprovalIssuerTests: 6/6 also passed after adding the 16 KiB protected-file boundary assertion.
+Software gates: 2026-10-01T12:36:24+05:00
+Branch: codex/installed-helper-gates; base: open PR #4 (11f5bb028c99aeabce2313883bfc0721301924ed).
+Swift tests: 91/91 passed (10 core, 17 control, 55 experiment, 9 installation).
+Installation tests cover strict layout, requirement parser/injection, installed policy, audited peer UID/PID,
+nonce/version/fingerprints, finite continuous deadline, Hardened Runtime entitlements and pending/active removal refusal.
+Policy fixtures are model proof, not positive signature or authenticated installed execution.
+Actual ad hoc app: status/verify/register/unregister refused installed readiness; mutations stopped before SMAppService.
+Service state remained notFound; extra command arguments, substituted launch arguments and helper symlink rejected.
+Anonymous XPC returned an exactly empty installation refusal; simulation/control worker cases all passed.
+Independent recovery: all 16 process scenarios passed, including blocked device effects, reader failures and delayed simulated sleep acknowledgement.
 Local approval/restart: six TTY/domain case groups and six broker restart process scenarios passed.
-Exact TTY confirmation binds challenge, complete owner review digest, plan digest, boot and binary fingerprints; replay, EOF, decline and review substitution rejected.
-Complete model TTY -> approval -> consumed begin -> broker -> SIGKILL/restart path passed with the same receipt.
-Device lifetime lock busy: Auto refused, pending retained, no new restoration epoch. No persisted PID or unknown-process signals.
-Partial Auto restart: only unattempted steps, original eight-second epoch preserved. Unknown Auto return: remaining steps attempted once, pending retained.
-Wrong boot and expired original Auto deadline: rejected before further device effects.
-Independent recovery: all prior 16 process scenarios passed; anonymous XPC/worker checks also passed.
-Read-only observer: Mac15,7 / 27.0.0 / 26A428, UID 501, Ftst 0, modes 3/3, actual/target RPM 0/0, exact ranges, nominal pressure.
-Full read duration: 0.002367s; timestamp taken before reads; no sudo or writes.
-Docs: 11 documents, 50 BDD scenarios; docs_check --on-main passed.
+Full model TTY -> approval -> consumed begin -> broker -> SIGKILL/restart passed with the same receipt.
+Restart closes Fixed, requires device lifetime lock, attempts only remaining Auto steps, preserves original deadline and pending on ambiguous Auto.
+Read-only observer: Mac15,7 / 27.0.0 / 26A428, non-root UID 501, Ftst 0, modes 3/3, actual/target RPM 0/0, exact ranges, nominal pressure.
+Full read duration: 0.002632s; timestamp taken before reads; no sudo or writes.
+Docs: 12 documents, 56 BDD scenarios; .venv-docs/bin/python scripts/docs_check.py --on-main passed.
 App/helper: codesign --verify --strict passed (ad hoc).
-Signing inspection unchanged from preceding evidence: 2 identities reported, first revoked, second an unverified candidate. No Apple-issued signing/private-key access this step.
+Signing inspection: two public identities, first flagged revoked, second still an unverified candidate.
+No-UI security session probe: SessionCreate OSStatus=100001; wrapper exit 78 before exec codesign/private-key access.
+Signing attempted=false, signed=false; keychain/ACL unchanged; original bundle preserved. See installation-signing.json.
+Installed signature path checks offline expiration/trust anchors, fixed root-owned bundle and exact runtime CDHash.
+Online revocation/notarization qualification is not claimed. Positive Apple-issued signing/installation/removal/privileged XPC remains unverified.
 GUI: no SMCExperiment open/write symbols; helper contains the prepared writer.
 Candidate schema: 3, readyForOwnerApproval=false; binary fingerprints and all process evidence matched.
-Plan SHA-256: 9556344ab1e116580567d802b2bc7b761013691a15a455b8349590f11284e720
-Helper SHA-256: cf2e61b524eed27e8c86574e3c58318f413074ca1ebd23822cadf672ec7ade0e
+Plan SHA-256: e523031eb5ceefb5a405b4de5a730b9e21c2129070d600ef88bc222be69022d3
+Helper SHA-256: 8db3d783faeca2135d4a2b96796b15527221e825ef2857c1fc85aa507c8a9927
+Application SHA-256: 67ad7485c44238f7adb80143e0d36e9663a1c651fe3208798e473a592a115de4
 No SMCExperimentOpen/WriteStep, root, sudo, installation or actual sleep experiment performed. Actual hardware check opened only CSMCRead.
-Hardware local issuer and common restart branch compiled; positive root/Apple-signed/installed execution was not run.
-Public hardware start, signed installed validation, daemon integration and the single complete owner-session plan remain pending.
+Public hardware start remains closed. Hardware admission/runtime integration and the single complete owner-session plan remain pending.

@@ -1,0 +1,70 @@
+import Darwin
+import Foundation
+import ServiceManagement
+import VentilatorControl
+
+public struct HelperServiceReport: Encodable {
+    public var registration: String
+    public var trustedBundle = false
+    public var installedLocation = false
+    public var rootOwned = false
+    public var helperVerified = false
+    public let hardwareControlAvailable = false
+    public var fingerprint: InstallationFingerprint?
+    public var error: String?
+}
+
+/// Explicit app CLI actions only. No registration during status, GUI launch, signing or build.
+public enum HelperServiceController {
+    public static func status() -> HelperServiceReport {
+        let service = SMAppService.daemon(plistName: SignedBundleInspector.plistName)
+        var report = HelperServiceReport(registration: name(service.status))
+        do {
+            guard geteuid() != 0 else { throw InstallationError.nonRootApplicationRequired }
+            let proof = try SignedBundleInspector.inspect(SignedBundleInspector.currentBundleURL())
+            report.trustedBundle = true; report.installedLocation = proof.installedLocation
+            report.rootOwned = proof.rootOwned; report.fingerprint = proof.fingerprint
+            _ = try SignedBundleInspector.requireCurrentProcess(role: .application)
+            guard service.status == .enabled else { throw InstallationError.serviceNotEnabled }
+            _ = try InstalledHelperClient.verify(proof)
+            report.helperVerified = true
+        } catch { report.error = String(describing: error) }
+        return report
+    }
+
+    public static func register() throws -> HelperServiceReport {
+        _ = try SignedBundleInspector.requireCurrentProcess(role: .application)
+        let service = SMAppService.daemon(plistName: SignedBundleInspector.plistName)
+        switch service.status {
+        case .notRegistered: try service.register()
+        case .enabled, .requiresApproval: break
+        case .notFound: throw InstallationError.invalidLayout
+        @unknown default: throw InstallationError.serviceNotEnabled
+        }
+        return status()
+    }
+
+    public static func unregister() throws -> HelperServiceReport {
+        let proof = try SignedBundleInspector.requireCurrentProcess(role: .application)
+        let service = SMAppService.daemon(plistName: SignedBundleInspector.plistName)
+        if service.status == .notRegistered { return status() }
+        guard service.status == .enabled else { throw InstallationError.serviceNotEnabled }
+        let reply = try InstalledHelperClient.verify(proof)
+        try admitRemoval(reply)
+        try service.unregister()
+        return status()
+    }
+    internal static func admitRemoval(_ reply: HelperInstallationReply) throws {
+        guard !reply.pendingHardwareRestoration else { throw InstallationError.pendingRecovery }
+        guard [.idle, .autoCodeObserved].contains(ControlPhase(rawValue: reply.simulationPhase)) else { throw InstallationError.simulationActive }
+    }
+    private static func name(_ status: SMAppService.Status) -> String {
+        switch status {
+        case .notRegistered: "notRegistered"
+        case .enabled: "enabled"
+        case .requiresApproval: "requiresApproval"
+        case .notFound: "notFound"
+        @unknown default: "unknown"
+        }
+    }
+}

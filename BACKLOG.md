@@ -26,6 +26,7 @@
 - [x] Подготовить независимое read-only наблюдение опыта, отзыв reservation перед I/O и свежий bound recovery probe; проверить чтение на Mac и IPC/ошибки на моделях.
 - [x] Подготовить общую связку broker/Fixed/Auto/read-only reader и private recovery handler; проверить отказ reader и сохранение pending на модели.
 - [x] Реализовать локальный TTY issuer полного review и recovery после restart broker: device lifetime lock, только оставшиеся Auto-шаги, исходный deadline, сохранение pending при неизвестном Auto; проверить полный путь на модели.
+- [x] Подготовить installed bundle/signature gate, явный registration/removal CLI и bound диагностический XPC; проверить отрицательные случаи и signing probe без доступа к ключу.
 - [ ] Сделать аппаратный протокол с проверяемым одобрением конкретного плана и привязкой записей к точной модели/сборке ОС, диапазонам и сроку lease. Симуляция такого одобрения не выдаёт.
 - [ ] Подключить файловый маркер, реальные системные события и независимый ограниченный восстановитель к аппаратному helper; доказать восстановление в утверждённом опыте.
 - [x] Добавить предварительные проверки машины/показаний и отдельные критерии наблюдаемого изменения RPM и устойчивого кода Auto на подставных снимках.
@@ -40,6 +41,8 @@
 После создания [PR #1](https://github.com/mdub1na/ventilator2/pull/1) продолжена подготовка: [read-only наблюдатель](docs/research/evidence/experiment-read-only.json) прочитал FNum/Ftst/вентиляторы; новая admission проверка отзывает старый Fixed permit, recovery probe требует свежий private-pipe ответ. Это подготовленный код, не разрешение аппаратного старта.
 
 PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https://github.com/mdub1na/ventilator2/pull/3) объединены владельцем в main. После PR #3 полный model TTY → approval → begin → broker → restart проверен в [новом dry-run](docs/research/evidence/local-approval-restart-dry-run.txt). Новый broker не возобновляет Fixed, не повторяет попытки Auto и не продлевает исходные 8 с. Положительный root/Apple-signed/installed issuer и аппаратный restart ещё не запускались. Следующий шаг: signed/installed подготовка и подключение hardware admission/runtime; до первого действия владельца подготовить единый полный сеанс.
+
+Подготовка после PR #4: [installed gate](docs/features/feature-helper-installation.md) реализован; ad hoc/register/layout отказы и peer/pending policies проверены. Headless signing probe остановился с SessionCreate OSStatus=100001 до codesign; ключи/ACL не изменялись. Положительные подпись, установка и privileged XPC остаются открытыми. Следующий шаг — завершить hardware admission/runtime и полный единый сеанс владельца; не просить отдельного keychain/installation действия до этого плана.
 
 ## M3 — управление и поставка
 
