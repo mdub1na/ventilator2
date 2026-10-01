@@ -14,7 +14,7 @@ publishes: [VentilatorHelper]
 
 SwiftPM собирает отдельный исполняемый файл и библиотеку `VentilatorControl`. Bundle содержит helper в `Contents/MacOS/` и plist в `Contents/Library/LaunchDaemons/`. Он **не зарегистрирован и не установлен**. Автоматической регистрации нет; подготовленный register вызывается только явной app CLI-командой после native identity gate. Окно/значок не подключены к его XPC; новый app CLI выполняет диагностику. Приложение явно отвергает root.
 
-Текущие действующие RPC: status, startSimulation, heartbeat(UUID), restoreSimulation(UUID), installationStatus(nonce). Все изменения только на подставном транспорте; installationStatus — только диагностика trusted root helper, anonymous simulation получает отказ. Добавлены prepareHardwareExperiment и startApprovedHardwareExperiment: первый возвращает кандидат/блокеры, второй всегда отказывает до готовности runtime; выдачи одобрения по XPC нет. Произвольных SMC-ключей/байтов, путей и команд оболочки на интерфейсе нет. Сеанс привязан к серверному owner ID соединения. Coordinator последовательно передаёт симуляционные команды worker через приватные pipe с ограниченными фреймами/таймаутами.
+Текущие действующие RPC: status, startSimulation, heartbeat(UUID), restoreSimulation(UUID), installationStatus(nonce). Все изменения только на подставном транспорте; installationStatus — только диагностика trusted root helper, anonymous simulation получает отказ. Добавлены prepareHardwareExperiment и startApprovedHardwareExperiment: первый возвращает кандидат/блокеры, второй в signed installed daemon требует локальный hardware receipt того же owner, isolated preflight и consuming begin; anonymous simulation по-прежнему отказывает; выдачи одобрения по XPC нет. Произвольных SMC-ключей/байтов, путей и команд оболочки на интерфейсе нет. Сеанс привязан к серверному owner ID соединения. Coordinator последовательно передаёт симуляционные команды worker через приватные pipe с ограниченными фреймами/таймаутами.
 
 ## Запуск и подпись
 
@@ -36,7 +36,7 @@ Worker подключает публичный `IORegisterForSystemPower`: пр�
 
 ## Черновик аппаратного плана
 
-`--candidate-plan` экспортирует план из `CandidateExperimentPlan`, SHA-256 app/helper и канонический хеш плана. Worker использует тот же helper binary. Перечень предполагаемых записей и их пределы хранится в коде плана; schema 3 добавляет restart policy. Экспорт не читает/не пишет SMC, не принимает одобрение и не устанавливает helper. `readyForOwnerApproval=false`: аппаратный recovery broker не подключён к public start, положительный signed/installed issuer не проверен; единый сеанс владельца с инструкциями ещё не готов.
+`--candidate-plan` экспортирует план из `CandidateExperimentPlan`, SHA-256 app/helper и канонический хеш плана. Worker использует тот же helper binary. Перечень предполагаемых записей и их пределы хранится в коде плана; schema 3 добавляет restart policy. Экспорт не читает/не пишет SMC, не принимает одобрение и не устанавливает helper. `readyForOwnerApproval=false`: guarded broker подключён к experimental start, но положительный signed/installed issuer не проверен; единый сеанс владельца с инструкциями ещё не готов.
 
 В helper линкуются `CSMCExperiment` и `VentilatorExperiment`: подготовленные десять нативных операций, проверка подписи/хешей и файловый single-use authority. Нативный factory требует hardware domain и закрытое свидетельство armed recovery, которое текущий worker не выдаёт. Factory доступен только подготовленному private hardware child; public XPC start его не вызывает. `--experiment-protocol-check` проверяет чистые нативные пакеты и полный модельный путь разрешения/записей/Auto на отдельном файле simulation; [подробности](../features/feature-experiment-protocol.md).
 
@@ -61,6 +61,7 @@ Worker подключает публичный `IORegisterForSystemPower`: пр�
 После сборки:
 
 ```sh
+python3 scripts/session-runtime-dry-run.py
 python3 scripts/installation-dry-run.py
 python3 scripts/control-dry-run.py
 python3 scripts/recovery-dry-run.py
@@ -70,6 +71,8 @@ SWIFTPM_MODULECACHE_OVERRIDE="$PWD/.build/swift-module-cache" swift test --disab
 ```
 
 Dry-run проверяет настоящий обмен XPC, binding соединения/UUID, heartbeat, три чтения Auto-кода модели, отказ daemon mode, SIGKILL симулятора с перезапуском, SIGKILL/SIGSTOP помощника с продолжающим работать worker, SIGTERM worker и отказ Auto. Работает без root; [протокол](../research/evidence/control-dry-run.txt). Физический эффект RPM/Auto не проверяет.
+
+Подготовленный [session runtime](../features/feature-owner-experiment-runtime.md) связывает receipt, preflight и broker; новые experimental heartbeat/restore/status RPC отделены от simulation. Startup daemon продолжает только оставшиеся Auto при свободном lifetime lock и точном boot/binary binding. Hardware pending остаётся для владельческого результата.
 
 ## Code anchors
 
@@ -81,6 +84,7 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 | Worker и приватный IPC | `Sources/VentilatorHelper/SimulationWorker.swift` |
 | Broker и отдельные device/reader-процессы | `Sources/VentilatorHelper/ExperimentRecoveryBroker.swift`, `Sources/VentilatorHelper/ApprovedModelRecovery.swift`, `Sources/VentilatorExperiment/ScopedExperimentChild.swift`, `Sources/VentilatorExperiment/RecoveryMonitor.swift`, `Sources/VentilatorExperiment/FileSimulatedStepDevice.swift` |
 | Системные уведомления | `Sources/VentilatorHelper/SystemPowerObserver.swift`, `Sources/CSystemPower/` |
+| Guarded session proxy/preflight | `Sources/VentilatorHelper/ExperimentSessionRuntime.swift`, `Sources/VentilatorHelper/ExperimentPreflight.swift`, `scripts/session-runtime-dry-run.py` |
 | Кандидатный план | `Sources/VentilatorControl/CandidateExperimentPlan.swift`, `scripts/prepare-experiment-plan.py` |
 | Подготовленный аппаратный протокол | `Sources/CSMCExperiment/`, `Sources/VentilatorExperiment/`, `Sources/VentilatorControl/ExperimentAuthority.swift` |
 | Read-only наблюдение опыта | `Sources/VentilatorHelper/ExperimentReadOnlyCheck.swift`, `Sources/VentilatorExperiment/ReadOnlyExperimentObserver.swift` |

@@ -1,6 +1,6 @@
 import Foundation
 
-/// The current wire contract explicitly operates on simulation. Hardware control has no RPC.
+/// User control remains disabled. The experimental hardware RPC consumes root TTY approval only.
 @objc public protocol VentilatorHelperProtocol {
     func status(reply: @escaping (Data) -> Void)
     func installationStatus(_ nonce: String, reply: @escaping (Data) -> Void)
@@ -9,6 +9,9 @@ import Foundation
     func restoreSimulation(_ sessionID: String, reply: @escaping (Data) -> Void)
     func prepareHardwareExperiment(reply: @escaping (Data) -> Void)
     func startApprovedHardwareExperiment(_ challengeID: String, planSHA256: String, reply: @escaping (Data) -> Void)
+    func heartbeatHardwareExperiment(_ sessionID: String, reply: @escaping (Data) -> Void)
+    func restoreHardwareExperiment(_ sessionID: String, reply: @escaping (Data) -> Void)
+    func hardwareExperimentStatus(reply: @escaping (Data) -> Void)
 }
 
 /// Read-only diagnostic reply. It never grants hardware authority or reports physical recovery.
@@ -43,13 +46,16 @@ public struct HelperReply: Codable {
     public let control: ControlReport
     public let errorCode: String?
     public let preparation: HardwarePreparation?
+    public let hardwareExperiment: HardwareExperimentReport?
 
-    public init(control: ControlReport, errorCode: String? = nil, preparation: HardwarePreparation? = nil) {
+    public init(control: ControlReport, errorCode: String? = nil, preparation: HardwarePreparation? = nil,
+                hardwareExperiment: HardwareExperimentReport? = nil) {
         self.protocolVersion = 1
         self.hardwareControlAvailable = false
         self.control = control
         self.errorCode = errorCode
         self.preparation = preparation
+        self.hardwareExperiment = hardwareExperiment
     }
 }
 
@@ -57,10 +63,27 @@ public struct HardwarePreparation: Codable {
     public let planSHA256: String
     public let readyForOwnerApproval: Bool
     public let blockers: [String]
-    public init(planSHA256: String) {
+    public let connectionOwner: UUID?
+    public let runtimePrepared: Bool
+    public init(planSHA256: String, connectionOwner: UUID? = nil, runtimePrepared: Bool = true) {
         self.planSHA256 = planSHA256
         self.readyForOwnerApproval = false
-        self.blockers = ["hardwareRecoveryBrokerNotConnected", "localApprovalIssuerHardwarePathUnverified",
+        self.connectionOwner = connectionOwner; self.runtimePrepared = runtimePrepared
+        self.blockers = (runtimePrepared ? [] : ["hardwareRecoveryBrokerNotConnected"]) + ["localApprovalIssuerHardwarePathUnverified",
                          "installedSignedHelperUnverified", "ownerSessionInstructionsPending"]
+    }
+}
+
+/// Experimental audit status, separate from the simulation ControlReport and from product readiness.
+public struct HardwareExperimentReport: Codable {
+    public let domain: String
+    public let sessionID: UUID?
+    public let phase: String
+    public let pending: Bool
+    public let fixedRPMObserved: Bool
+    public let physicalAutoVerified: Bool
+    public init(domain: String, sessionID: UUID?, phase: String, pending: Bool, fixedRPMObserved: Bool) {
+        self.domain = domain; self.sessionID = sessionID; self.phase = phase; self.pending = pending
+        self.fixedRPMObserved = fixedRPMObserved; self.physicalAutoVerified = false
     }
 }

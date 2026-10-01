@@ -50,6 +50,12 @@ public struct ExperimentAuthorityState: Codable {
     public init() {}
 }
 
+public struct FixedRevocationRecord: Codable {
+    public let domain: ExperimentDomain
+    public let sessionID: UUID
+    public let revokedAt: Double
+}
+
 public enum ExperimentAuthorityError: Error, Equatable {
     case hardwareRequiresRoot, localTerminalRequired, invalidClock, planMismatch, challengeMismatch
     case approvalMissing, approvalExpired, wrongConnection, experimentAlreadyConsumed, pendingChallenge
@@ -83,6 +89,7 @@ public final class ExperimentAuthority {
     private let journal: FileSessionJournal
     public let directory: URL
     public let domain: ExperimentDomain
+    private var stopAfterModelTargetReturn = false
 
     public init(directory: URL, domain: ExperimentDomain) throws {
         if domain == .hardware && geteuid() != 0 { throw ExperimentAuthorityError.hardwareRequiresRoot }
@@ -173,6 +180,7 @@ public final class ExperimentAuthority {
     public func reserve(step: ExperimentStep, sessionID: UUID, owner: UUID, boot: UUID, now: Double,
                         observation: ControlObservation, date: Date) throws -> ExperimentWriteReservation {
         try checkClock(now)
+        if step.isFixed, try fixedRevoked(sessionID: sessionID) { throw ExperimentAuthorityError.fixedClosed }
         let ledger = try transaction { state in
             guard var ledger = state.ledger, ledger.domain == domain, ledger.sessionID == sessionID,
                   ledger.approval.challenge.bootSession == boot else { throw ExperimentAuthorityError.wrongSession }
@@ -201,6 +209,24 @@ public final class ExperimentAuthority {
             return ledger
         }
         return ExperimentWriteReservation(ledger: ledger, step: step)
+    }
+
+    /// Separate fsynced file: a SIGSTOP writer holding authority.lock cannot prevent durable revocation.
+    public func revokeFixed(sessionID: UUID, now: Double) throws {
+        try checkClock(now)
+        guard let ledger = try journal.loadAuthorityState(domain: domain)?.ledger,
+              ledger.sessionID == sessionID, now >= ledger.startedAt else { throw ExperimentAuthorityError.wrongSession }
+        try journal.saveFixedRevocation(.init(domain: domain, sessionID: sessionID, revokedAt: now))
+    }
+    public func fixedRevoked(sessionID: UUID) throws -> Bool {
+        guard let record = try journal.loadFixedRevocation(domain: domain) else { return false }
+        guard record.sessionID == sessionID else { throw ExperimentAuthorityError.wrongSession }
+        return true
+    }
+    /// Deterministic process fault, never enabled for a hardware authority or a root process.
+    public func stopAfterTargetReturnForModelCheck() throws {
+        guard domain == .simulation, geteuid() != 0 else { throw ExperimentAuthorityError.hardwareRequiresRoot }
+        stopAfterModelTargetReturn = true
     }
 
     /// Revoke further reservations before stopping the writer. This alone does not prove quiescence.
@@ -315,6 +341,11 @@ public final class ExperimentAuthority {
         var state = try journal.loadAuthorityState(domain: domain) ?? ExperimentAuthorityState()
         let result = try action(&state)
         try journal.saveAuthorityState(state, domain: domain)
+        if stopAfterModelTargetReturn, domain == .simulation,
+           state.ledger?.successfulReturns?.contains(.targetOne) == true {
+            stopAfterModelTargetReturn = false
+            _ = Darwin.kill(getpid(), SIGSTOP) // This model writer retains authority.lock until killed.
+        }
         return result
     }
 }

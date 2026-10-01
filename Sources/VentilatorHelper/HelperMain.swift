@@ -9,6 +9,13 @@ enum HelperMain {
     static func main() {
         let arguments = Array(CommandLine.arguments.dropFirst())
         do {
+            if arguments == ["--hardware-broker"] { try runPreparedHardwareBroker(); return }
+            if arguments == ["--hardware-preflight-child"] { try runPreflightChild(domain: .hardware); return }
+            if arguments == ["--model-preflight-child"] { try runPreflightChild(domain: .simulation); return }
+            if arguments == ["--session-runtime-check"] {
+                guard geteuid() != 0 else { throw CheckError.failed("Runtime check requires non-root") }
+                try sessionRuntimeCheck(); return
+            }
             if arguments.count == 4, arguments[0] == "--approve-local-hardware", let owner = UUID(uuidString: arguments[1]) {
                 try runLocalApproval(domain: .hardware, directory: hardwareExperimentDirectory, owner: owner,
                     planSHA256: arguments[2], reviewSHA256: arguments[3])
@@ -143,7 +150,7 @@ private final class ReplyBox {
     func get() -> Result<Data, Error>? { lock.lock(); defer { lock.unlock() }; return result }
 }
 
-private func rpc(_ connection: NSXPCConnection, send: (VentilatorHelperProtocol, @escaping (Data) -> Void) -> Void) throws -> HelperReply {
+func rpc(_ connection: NSXPCConnection, send: (VentilatorHelperProtocol, @escaping (Data) -> Void) -> Void) throws -> HelperReply {
     try JSONDecoder().decode(HelperReply.self, from: rpcData(connection, send: send))
 }
 

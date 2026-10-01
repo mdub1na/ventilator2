@@ -78,6 +78,7 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
         try ExperimentWriteAdmission.validate(reserved: reservation.ledger, current: current, step: reservation.step,
             domain: .hardware, sessionID: sessionID, boot: boot, now: ExperimentMonotonicClock.now(), role: role)
         let step = try reservation.consume(domain: .hardware, sessionID: sessionID)
+        if step.isFixed, try authority.fixedRevoked(sessionID: sessionID) { throw ExperimentAuthorityError.fixedClosed }
         var result = SMCExperimentResult()
         let status = SMCExperimentWriteStep(connection, step.rawValue, &result)
         guard status == 0 else {
