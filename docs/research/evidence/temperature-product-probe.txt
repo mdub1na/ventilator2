@@ -1,0 +1,52 @@
+Temperature product verification, 2026-09-30.
+Profile: Mac15,7, macOS 27.0.0 (26A428).
+Effective UID: 501 (no sudo). No hardware writes.
+
+scripts/build-app.sh: succeeded; Info.plist OK; ad hoc codesign --verify --strict passed.
+swift test --disable-sandbox --scratch-path .build: 9 tests passed, 0 failures.
+
+Three independent product reads outside the Codex execution sandbox:
+Model: Mac15,7, macOS 27.0.0 (26A428)
+SMC available: true, fans: 2
+Fan 1: actual=0.0 target=0.0 min=1350.0 max=5349.0 mode=3
+Fan 2: actual=0.0 target=0.0 min=1458.0 max=5777.0 mode=3
+CPU: n/a (Источник не подтверждён)
+GPU: n/a (Источник не подтверждён)
+SSD (NAND CH0): 31.0 (NAND CH0 temp · встроенный накопитель)
+Неразмеченный датчик: 50.9 (SMC Tf26)
+Model: Mac15,7, macOS 27.0.0 (26A428)
+SMC available: true, fans: 2
+Fan 1: actual=0.0 target=0.0 min=1350.0 max=5349.0 mode=3
+Fan 2: actual=0.0 target=0.0 min=1458.0 max=5777.0 mode=3
+CPU: n/a (Источник не подтверждён)
+GPU: n/a (Источник не подтверждён)
+SSD (NAND CH0): 30.0 (NAND CH0 temp · встроенный накопитель)
+Неразмеченный датчик: 50.9 (SMC Tf26)
+Model: Mac15,7, macOS 27.0.0 (26A428)
+SMC available: true, fans: 2
+Fan 1: actual=0.0 target=0.0 min=1350.0 max=5349.0 mode=3
+Fan 2: actual=0.0 target=0.0 min=1458.0 max=5777.0 mode=3
+CPU: n/a (Источник не подтверждён)
+GPU: n/a (Источник не подтверждён)
+SSD (NAND CH0): 29.0 (NAND CH0 temp · встроенный накопитель)
+Неразмеченный датчик: 50.9 (SMC Tf26)
+
+Inside the Codex execution sandbox: SMC unavailable, NAND n/a. CPU/GPU/Tf26 n/a.
+UI automation: selecting the running app by name/path timed out twice.
+New NAND UI row has not been inspected on the live screen; relaunch the built app to load the update.
+
+SHA-256 of the verified product binary:
+b5b6fed343ace4a8440eeb6b48933c06d3a41b6222e17721841d1aedb13a4e4f
+
+Live GUI verification after owner relaunch, 2026-09-30:
+Owner: «Вышел и зашел в обновленную сборку».
+CUA getApp(dev.ventilator.macos) now succeeded. Overview accessibility tree
+reported temperature values: n/a, n/a, 29.0 C.
+Selected the Temperatures sidebar row and inspected its accessibility tree
+and screenshot. Confirmed visible rows:
+  CPU: Нет данных; Источник не подтверждён.
+  GPU: Нет данных; Источник не подтверждён.
+  SSD (NAND CH0): 29.0 °C; NAND CH0 temp · встроенный накопитель.
+  Неразмеченный датчик: 50.9 °C; SMC Tf26 · источник не установлен.
+The explanatory text identifies SSD as the temperature of one NAND channel.
+This closes the earlier live-window inspection gap; it does not verify sleep/wake.

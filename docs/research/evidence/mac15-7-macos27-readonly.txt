@@ -1,0 +1,63 @@
+Read-only observations, 2026-09-30, local Mac. No SMC writes or sudo.
+
+$ sw_vers
+ProductName: macOS
+ProductVersion: 27.0
+BuildVersion: 26A428
+
+$ system_profiler SPHardwareDataType -detailLevel mini
+Model Name: MacBook Pro
+Model Identifier: Mac15,7
+Chip: Apple M3 Pro
+Total Number of Cores: 12 (6 Performance and 6 Efficiency)
+
+$ xcodebuild -version
+Xcode 27.0
+Build version 27A266a
+
+$ security find-identity -v -p codesigning
+0 valid identities found
+
+$ clang -Wall -Wextra -Werror -std=c11 tools/smc_read_probe.c -framework IOKit -o /tmp/ventilator-smc-read-probe
+Build: succeeded.
+
+$ /tmp/ventilator-smc-read-probe
+FNum (ui8 , 1 bytes): 2
+F0Ac (flt , 4 bytes): 0.0
+F0Mn (flt , 4 bytes): 1350.0
+F0Mx (flt , 4 bytes): 5349.0
+F0Tg (flt , 4 bytes): 0.0
+F0Md (ui8 , 1 bytes): 3
+F0md: unavailable
+F1Ac (flt , 4 bytes): 0.0
+F1Mn (flt , 4 bytes): 1458.0
+F1Mx (flt , 4 bytes): 5777.0
+F1Tg (flt , 4 bytes): 0.0
+F1Md (ui8 , 1 bytes): 3
+F1md: unavailable
+Ftst (ui8 , 1 bytes): 0
+Tf26 (flt , 4 bytes): 49.3
+TH0F: unavailable
+TC0P: unavailable
+TG0P: unavailable
+
+The probe's first run within the Codex process sandbox could not open AppleSMC
+(IOReturn 0xe00002e2). The same binary succeeded outside that sandbox without
+sudo. This is a limitation of that test environment, not evidence that the
+ordinary user's app needs root for these reads.
+
+$ system_profiler SPNVMeDataType -detailLevel mini
+Controller: Apple SSD Controller
+Model: APPLE SSD AP0512Z
+No temperature reported by this command.
+
+$ /usr/bin/powermetrics --samplers smc --sample-count 1 --sample-rate 1000
+powermetrics: unrecognized sampler: smc
+
+`Tf26` is an available, plausible temperature-like value; its physical source
+has not been established. The other three are merely candidates and were not
+readable in this sample.
+
+Unverified by these observations: the meaning of mode value 3; CPU, GPU and
+SSD temperature mapping; fan write acceptance; independent fan control;
+post-write RPM response; Auto restoration; sleep/wake and crash recovery.

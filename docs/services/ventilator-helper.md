@@ -1,0 +1,75 @@
+---
+id: ventilator-helper
+title: Прототип помощника и симулятор M2
+type: service
+module: VentilatorHelper
+tech_stack: [Swift, Foundation, Security, XPC, SwiftPM]
+owner: unassigned
+repo_url: https://github.com/mdub1na/ventilator2
+depends_on: []
+publishes: [VentilatorHelper]
+---
+
+# Помощник
+
+SwiftPM собирает отдельный исполняемый файл и библиотеку `VentilatorControl`. Bundle содержит helper в `Contents/MacOS/` и plist в `Contents/Library/LaunchDaemons/`. Он **не зарегистрирован и не установлен**: приложение не вызывает `SMAppService.daemon.register()`, GUI не подключён к его XPC и не запущен от root.
+
+Текущие действующие RPC: status, startSimulation, heartbeat(UUID), restoreSimulation(UUID). Все изменения только на подставном транспорте. Добавлены prepareHardwareExperiment и startApprovedHardwareExperiment: первый возвращает кандидат/блокеры, второй всегда отказывает до готовности runtime; выдачи одобрения по XPC нет. Произвольных SMC-ключей/байтов, путей и команд оболочки на интерфейсе нет. Сеанс привязан к серверному owner ID соединения. Coordinator последовательно передаёт симуляционные команды worker через приватные pipe с ограниченными фреймами/таймаутами.
+
+## Запуск и подпись
+
+`scripts/build-app.sh` собирает оба бинарника, помещает plist, подписывает helper и bundle, проверяет каждую подпись. По умолчанию ad hoc. `VENTILATOR_SIGN_IDENTITY` позволяет использовать уже настроенную identity; самостоятельно сертификаты скрипт не создаёт.
+
+Обычный режим демона проверяет Apple-issued подпись своего executable с identifier `dev.ventilator.helper`, получает Team ID и требует root. Предназначен для launchd, но происхождение процесса от launchd отдельно не проверяется. При отсутствии условий завершает работу с кодом 78. Перед приёмом сообщений выставляет requirement: Apple anchor, identifier `dev.ventilator.macos` и тот же Team ID. Положительный сценарий с подписанным установленным демоном **не проверен**: локально нет валидной identity. Ad hoc smoke test не доказывает эту аутентификацию.
+
+`--loopback-check` использует приватный anonymous listener и клиента в том же непривилегированном процессе; его acceptance обход относится только к симуляционному anonymous listener. Публичный daemon listener эту политику не использует. Подход anonymous listener для начального XPC рекомендует [Apple DTS](https://developer.apple.com/forums/thread/799910).
+
+## Независимый процесс симуляции
+
+При первом start coordinator запускает тот же helper executable в режиме `--simulation-worker` с наследуемыми pipe. Worker — единственный владелец модели и `ControlSession`; сохраняет маркер через `FileSessionJournal`, удерживает эксклюзивный `flock` и опрашивает сеанс в цикле run loop примерно раз в 50 мс. Clock — `mach_continuous_time`, учитывает сон. Повторный worker в том же каталоге отвергается; после перезапуска pending record вызывает только Auto.
+
+SIGKILL помощника закрывает pipe: worker запрашивает Auto. SIGSTOP помощника не останавливает clock/heartbeat worker. После терминального состояния worker сохраняет отдельный ограниченный JSON-результат и завершается. Не начатый worker завершается через пять секунд; начатый ограничен десятисекундным lease и восьмисекундным сроком наблюдения восстановления. Потеря pipe не приводит к повторному запуску fixed.
+
+В anonymous XPC тесте используется приватный временный каталог. Для подписанного root daemon выбран `/Library/Application Support/Ventilator/HelperSimulation`; этот installed путь ещё не запускался. `worker-result.json` — результат симуляции, не доказательство аппаратного Auto. Ошибка Auto сохраняет `session.json` и `recoveryRequired`. Авария **самого worker**, отключение питания и блокирующий аппаратный I/O не покрыты этим восстановителем.
+
+Worker подключает публичный `IORegisterForSystemPower`: при will-sleep выполняет операцию Auto модели перед `IOAllowPowerChange`; idle sleep разрешает, без запрета сна. SIGTERM также запрашивает Auto. Регистрация успешна в локальном dry-run, маршрутизация sleep проверена подставным сообщением. Доставка реального сна и системное завершение root daemon не проверены; [Apple QA1340](https://developer.apple.com/library/archive/qa/qa1340/_index.html).
+
+## Черновик аппаратного плана
+
+`--candidate-plan` экспортирует план из `CandidateExperimentPlan`, SHA-256 app/helper и канонический хеш плана. Worker использует тот же helper binary. Перечень предполагаемых записей и их пределы хранится в коде плана. Экспорт не читает/не пишет SMC, не принимает одобрение и не устанавливает helper. `readyForOwnerApproval=false`: не подключены аппаратный recovery broker, локальный issuer и installed проверка; единый сеанс владельца с инструкциями ещё не готов.
+
+В helper линкуются `CSMCExperiment` и `VentilatorExperiment`: подготовленные десять нативных операций, проверка подписи/хешей и файловый single-use authority. Нативный factory требует hardware domain и закрытое свидетельство armed recovery, которое текущий worker не выдаёт. Вызовов factory из CLI/XPC нет. `--experiment-protocol-check` проверяет чистые нативные пакеты и полный модельный путь разрешения/записей/Auto на отдельном файле simulation; [подробности](../features/feature-experiment-protocol.md).
+
+Отдельный `--approved-model-parent` проверяет надзор за самим writer: private-pipe broker → fixed child → после подтверждённого выхода Auto child. CLI режимы broker/child требуют non-root и наследуемые pipe; domain строго simulation. Протокол scope включает session/owner/boot/hash/lease и nonce. Broker держит отдельный lifetime lock, сохраняет closure до сигнала, не запускает Auto при неподтверждённом выходе и не повторяет зависшую операцию. Файловая модель читается независимо от device-процесса. Это следующий подготовительный путь, ещё не замена симуляционному RPC и не аппаратный восстановитель.
+
+Новый путь использует отложенное подтверждение will-sleep: callback запускает ограниченное восстановление, завершение/отказ освобождает acknowledgement. Старый simulation worker сохраняет синхронный порядок. Реальный сон Mac не запускался. [Проверки broker](../research/evidence/recovery-dry-run.txt) покрывают helper/writer SIGKILL/SIGSTOP, broker SIGTERM, зависания Fixed/Auto, частичный отказ Auto, injected sleep и абсолютный lease. SIGKILL самого broker/питание/SMC-кernel cancellation не доказаны.
+
+## Проверка
+
+После сборки:
+
+```sh
+python3 scripts/control-dry-run.py
+python3 scripts/recovery-dry-run.py
+python3 scripts/prepare-experiment-plan.py
+SWIFTPM_MODULECACHE_OVERRIDE="$PWD/.build/swift-module-cache" swift test --disable-sandbox --scratch-path .build
+```
+
+Dry-run проверяет настоящий обмен XPC, binding соединения/UUID, heartbeat, три чтения Auto-кода модели, отказ daemon mode, SIGKILL симулятора с перезапуском, SIGKILL/SIGSTOP помощника с продолжающим работать worker, SIGTERM worker и отказ Auto. Работает без root; [протокол](../research/evidence/control-dry-run.txt). Физический эффект RPM/Auto не проверяет.
+
+## Code anchors
+
+| Компонент | Code |
+|---|---|
+| Контракт | `Sources/VentilatorControl/HelperProtocol.swift` |
+| Сеанс и журнал | `Sources/VentilatorControl/ControlSession.swift`, `Sources/VentilatorControl/FileSessionJournal.swift` |
+| XPC/собственная подпись | `Sources/VentilatorHelper/HelperServer.swift` |
+| Worker и приватный IPC | `Sources/VentilatorHelper/SimulationWorker.swift` |
+| Broker и отдельные device-процессы модели | `Sources/VentilatorHelper/ApprovedModelRecovery.swift`, `Sources/VentilatorExperiment/RecoveryMonitor.swift`, `Sources/VentilatorExperiment/FileSimulatedStepDevice.swift` |
+| Системные уведомления | `Sources/VentilatorHelper/SystemPowerObserver.swift`, `Sources/CSystemPower/` |
+| Кандидатный план | `Sources/VentilatorControl/CandidateExperimentPlan.swift`, `scripts/prepare-experiment-plan.py` |
+| Подготовленный аппаратный протокол | `Sources/CSMCExperiment/`, `Sources/VentilatorExperiment/`, `Sources/VentilatorControl/ExperimentAuthority.swift` |
+| Режимы запуска | `Sources/VentilatorHelper/HelperMain.swift` |
+| Plist и сборка | `Resources/dev.ventilator.helper.plist`, `scripts/build-app.sh` |
+
+См. [подставные сценарии](../features/feature-control-simulation.md) и [архитектуру](../research/research-architecture.md).

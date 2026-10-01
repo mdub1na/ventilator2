@@ -1,0 +1,45 @@
+Temperature research verification, 2026-09-30.
+Profile: Mac15,7, macOS 27.0.0 (26A428), Apple M3 Pro.
+No sudo, no SMC writes; two bounded ordinary workloads of 10 seconds each.
+All 45 workload samples reported thermalState=0 (nominal).
+
+Build: scripts/build-temperature-probe.sh, clang -Wall -Wextra -Werror, succeeded.
+Run: python3 scripts/run-temperature-research.py, succeeded.
+CPU: 2 workers, 10 seconds, completed.
+GPU: Metal Apple M3 Pro, 10 seconds, 13562 completed commands.
+Neither workload triggered the thermal stop. GPU work includes CPU command submission.
+
+SMC catalogue: 252 T-prefixed keys, 243 flt, 9 ioft.
+HID: 46 temperature services; 45 event values, ALS missing event.
+NAND CH0 temp: AppleEmbeddedNVMeTemperatureSensor, parent AppleANS3CGv2Controller.
+LocationID TN0n is not present among the SMC keys in the enumeration.
+
+Mean temperature shift (C) relative to preceding 4-second window; workload window +4s through end:
+cpu (baseline 4, during 5 samples):
+  Te06: 46.50 -> 51.19, delta +4.69, peak 53.44
+  Tp0W: 45.83 -> 59.07, delta +13.24, peak 62.42
+  Tp1K: 51.60 -> 60.78, delta +9.18, peak 64.86
+  Tp1S: 49.80 -> 59.38, delta +9.58, peak 64.75
+  Tg05: 43.76 -> 45.87, delta +2.11, peak 46.35
+  Tg0D: 43.44 -> 45.30, delta +1.86, peak 45.74
+  Ts00: 36.31 -> 39.78, delta +3.47, peak 40.33
+  Ts0P: 30.02 -> 30.00, delta -0.02, peak 30.00
+  Tf16: 54.25 -> 54.25, delta +0.00, peak 54.25
+  Tf26: 49.28 -> 49.28, delta +0.00, peak 49.28
+  NAND CH0: [30]
+gpu (baseline 3, during 5 samples):
+  Te06: 47.94 -> 55.25, delta +7.31, peak 57.00
+  Tp0W: 49.98 -> 56.93, delta +6.96, peak 59.36
+  Tp1K: 52.26 -> 66.22, delta +13.96, peak 73.56
+  Tp1S: 51.97 -> 65.59, delta +13.61, peak 73.23
+  Tg05: 44.97 -> 57.26, delta +12.29, peak 57.99
+  Tg0D: 44.88 -> 57.71, delta +12.82, peak 58.45
+  Ts00: 37.67 -> 44.02, delta +6.35, peak 44.63
+  Ts0P: 30.00 -> 30.00, delta +0.00, peak 30.00
+  Tf16: 54.25 -> 54.25, delta +0.00, peak 54.25
+  Tf26: 49.28 -> 49.74, delta +0.46, peak 50.44
+  NAND CH0: [30]
+
+SHA-256 at the time of the experiment:
+temperature-probe: 155a00e0cd24b2779a9d28c6bfb654f5089acf4825adfe378079f85eb7adc008
+temperature-workload: ffbd7e8a23abf3009463c17d3fe3e21edc5e9ebfed6dc4a9cf26750e8b3e0dae

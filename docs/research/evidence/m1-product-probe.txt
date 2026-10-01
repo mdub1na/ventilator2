@@ -1,0 +1,31 @@
+Read-only product verification, 2026-09-30, Mac15,7 + macOS 27.0.0 (26A428).
+No sudo, no SMC writes. The GUI was opened in the desktop session.
+
+$ scripts/build-app.sh
+Build complete. Info.plist: OK. Ad hoc codesign --verify --strict: passed.
+
+$ .build/Ventilator.app/Contents/MacOS/Ventilator --probe
+Model: Mac15,7, macOS 27.0.0 (26A428)
+SMC available: true, fans: 2
+Fan 1: actual=0.0 target=0.0 min=1350.0 max=5349.0 mode=3
+Fan 2: actual=0.0 target=0.0 min=1458.0 max=5777.0 mode=3
+CPU: n/a (Источник не подтверждён)
+GPU: n/a (Источник не подтверждён)
+SSD: n/a (Источник не подтверждён)
+Неразмеченный датчик: 49.3 (SMC Tf26)
+
+$ swift test --disable-sandbox --scratch-path .build
+6 tests passed: FanReadingTests (3), ExperimentVerificationTests (3).
+
+GUI accessibility inspection: four sections rendered; fan controls and login
+toggle disabled; closing the main window left the Ventilator process running.
+The status item appearance and right-click menu were not confirmed: screenshot
+capture failed with ScreenCaptureKit error -3811, and the app had no accessible
+window after closing. The updated context-click event monitor compiles but has
+not been exercised through the UI.
+
+Owner verification, 2026-09-30 (subsequent to the automated inspection):
+«значок в строке меню проверил - все работает как ожидается».
+The owner confirmed the status item on the live desktop. Appearance and click
+behavior are accepted on this basis; the earlier ScreenCaptureKit limitation
+describes the automated check only.
