@@ -13,4 +13,5 @@ Plan SHA-256: 265ae1c2ebe0a938486c811a74ead4ec4a6f2c7d69e7702323d3cbe9448b28d0
 Helper SHA-256: 9b354ef620ca5d75cc153067bea29d72f9e3d2bc0ea3fecb6a6b01a4dc403208
 No SMCExperimentOpen/WriteStep, sudo, installation or actual sleep experiment performed. The hardware check opened only CSMCRead.
 Hardware broker handler/issuer and signed installed validation remain pending; hardware start stays closed.
-PR: https://github.com/mdub1na/ventilator2/pull/1
+Active PR: https://github.com/mdub1na/ventilator2/pull/2
+Base implementation: https://github.com/mdub1na/ventilator2/pull/1 (merged before this continuation).
