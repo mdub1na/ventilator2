@@ -1,0 +1,8 @@
+Owner session dry-run: 2026-10-01T14:59:52+05:00
+Non-root offline files and anonymous model only; no private key, signing, sudo, installation or native writes.
+Copied package fingerprints/check passed; changed plan rejected; seven owner actions rejected before mutation without Terminal.
+Full 13449-byte UTF-8 review imported through real model CLI; canonical digest matched Swift; no approval/ledger/device. Wrong digest and symlink refused.
+Ad hoc owner start/status/certificate qualification and non-root hardware stage/audit refused before native authority.
+Positive Apple-issued signing/revocation, root installed connection, sudo stages and hardware experiment require owner; not claimed.
+SHA-256 of tested helper: edbc8b0a93eee5693f66eff1903c2901a4fd27f129c70cf6f41fd4e72877f92a
+SHA-256 of tested application: 1bb278033159a5cb0e14c732d167311d9886dc7693ad32eeefb2d8014ee018e8

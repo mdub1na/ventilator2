@@ -16,6 +16,15 @@ enum HelperMain {
                 guard geteuid() != 0 else { throw CheckError.failed("Runtime check requires non-root") }
                 try sessionRuntimeCheck(); return
             }
+            if arguments.count == 3, arguments[0] == "--stage-local-hardware-review" {
+                try stageLocalReview(domain: .hardware, directory: hardwareExperimentDirectory,
+                    source: URL(fileURLWithPath: arguments[1]), reviewSHA256: arguments[2]); return
+            }
+            if arguments == ["--owner-hardware-audit"] { try ownerHardwareAudit(); return }
+            if arguments.count == 4, arguments[0] == "--stage-local-model-review" {
+                try stageLocalReview(domain: .simulation, directory: URL(fileURLWithPath: arguments[1]),
+                    source: URL(fileURLWithPath: arguments[2]), reviewSHA256: arguments[3]); return
+            }
             if arguments.count == 4, arguments[0] == "--approve-local-hardware", let owner = UUID(uuidString: arguments[1]) {
                 try runLocalApproval(domain: .hardware, directory: hardwareExperimentDirectory, owner: owner,
                     planSHA256: arguments[2], reviewSHA256: arguments[3])

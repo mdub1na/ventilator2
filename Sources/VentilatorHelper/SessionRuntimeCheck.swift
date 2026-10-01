@@ -70,6 +70,20 @@ func sessionRuntimeCheck() throws {
         let replay = try rpc(stranger) { $0.startApprovedHardwareExperiment(prompt.challenge.id.uuidString, planSHA256: prepared.planSHA256, reply: $1) }
         guard replay.errorCode != nil, try authority.state().ledger!.attempts == ledger.attempts,
               Set(ledger.attempts).count == ledger.attempts.count else { throw CheckError.failed("Runtime replay changed spent ledger") }
+        if !disconnect {
+            let evidenceDeadline = HelperClock.now() + 1
+            while try journal.loadRecoveryOutcome() == nil, HelperClock.now() < evidenceDeadline {
+                RunLoop.current.run(until: Date().addingTimeInterval(0.02))
+            }
+            guard let samples = try journal.loadRecoveryOutcome()?.observations,
+                  samples.map(\.stage) == ["baseline", "fixed", "auto1", "auto2", "auto3"] else {
+                throw CheckError.failed("Independent owner evidence not persisted")
+            }
+            let fixed = try JSONDecoder().decode(BrokerObservation.self, from: Data(samples[1].sampleJSON.utf8))
+            guard fixed.fans.allSatisfy({ $0.actual == 2400 && $0.target == 2500 && $0.mode == 1 }), fixed.testMode == 1 else {
+                throw CheckError.failed("Owner evidence lacks independent actual/target/mode values")
+            }
+        }
         print("Runtime XPC model: \(disconnect ? "connection invalidation" : "explicit Auto") passed; missing/wrong-owner approval, heartbeat, restore, status and replay; no hardware authority.")
         withExtendedLifetime(server) {}
     }

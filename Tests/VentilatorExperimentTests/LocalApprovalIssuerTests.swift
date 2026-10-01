@@ -63,7 +63,7 @@ final class LocalApprovalIssuerTests: XCTestCase {
 
     func testSymlinkOversizedOrUnsafeInstructionsCannotBeReviewed() throws {
         let (directory, authority, issuer, review) = try fixture(); defer { try? FileManager.default.removeItem(at: directory) }
-        for instructions in [" ", String(repeating: "x", count: 8193), "\u{1b}[2J"] {
+        for instructions in [" ", String(repeating: "x", count: 12_289), "\u{1b}[2J"] {
             XCTAssertThrowsError(try LocalApprovalReview(domain: .simulation, candidate: review.candidate, ownerInstructions: instructions))
         }
         let path = directory.appendingPathComponent("local-review-simulation.json")

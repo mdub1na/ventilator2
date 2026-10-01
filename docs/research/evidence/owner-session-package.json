@@ -1,0 +1,17 @@
+{
+  "candidatePlanSHA256": "77051690548ba359382a3546703d9160833da518f846f771a756984520a52f8e",
+  "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+  "fingerprint": {
+    "applicationSHA256": "1bb278033159a5cb0e14c732d167311d9886dc7693ad32eeefb2d8014ee018e8",
+    "helperSHA256": "edbc8b0a93eee5693f66eff1903c2901a4fd27f129c70cf6f41fd4e72877f92a",
+    "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+  },
+  "hardwareWritesExecuted": 0,
+  "packageFiles": {
+    "PLAN.md": "c7cfedf9f5fd2847c1168f87ea532ffa1a721840c246e9615c53d9ed6d546497",
+    "session.py": "c40801de4196c5e3f4ed26decfada931e5c15f77b83b3495b8a17f807013e2de"
+  },
+  "schema": 1,
+  "signed": false,
+  "teamIdentifier": "568959LQ99"
+}

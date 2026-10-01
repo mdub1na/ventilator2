@@ -74,6 +74,8 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 
 Подготовленный [session runtime](../features/feature-owner-experiment-runtime.md) связывает receipt, preflight и broker; новые experimental heartbeat/restore/status RPC отделены от simulation. Startup daemon продолжает только оставшиеся Auto при свободном lifetime lock и точном boot/binary binding. Hardware pending остаётся для владельческого результата.
 
+[Единый сеанс владельца](../owner-session.md) подготовлен: Terminal client удерживает проверенное соединение, root staging импортирует full review, audit читает защищённый outcome. Независимые baseline/Fixed/три Auto сохраняются с фактическими значениями. Signed/installed/hardware positive пока не проверены.
+
 ## Code anchors
 
 | Компонент | Code |

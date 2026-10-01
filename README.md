@@ -19,10 +19,12 @@ open .build/Ventilator.app
 
 `python3 scripts/local-approval-restart-dry-run.py` проверяет полный путь локального подтверждения плана/инструкций через TTY и восстановление после SIGKILL broker. Новый broker допускает только оставшиеся Auto-шаги, сохраняет исходный срок и pending при неизвестном результате прежней попытки. [Результаты](docs/research/evidence/local-approval-restart-dry-run.txt) относятся к модели без root и аппаратных записей.
 
-В подготовленном общем runtime writer, восстановитель и read-only reader разделены по процессам и связаны свежими private recovery probes. Локальный issuer реализован; положительная проверка установленной подписи и подключение аппаратного entry остаются открытыми. GUI остаётся только на чтение.
+В подготовленном общем runtime writer, восстановитель и read-only reader разделены по процессам и связаны свежими private recovery probes. Локальный issuer и guarded experimental entry реализованы; положительная проверка установленной подписи и аппаратного пути остаётся открытой. GUI остаётся только на чтение.
 
 `.build/Ventilator.app/Contents/MacOS/Ventilator --helper-status` выводит диагностику signed/installed gate без изменения регистрации. `python3 scripts/installation-dry-run.py` проверяет отказы ad hoc и подменённого bundle. Подготовлены явные lifecycle CLI и pinned XPC; [границы проверок](docs/features/feature-helper-installation.md).
 
 `python3 scripts/sign-app-without-ui.py` проверяет возможность подписи в отдельной сессии без GUI/TTY. Текущий результат — отказ SessionCreate до обращения к ключу. Настройки keychain и ACL не менялись, helper не устанавливался. Возможные ручные подтверждения войдут в единый сеанс владельца после подготовки всего аппаратного пути.
 
 `python3 scripts/session-runtime-dry-run.py` проверяет новый guarded XPC → receipt → isolated preflight → broker путь на non-root модели, включая чужой owner, disconnect и startup recovery. [Границы runtime](docs/features/feature-owner-experiment-runtime.md): положительный signed installed/hardware запуск ещё не выполнялся.
+
+[Единый план сеанса владельца](docs/owner-session.md) содержит команды подписи, установки, локального одобрения и одного опыта. `python3 scripts/owner-session.py prepare` только готовит offline копию/manifest; `python3 scripts/owner-session-dry-run.py` проверяет package/import и отказы до мутаций. Положительный signed/installed/hardware путь требует владельца; его нельзя запускать автоматически из агента.

@@ -261,6 +261,7 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
     var unlockCompletedAt: Double?, nextProbe = HelperClock.now(), fixedObserved = false
     var pendingStep: ExperimentStep?
     var autoSamples: [ControlObservation] = []
+    var independentEvidence: [RecoveryObservationEvidence] = []
     var sleepAcknowledgements: [() -> Void] = []
     let power = SystemPowerObserver(beforeSleep: { acknowledge in
         sleeping = true; sleepAcknowledgements.append(acknowledge)
@@ -380,10 +381,12 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                                 throw CheckError.failed("Broker preflight")
                             }
                             baseline = observation.snapshot
+                            independentEvidence.append(.init(stage: "baseline", sampleJSON: String(decoding: try JSONEncoder().encode(value), as: UTF8.self)))
                         }
                         if observation.thermalPressure != .nominal { monitor.stop(reason: "thermalPressure", now: HelperClock.now()) }
                         if nextFixed == 5, ExperimentVerification.fixedRPMConfirmed(baseline: baseline!, observed: observation.snapshot) {
                             if !fixedObserved {
+                                independentEvidence.append(.init(stage: "fixed", sampleJSON: String(decoding: try JSONEncoder().encode(value), as: UTF8.self)))
                                 events.append("fixedRPMObserved")
                                 try ownerChannel.send(BrokerProcessEvent(scope: monitor.scope, role: .reader,
                                     pid: reader.process.processIdentifier, fixedRPMObserved: true), deadline: HelperClock.now() + 0.05)
@@ -395,6 +398,9 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                               let requestedAt = restorationRequestedAt, observation.snapshot.sampledAt > requestedAt,
                               autoSamples.last.map({ observation.snapshot.sampledAt.timeIntervalSince($0.snapshot.sampledAt) >= 1 }) ?? true {
                         autoSamples.append(observation)
+                        if autoSamples.count <= 3 {
+                            independentEvidence.append(.init(stage: "auto\(autoSamples.count)", sampleJSON: String(decoding: try JSONEncoder().encode(value), as: UTF8.self)))
+                        }
                     }
                 }
                 if readerRequest == nil && HelperClock.now() >= nextRead && [.fixed, .restoring].contains(monitor.phase) {
@@ -477,18 +483,19 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
     if reader?.process.isRunning == true || retiredReaders.contains(where: { $0.process.isRunning }) { monitor.fail(reason: "readerNotQuiescent") }
     sleepAcknowledgements.forEach { $0() }; sleepAcknowledgements.removeAll()
     try persistBrokerOutcome(journal: journal, domain: domain, ledger: ledger, phase: monitor.phase,
-        reason: monitor.reason, events: events, failedSteps: failedSteps, registered: power.registered)
+        reason: monitor.reason, events: events, failedSteps: failedSteps, registered: power.registered, observations: independentEvidence)
     withExtendedLifetime(power) {}
 }
 
 private func persistBrokerOutcome(journal: FileSessionJournal, domain: ExperimentDomain, ledger: ApprovedExperimentLedger,
-                                  phase: RecoveryPhase, reason: String?, events: [String], failedSteps: [ExperimentStep], registered: Bool) throws {
+                                  phase: RecoveryPhase, reason: String?, events: [String], failedSteps: [ExperimentStep], registered: Bool,
+                                  observations: [RecoveryObservationEvidence] = []) throws {
     let elapsed = max(0, HelperClock.now() - ledger.startedAt)
     if domain == .simulation {
         try journal.saveRecoveryOutcome(.init(sessionID: ledger.sessionID, phase: phase.rawValue,
-            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered))
+            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered, observations: observations))
     } else {
         try journal.saveHardwareRecoveryOutcome(.init(sessionID: ledger.sessionID, phase: phase.rawValue,
-            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered))
+            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered, observations: observations))
     }
 }

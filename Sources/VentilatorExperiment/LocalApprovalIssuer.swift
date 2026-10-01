@@ -3,36 +3,6 @@ import Foundation
 import ServiceManagement
 import VentilatorControl
 
-public enum LocalApprovalError: Error, Equatable {
-    case reviewMissing, reviewMismatch, invalidInstructions, declined, installationNotEnabled
-}
-
-/// Full owner-session instructions and the exact candidate are reviewed together. This does not
-/// enable public hardware start; the candidate readiness flag remains false until installed gates pass.
-public struct LocalApprovalReview: Codable {
-    public let domain: ExperimentDomain
-    public let candidate: CandidateExperimentPlan
-    public let ownerInstructions: String
-
-    public init(domain: ExperimentDomain, candidate: CandidateExperimentPlan, ownerInstructions: String) throws {
-        self.domain = domain; self.candidate = candidate; self.ownerInstructions = ownerInstructions
-        try validate(domain: domain, binaries: candidate.binaries)
-    }
-    public func canonicalJSON() throws -> Data {
-        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-        return try encoder.encode(self)
-    }
-    public func sha256() throws -> String { CandidateExperimentPlan.digest(try canonicalJSON()) }
-    internal func validate(domain: ExperimentDomain, binaries: CandidateExperimentPlan.Binaries) throws {
-        guard self.domain == domain, candidate == CandidateExperimentPlan(binaries: binaries) else { throw LocalApprovalError.reviewMismatch }
-        guard !ownerInstructions.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              ownerInstructions.utf8.count <= 8192,
-              ownerInstructions.unicodeScalars.allSatisfy({ $0.value == 10 || $0.value == 9 || !CharacterSet.controlCharacters.contains($0) }) else {
-            throw LocalApprovalError.invalidInstructions
-        }
-    }
-}
-
 public struct LocalApprovalPrompt {
     public let challenge: OwnerApprovalChallenge
     public let review: LocalApprovalReview

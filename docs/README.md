@@ -15,7 +15,6 @@
 - [x] [feature-control-simulation](features/feature-control-simulation.md) — lease, журнал и восстановление на подставном транспорте.
 - [x] [feature-experiment-protocol](features/feature-experiment-protocol.md) — подготовленный нативный ABI, локальное одобрение полного review, broker/restart модели и закрытый аппаратный старт.
 - [x] [feature-helper-installation](features/feature-helper-installation.md) — подпись/layout, явный lifecycle CLI, pinned XPC диагностика и границы installed проверки.
-
 - [x] [feature-owner-experiment-runtime](features/feature-owner-experiment-runtime.md) — guarded XPC/receipt/preflight/broker, proxy startup recovery и модельные границы.
 
 ### Screens (4)
@@ -29,6 +28,10 @@
 
 - [x] [ventilator-app](services/ventilator-app.md) — сборка, SMC-чтение, поток снимков и ограничения.
 - [x] [ventilator-helper](services/ventilator-helper.md) — незарегистрированный прототип помощника и проверка XPC без root.
+
+## Участие владельца
+
+[Полный план единого сеанса](owner-session.md): offline package, подпись/qualification, адресная установка, root TTY approval, ограниченный опыт и stop/report. До локального одобрения аппаратная запись не выполняется.
 
 ## Проверка
 
