@@ -117,4 +117,17 @@ final class InstallationTests: XCTestCase {
         try FileManager.default.createSymbolicLink(at: helper, withDestinationURL: bundle.appendingPathComponent("Contents/MacOS/Ventilator"))
         XCTAssertThrowsError(try SignedBundleInspector.inspect(bundle)) { XCTAssertEqual($0 as? InstallationError, .invalidLayout) }
     }
+
+    func testOwnerClientRejectsModelReplyUnknownPhaseOrPhysicalQualification() throws {
+        let good = HelperReply(control: .init(phase: .idle), hardwareExperiment: .init(domain: "hardware", sessionID: UUID(),
+            phase: "fixed", pending: true, fixedRPMObserved: false))
+        try InstalledHelperSession.validate(good)
+        let original = try JSONSerialization.jsonObject(with: JSONEncoder().encode(good)) as! [String: Any]
+        for (key, value): (String, Any) in [("domain", "simulation"), ("phase", "unlimited"), ("physicalAutoVerified", true)] {
+            var altered = original
+            var report = altered["hardwareExperiment"] as! [String: Any]; report[key] = value; altered["hardwareExperiment"] = report
+            let reply = try JSONDecoder().decode(HelperReply.self, from: JSONSerialization.data(withJSONObject: altered))
+            XCTAssertThrowsError(try InstalledHelperSession.validate(reply), key)
+        }
+    }
 }

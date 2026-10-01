@@ -76,7 +76,7 @@ Power observer теперь поддерживает отложенный acknow
 
 ## Локальное подтверждение полного сеанса
 
-`LocalApprovalReview` содержит domain, точный кандидат и полный текст инструкций владельцу. Канонический SHA-256 связывает всё содержимое. Защищённый `local-review-<domain>.json` ограничен 16 KiB; инструкции — 8192 UTF-8 байт, без управляющих символов кроме LF/tab. Пустой текст, symlink, неверные права/владелец, domain, candidate или digest отвергаются. Полнота реального владельческого сеанса остаётся отдельным review gate: формат не доказывает, что автор перечислил все действия.
+`LocalApprovalReview` содержит domain, точный кандидат и полный текст инструкций владельцу. Канонический SHA-256 связывает всё содержимое. Защищённый `local-review-<domain>.json` ограничен 16 KiB; инструкции — 12288 UTF-8 байт, без управляющих символов кроме LF/tab. Пустой текст, symlink, неверные права/владелец, domain, candidate или digest отвергаются. [Единый план сеанса](../owner-session.md) подготовлен; полнота остаётся отдельным review gate: формат не доказывает, что автор перечислил все действия.
 
 CLI `--approve-local-model <directory> <ownerUUID> <planSHA> <reviewSHA>` требует non-root TTY. `--approve-local-hardware <ownerUUID> <planSHA> <reviewSHA>` использует фиксированный `/Library/Application Support/Ventilator/Experiment`; перед prepare и confirm проверяет root TTY, профиль, Apple-issued подписи app/helper одной команды, boot и binary hashes, регистрацию `SMAppService.daemon(...).status == .enabled`. Это предварительная проверка допуска службы, не доказательство работающего установленного демона.
 

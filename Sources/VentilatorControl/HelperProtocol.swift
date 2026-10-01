@@ -70,7 +70,7 @@ public struct HardwarePreparation: Codable {
         self.readyForOwnerApproval = false
         self.connectionOwner = connectionOwner; self.runtimePrepared = runtimePrepared
         self.blockers = (runtimePrepared ? [] : ["hardwareRecoveryBrokerNotConnected"]) + ["localApprovalIssuerHardwarePathUnverified",
-                         "installedSignedHelperUnverified", "ownerSessionInstructionsPending"]
+                         "installedSignedHelperUnverified", "ownerSessionExecutionPending"]
     }
 }
 

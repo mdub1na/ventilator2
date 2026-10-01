@@ -65,20 +65,20 @@ public final class FileSessionJournal: SessionJournal {
         try write(JSONEncoder().encode(state), to: "simulation-device.json")
     }
     public func saveRecoveryOutcome(_ outcome: SimulationRecoveryOutcome) throws {
-        try write(JSONEncoder().encode(outcome), to: "recovery-result.json")
+        try write(JSONEncoder().encode(outcome), to: "recovery-result.json", maximumBytes: 16_384)
     }
     public func loadRecoveryOutcome() throws -> SimulationRecoveryOutcome? {
-        guard let data = try read("recovery-result.json") else { return nil }
+        guard let data = try read("recovery-result.json", maximumBytes: 16_384) else { return nil }
         return try JSONDecoder().decode(SimulationRecoveryOutcome.self, from: data)
     }
     public func saveHardwareRecoveryOutcome(_ outcome: HardwareRecoveryOutcome) throws {
         try checkAuthorityDomain(.hardware)
-        try write(JSONEncoder().encode(outcome), to: "hardware-recovery-result.json")
+        try write(JSONEncoder().encode(outcome), to: "hardware-recovery-result.json", maximumBytes: 16_384)
     }
 
     public func loadHardwareRecoveryOutcome() throws -> HardwareRecoveryOutcome? {
         try checkAuthorityDomain(.hardware)
-        guard let data = try read("hardware-recovery-result.json") else { return nil }
+        guard let data = try read("hardware-recovery-result.json", maximumBytes: 16_384) else { return nil }
         let outcome = try JSONDecoder().decode(HardwareRecoveryOutcome.self, from: data)
         guard !outcome.physicalAutoVerified, !outcome.simulationOnly,
               outcome.elapsedSeconds.isFinite, outcome.elapsedSeconds >= 0 else {
@@ -186,16 +186,21 @@ public final class FileSessionJournal: SessionJournal {
             throw posixError()
         }
         let file = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
-        try checkFile(descriptor)
+        try Self.checkFile(descriptor, allowUnlinkedSnapshot: true)
         let data = try file.read(upToCount: maximumBytes + 1) ?? Data()
         guard data.count <= maximumBytes else { throw CocoaError(.fileReadCorruptFile) }
         return data
     }
 
-    private func checkFile(_ descriptor: Int32) throws {
+    private func checkFile(_ descriptor: Int32) throws { try Self.checkFile(descriptor, allowUnlinkedSnapshot: false) }
+
+    /// Atomic replacement can unlink a file after openat but before fstat. Its already-open read
+    /// descriptor still names the same private regular inode. Locks must remain linked exactly once.
+    internal static func checkFile(_ descriptor: Int32, allowUnlinkedSnapshot: Bool) throws {
         var info = stat()
         guard fstat(descriptor, &info) == 0, info.st_mode & S_IFMT == S_IFREG,
-              info.st_uid == geteuid(), info.st_mode & 0o077 == 0, info.st_nlink == 1 else {
+              info.st_uid == geteuid(), info.st_mode & 0o077 == 0,
+              info.st_nlink == 1 || (allowUnlinkedSnapshot && info.st_nlink == 0) else {
             throw CocoaError(.fileReadNoPermission)
         }
     }
@@ -272,6 +277,13 @@ public struct SimulationDeviceState: Codable {
     public init() {}
 }
 
+/// Bounded independent reader data for owner review; never parsed as a permit or physical qualification.
+public struct RecoveryObservationEvidence: Codable {
+    public let stage: String
+    public let sampleJSON: String
+    public init(stage: String, sampleJSON: String) { self.stage = stage; self.sampleJSON = sampleJSON }
+}
+
 public struct SimulationRecoveryOutcome: Codable {
     public let sessionID: UUID
     public let phase: String
@@ -281,13 +293,15 @@ public struct SimulationRecoveryOutcome: Codable {
     public let elapsedSeconds: Double
     public let powerNotificationsRegistered: Bool
     public let simulationOnly: Bool
+    public let observations: [RecoveryObservationEvidence]?
 
     public init(sessionID: UUID, phase: String, reason: String?, events: [String], failedSteps: [ExperimentStep],
-                elapsedSeconds: Double, powerNotificationsRegistered: Bool) {
+                elapsedSeconds: Double, powerNotificationsRegistered: Bool, observations: [RecoveryObservationEvidence] = []) {
         self.sessionID = sessionID; self.phase = phase; self.reason = reason
         self.events = events; self.failedSteps = failedSteps; self.elapsedSeconds = elapsedSeconds
         self.powerNotificationsRegistered = powerNotificationsRegistered
         simulationOnly = true
+        self.observations = observations
     }
 }
 
@@ -302,11 +316,13 @@ public struct HardwareRecoveryOutcome: Codable {
     public let powerNotificationsRegistered: Bool
     public let simulationOnly: Bool
     public let physicalAutoVerified: Bool
+    public let observations: [RecoveryObservationEvidence]?
     public init(sessionID: UUID, phase: String, reason: String?, events: [String], failedSteps: [ExperimentStep],
-                elapsedSeconds: Double, powerNotificationsRegistered: Bool) {
+                elapsedSeconds: Double, powerNotificationsRegistered: Bool, observations: [RecoveryObservationEvidence] = []) {
         self.sessionID = sessionID; self.phase = phase; self.reason = reason; self.events = events
         self.failedSteps = failedSteps; self.elapsedSeconds = elapsedSeconds
         self.powerNotificationsRegistered = powerNotificationsRegistered
         simulationOnly = false; physicalAutoVerified = false
+        self.observations = observations
     }
 }

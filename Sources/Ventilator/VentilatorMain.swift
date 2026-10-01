@@ -8,6 +8,7 @@ enum VentilatorMain {
     static func main() {
         guard geteuid() != 0 else { fputs("Ventilator must run without root\n", stderr); exit(78) }
         if runHelperServiceCommand(Array(CommandLine.arguments.dropFirst())) { return }
+        if runOwnerExperimentCommand(Array(CommandLine.arguments.dropFirst())) { return }
         if CommandLine.arguments.contains("--probe") {
             let snapshot = SMCMonitor.poll()
             print("Model: \(snapshot.modelIdentifier), macOS \(snapshot.macOSVersion) (\(snapshot.macOSBuild))")
