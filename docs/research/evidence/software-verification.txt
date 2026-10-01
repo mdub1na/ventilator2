@@ -1,28 +1,24 @@
-Software gates: 2026-10-02T01:07:15+05:00; codex/fix-owner-signing-validation; base main 8cc9f3a (merged PR #8).
-Swift tests: 99/99 passed (10 core, 22 control, 56 experiment, 11 installation).
-Real Security static/dynamic validation accepted the production offline flags; wrong identifier rejected.
-17 independent process recovery cases, 6 TTY/domain groups and 6 broker restart cases passed on the current helper.
-Four XPC/runtime/startup model cases passed; independent baseline/Fixed/three Auto snapshots retained.
-Control, installation and owner package dry-runs passed without root/native writes.
-Owner full 14548-byte canonical UTF-8 review imported by the real model CLI; Python/Swift digest matched.
-Subprocess errors preserve underlying stderr and exit status; collector continues other diagnostics after a read failure.
-Strict ad hoc app/helper signatures and GUI writer-symbol isolation passed.
-Saved owner-signed previous bundle passed strict codesign and the corrected actual public-certificate CLI qualification;
-certificate 4895C06FF7407EAF5F350E78CF23D0B41AD466C9; actual Team 4659S5GD6X; positiveRevocation=true; notarizationClaimed=false.
-Prior signing gate rejected checkTrustedAnchors with -67070 (invalid flags), not certificate revocation.
-Actual flag matrix, signed hashes, trust diagnostics and qualification are in owner-signing-validation.json.
-Only owner performed private-key signing. Developer diagnostics read existing signatures/public certificate; no signing retry/private-key access.
-Old signed executable validation is faulty; entire failed package preserved in .build/owner-session-2026-10-02-sign-failed.
-Revised unsigned owner package prepared in .build/owner-session and fingerprint check passed; owner must sign the revised binaries.
-Native read-only sample: Mac15,7 / 27.0.0 / 26A428; Ftst=0, modes=3/3, actual/target 0/0;
-ranges F0 1350-5349 / F1 1458-5777; nominal pressure; read duration 0.003014s; hardwareWritesExecuted=0.
-Docs: 13 documents / 67 BDD; docs_check --on-main passed with existing .venv-docs PyYAML.
-Candidate schema 3, readyForOwnerApproval=false; process evidence matches current helper fingerprint.
-Candidate SHA-256: a9e84d825a8c3f7c4c557c1b01970cab9f0fe6221118ad4b56e1d8b1ad0de1f2
-Application SHA-256: 61025c6fcd3d8a9d5c9fa4649fe0b9a4dfe5d3b6c89d2ad4851210a9062a48a9
-Helper SHA-256: ab4571832312b08d9ecedc2ba634b3ca54ae49913f438e1ce76ea36d65f36097
-Owner PLAN SHA-256: 24b91ff96e696056f193295b7317b5e2ee3ebfc02e154094a9c0a80e1303528b
-Owner script SHA-256: df2fd47b3fd9feeb2be31e1dea7d54c0476300f975462e59bdbc242972a67c4c
-No root, sudo, helper installation/registration, real sleep, SMCExperimentOpen or SMCExperimentWriteStep performed.
-New owner-signed/installed root XPC/native Fixed/physical Auto/sleep remain unverified; GUI read-only and physicalAutoVerified=false.
-Next owner sequence: revised check/sign -> install/register/enable/ready -> run in A, local APPROVE in B -> START in A -> collect.
+Software gates: 2026-10-02T01:35:59+05:00; codex/fix-first-helper-registration; base main c63e91b (merged PR #9).
+101/101 Swift tests passed (10 core, 22 control, 56 experiment, 13 installation).
+Registration policy calls framework once for notFound/notRegistered, never repeats enabled/requiresApproval; original framework errors propagated without retry.
+17 independent recovery cases, 6 TTY/domain groups, 6 broker restart cases and four XPC/runtime cases passed with the current helper.
+Control, installation and owner package dry-runs passed; strict ad hoc signatures and GUI writer-symbol isolation passed.
+Replacement policy refuses active/approved service, changed fingerprints, invalid signed/root-owned installed identity and any hardware journal directory.
+Replacement orchestration exercised with mocked external commands: copy/chown/chmod, recheck, backup move, staged move; changed installed hash during staging stopped both moves and retained marker.
+Eight explicit owner commands reject non-TTY before mutation. Full 14475-byte review imported through real model CLI with matching Swift/Python canonical digest.
+docs_check --on-main: 13 documents / 69 BDD, no errors.
+Owner signed and installed the previous package: trustedBundle/rootOwned/installedLocation true, fingerprints match seal; dynamic app identity passed.
+Owner register stopped on our notFound-to-invalidLayout precondition BEFORE invoking framework register. BTM log resolved correct app/plist/config and reported no record.
+Corrected-build public-certificate CLI on installed previous signed files passed: positiveRevocation=true, Team4659S5GD6X; external timeout20s, no private-key access.
+Current native read-only sample: Ftst0, modes3/3, actual/target0/0, exact ranges, nominal pressure, readSeconds0.002287, zero native writes.
+Hardware journal root and replacement stage/backup absent. Developer has not signed Apple-issued code, run sudo/replacement/register or opened native writer.
+Entire sealed previous package preserved in .build/owner-session-2026-10-02-register-failed.
+New .build/owner-session prepared and checked; manifest pins exact previous installation plus newly tested ad hoc binaries/plan/script.
+Candidate SHA-256: f648c927618714a724eb9787e5ed9e004d61310e172297d974442f570fec0940
+Application SHA-256: 4d21fd25f25a81d0992e79abe88963bc20342e212b5234315a57c447ac2a8c89
+Helper SHA-256: e9d3bc41f44b41d77f33e9a126a3b7111770361d23493a59dafe447c8d09ba1b
+Owner PLAN SHA-256: 115d61d0a99c15f87b01959fa6deb17b30cc4646305c7e43c8f91adf4b50b4be
+Owner script SHA-256: f2e26ab0ab9a6d90c932bb50c83c477f9075296f3ec063c6f900879f1871dc63
+Actual privileged replacement/framework registration/admin approval/root XPC/physical Fixed-Auto/real sleep remain unverified.
+Next owner sequence: check/sign -> replace-installed/register -> enable/ready -> run A, local APPROVE B -> START A -> collect; full revised session in docs/owner-session.md.
+New signing changes binary hashes; final sealed review and one local explicit approval still required before any hardware experiment; GUI remains read-only.

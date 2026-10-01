@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import ServiceManagement
 import XCTest
 import VentilatorControl
 @testable import VentilatorInstallation
@@ -145,5 +146,23 @@ final class InstallationTests: XCTestCase {
         var running: SecCode?
         XCTAssertEqual(SecCodeCopySelf([], &running), errSecSuccess)
         XCTAssertEqual(SecCodeCheckValidity(try XCTUnwrap(running), SignedBundleInspector.offlineFlags, good), errSecSuccess)
+    }
+
+    func testFirstRegistrationDoesNotRequireExistingServiceRecord() throws {
+        for status in [SMAppService.Status.notFound, .notRegistered, .enabled, .requiresApproval] {
+            var calls = 0
+            try HelperServiceController.registerIfNeeded(status: status) { calls += 1 }
+            XCTAssertEqual(calls, status == .notFound || status == .notRegistered ? 1 : 0)
+        }
+    }
+
+    func testFirstRegistrationPreservesFrameworkErrorWithoutRetry() {
+        let failure = NSError(domain: "SMAppServiceErrorDomain", code: 1)
+        var calls = 0
+        XCTAssertThrowsError(try HelperServiceController.registerIfNeeded(status: .notFound) {
+            calls += 1
+            throw failure
+        }) { XCTAssertEqual($0 as NSError, failure) }
+        XCTAssertEqual(calls, 1)
     }
 }

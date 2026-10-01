@@ -38,7 +38,7 @@ Signed daemon создаёт `ExperimentSessionRuntime.hardware()` только 
 
 ## Границы
 
-Signed installed positive, administrative approval, hardware calls, actual sleep и физический Auto ещё не проверены. Owner CLI и [единый сеанс](../owner-session.md) подготовлены. Подпись/установка/аппаратный positive требуют владельца. `readyForOwnerApproval=false` в offline candidate сохраняется. Сценарии ниже проходят на non-root модели и не заменяют аппаратное одобрение.
+Native signed/root-owned installed app gate подтверждён, но регистрация остановилась до framework call; privileged XPC, administrative approval, hardware calls, actual sleep и физический Auto ещё не проверены. Owner CLI и [единый сеанс](../owner-session.md) подготовлены. Исправленная сборка требует подписи/замены владельцем. `readyForOwnerApproval=false` в offline candidate сохраняется. Сценарии ниже проходят на non-root модели и не заменяют аппаратное одобрение.
 
 ## Клиент владельца и пакет сеанса
 

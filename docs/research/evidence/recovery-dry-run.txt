@@ -1,24 +1,24 @@
-Independent recovery verification: 2026-10-02T01:01:22+05:00
+Independent recovery verification: 2026-10-02T01:31:10+05:00
 Non-root. File-backed model only. No native open/write, installation, sudo or actual sleep.
 Prepared hardware child rejects non-root before journal/device access; no approval or hardware witness issued.
-Explicit Auto: autoCodesObserved/explicitAuto, 6.64s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-SIGKILL helper: autoCodesObserved/helperExited, 6.57s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-SIGSTOP helper: autoCodesObserved/heartbeatLost, 8.42s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-SIGKILL writer: autoCodesObserved/writerExited, 6.56s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-SIGSTOP writer: autoCodesObserved/writerTimeout, 7.29s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-Writer SIGSTOP inside authority transaction: autoCodesObserved/writerTimeout, 7.02s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-Blocked Fixed after durable effect: autoCodesObserved/writerTimeout, 3.56s; writer exit precedes Auto; attempted steps=[0, 5, 6, 7, 8, 9]; pending=False.
-Blocked Auto after durable effect: recoveryRequired/restorerTimeout, 4.31s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5]; pending=True.
+Explicit Auto: autoCodesObserved/explicitAuto, 6.63s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+SIGKILL helper: autoCodesObserved/helperExited, 6.56s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+SIGSTOP helper: autoCodesObserved/heartbeatLost, 8.41s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+SIGKILL writer: autoCodesObserved/writerExited, 6.55s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+SIGSTOP writer: autoCodesObserved/writerTimeout, 7.03s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+Writer SIGSTOP inside authority transaction: autoCodesObserved/writerTimeout, 7.05s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+Blocked Fixed after durable effect: autoCodesObserved/writerTimeout, 3.55s; writer exit precedes Auto; attempted steps=[0, 5, 6, 7, 8, 9]; pending=False.
+Blocked Auto after durable effect: recoveryRequired/restorerTimeout, 4.30s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5]; pending=True.
 Fan zero Auto failure: recoveryRequired/restoreStepFailure, 4.22s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 8]; pending=True.
-SIGTERM broker: autoCodesObserved/systemShutdown, 6.62s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-Injected sleep with delayed acknowledgement: autoCodesObserved/systemSleep, 6.68s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+SIGTERM broker: autoCodesObserved/systemShutdown, 6.57s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+Injected sleep with delayed acknowledgement: autoCodesObserved/systemSleep, 6.67s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
 Ten-second lease despite heartbeat: autoCodesObserved/leaseExpired, 12.95s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-SIGSTOP independent reader: autoCodesObserved/readerTimeout, 7.23s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-Blocked independent Fixed reader: autoCodesObserved/readerTimeout, 7.24s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+SIGSTOP independent reader: autoCodesObserved/readerTimeout, 7.22s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
+Blocked independent Fixed reader: autoCodesObserved/readerTimeout, 7.22s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
 Independent reader failure: autoCodesObserved/readerFailure, 6.76s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=False.
-Blocked independent Auto reader: recoveryRequired/restorationReaderFailure, 4.86s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=True.
+Blocked independent Auto reader: recoveryRequired/restorationReaderFailure, 4.87s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=True.
 Early Auto reader failure preserves all Auto attempts: recoveryRequired/restorationReaderFailure, 4.34s; writer exit precedes Auto; attempted steps=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; pending=True.
 Writer non-quiescence is also unit tested: no Auto starts and the pending ledger remains.
 Process termination is model proof only; it does not prove cancellation of a kernel SMC operation.
 Broker SIGKILL/restart is covered separately by local-approval-restart-dry-run.py; power loss and hardware recovery remain unverified.
-SHA-256 of tested helper: ab4571832312b08d9ecedc2ba634b3ca54ae49913f438e1ce76ea36d65f36097
+SHA-256 of tested helper: e9d3bc41f44b41d77f33e9a126a3b7111770361d23493a59dafe447c8d09ba1b

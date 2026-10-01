@@ -29,6 +29,57 @@ except RuntimeError as error:
     assert "qualification detail" in str(error) and "78" in str(error)
 lines.append("Underlying qualification stderr is preserved in STOP diagnostics.")
 
+previous = {"applicationSHA256": "a" * 64, "helperSHA256": "b" * 64, "launchDaemonSHA256": "c" * 64}
+inactive = {"fingerprint": previous, "trustedBundle": True, "rootOwned": True, "installedLocation": True,
+            "registration": "notFound", "error": "serviceNotEnabled", "helperVerified": False, "hardwareControlAvailable": False}
+session.admit_replacement(inactive, previous, previous, False)
+for key, value in [("registration", "enabled"), ("registration", "requiresApproval"), ("trustedBundle", False),
+                   ("rootOwned", False), ("installedLocation", False), ("helperVerified", True),
+                   ("hardwareControlAvailable", True), ("error", "pendingRecovery"), ("fingerprint", {})]:
+    try:
+        session.admit_replacement({**inactive, key: value}, previous, previous, False)
+        raise AssertionError(f"Replacement admitted {key}")
+    except RuntimeError:
+        pass
+for actual, hardware_exists in [({}, False), (previous, True)]:
+    try:
+        session.admit_replacement(inactive, actual, previous, hardware_exists)
+        raise AssertionError("Unsafe replacement admitted")
+    except RuntimeError:
+        pass
+lines.append("Pinned replacement policy rejects active/approved service, changed hashes, invalid identity/ownership and any hardware journal directory; pure inputs only.")
+
+# Execute the orchestration with fake external commands, including a change during staging.
+for changed_after_staging in [False, True]:
+    with tempfile.TemporaryDirectory(prefix="ventilator-replace-", dir=root / ".build") as tmp:
+        directory = Path(tmp)
+        new = {**previous, "applicationSHA256": "d" * 64}
+        (directory / "sealed.json").write_text(json.dumps({"fingerprint": new}))
+        staged = {"trustedBundle": True, "rootOwned": True, "fingerprint": new}
+        second = {**inactive, "fingerprint": {}} if changed_after_staging else inactive
+        with patch.object(session, "SESSION", directory), patch.object(session, "owner_terminal"), \
+                patch.object(session, "check", return_value={"installedReplacement": previous}), \
+                patch.object(session, "fingerprints", return_value=previous), \
+                patch.object(session, "installed_check"), patch.object(session.HARDWARE_ROOT.__class__, "lstat", side_effect=FileNotFoundError), \
+                patch.object(session.os.path, "lexists", return_value=False), \
+                patch.object(session, "output", side_effect=[json.dumps(inactive), json.dumps(staged), json.dumps(second)]), \
+                patch.object(session.subprocess, "run") as commands:
+            if changed_after_staging:
+                try:
+                    session.replace_installed()
+                    raise AssertionError("Changed installation moved")
+                except RuntimeError:
+                    pass
+                assert len(commands.call_args_list) == 3
+                assert not (directory / "replacement-completed.json").exists()
+            else:
+                session.replace_installed()
+                assert (directory / "replacement-completed.json").exists()
+                operations = [c.args[0][1] for c in commands.call_args_list]
+                assert operations == ["/usr/bin/ditto", "/usr/sbin/chown", "/bin/chmod", "/bin/mv", "/bin/mv"]
+            assert (directory / "replacement-started.json").exists()
+lines.append("Replacement orchestration preserved backup order on mocked commands; an installed hash change during staging stopped both moves and retained its marker.")
+
 # A failed read must be recorded while the remaining audit/status collection still runs.
 with tempfile.TemporaryDirectory(prefix="ventilator-collect-", dir=root / ".build") as tmp:
     directory = Path(tmp)
@@ -54,16 +105,17 @@ try:
     run(["python3", package / "session.py", "check"])
     manifest = json.loads((package / "manifest.json").read_text())
     assert not manifest["signed"] and manifest["hardwareWritesExecuted"] == 0
-    for command in ["sign", "install", "register", "ready", "run", "collect", "unregister"]:
+    for command in ["sign", "install", "replace-installed", "register", "ready", "run", "collect", "unregister"]:
         refusal = run(["python3", package / "session.py", command], success=False)
         assert "non-root Terminal" in refusal.stderr
     assert not (package / "sign-started.json").exists()
     original = (package / "PLAN.md").read_text()
     (package / "PLAN.md").write_text(original + "modified")
     assert "Package changed" in run(["python3", package / "session.py", "check"], success=False).stderr
-    lines.append("Copied package fingerprints/check passed; changed plan rejected; seven owner actions rejected before mutation without Terminal.")
+    lines.append("Copied package fingerprints/check passed; changed plan rejected; eight owner actions rejected before mutation without Terminal.")
 finally:
-    shutil.rmtree(package)
+    if package.exists():
+        shutil.rmtree(package)
 
 plan = json.loads(run([helper, "--candidate-plan"]).stdout)["plan"]
 review = {"domain": "simulation", "candidate": plan, "ownerInstructions": (root / "docs/owner-session.md").read_text()}

@@ -1,4 +1,4 @@
-Local approval/restart verification: 2026-10-02T01:01:22+05:00
+Local approval/restart verification: 2026-10-02T01:31:10+05:00
 UID=501; TTY model approval, file-backed device only; no root, native open/write, installation or actual sleep.
 Exact local confirmation: verified; no ledger or device effect. Exact consent replay rejected.
 Declined confirmation: verified; no ledger or device effect.
@@ -14,4 +14,4 @@ Expired original Auto deadline: recoveryRequired/restartRejected; steps=[0, 1, 2
 Wrong boot session: recoveryRequired/restartRejected; steps=[0, 1, 2, 3, 4]; pending=True; same receipt, no repeated Fixed/Auto, original deadline preserved.
 Six TTY/domain cases and six broker restart cases passed; hardware positive issuer/start and physical recovery remain unverified.
 No PID is persisted or used by production restart. A live device lock prevents Auto; ambiguous attempted Auto is never retried.
-SHA-256 of tested helper: ab4571832312b08d9ecedc2ba634b3ca54ae49913f438e1ce76ea36d65f36097
+SHA-256 of tested helper: e9d3bc41f44b41d77f33e9a126a3b7111770361d23493a59dafe447c8d09ba1b
