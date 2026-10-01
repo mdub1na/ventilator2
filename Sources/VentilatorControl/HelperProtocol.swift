@@ -3,11 +3,38 @@ import Foundation
 /// The current wire contract explicitly operates on simulation. Hardware control has no RPC.
 @objc public protocol VentilatorHelperProtocol {
     func status(reply: @escaping (Data) -> Void)
+    func installationStatus(_ nonce: String, reply: @escaping (Data) -> Void)
     func startSimulation(reply: @escaping (Data) -> Void)
     func heartbeat(_ sessionID: String, reply: @escaping (Data) -> Void)
     func restoreSimulation(_ sessionID: String, reply: @escaping (Data) -> Void)
     func prepareHardwareExperiment(reply: @escaping (Data) -> Void)
     func startApprovedHardwareExperiment(_ challengeID: String, planSHA256: String, reply: @escaping (Data) -> Void)
+}
+
+/// Read-only diagnostic reply. It never grants hardware authority or reports physical recovery.
+public struct HelperInstallationReply: Codable {
+    public let protocolVersion: Int
+    public let nonce: UUID
+    public let processIdentifier: Int32
+    public let effectiveUID: UInt32
+    public let teamIdentifier: String
+    public let applicationCDHash: String
+    public let helperCDHash: String
+    public let applicationSHA256: String
+    public let helperSHA256: String
+    public let launchDaemonSHA256: String
+    public let pendingHardwareRestoration: Bool
+    public let simulationPhase: String
+    public let hardwareControlAvailable: Bool
+    public init(nonce: UUID, processIdentifier: Int32, effectiveUID: UInt32, teamIdentifier: String,
+                applicationCDHash: String, helperCDHash: String, applicationSHA256: String,
+                helperSHA256: String, launchDaemonSHA256: String, pendingHardwareRestoration: Bool, simulationPhase: String) {
+        protocolVersion = 1; self.nonce = nonce; self.processIdentifier = processIdentifier; self.effectiveUID = effectiveUID
+        self.teamIdentifier = teamIdentifier; self.applicationCDHash = applicationCDHash; self.helperCDHash = helperCDHash
+        self.applicationSHA256 = applicationSHA256; self.helperSHA256 = helperSHA256; self.launchDaemonSHA256 = launchDaemonSHA256
+        self.pendingHardwareRestoration = pendingHardwareRestoration; self.simulationPhase = simulationPhase
+        hardwareControlAvailable = false
+    }
 }
 
 public struct HelperReply: Codable {

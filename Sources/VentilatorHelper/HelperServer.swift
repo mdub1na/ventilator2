@@ -2,6 +2,7 @@ import Darwin
 import Foundation
 import Security
 import VentilatorControl
+import VentilatorInstallation
 
 enum HelperClock {
     static func now() -> Double {
@@ -81,6 +82,28 @@ final class HelperCoordinator {
         }
     }
 
+    func installationStatus(nonce: String, reply: @escaping (Data) -> Void) {
+        queue.async {
+            do {
+                guard nonce.utf8.count == 36, let nonce = UUID(uuidString: nonce), geteuid() == 0 else {
+                    throw InstallationError.invalidChallenge
+                }
+                let proof = try SignedBundleInspector.requireCurrentProcess(role: .helper)
+                let hardwareDirectory = URL(fileURLWithPath: "/Library/Application Support/Ventilator/Experiment", isDirectory: true)
+                var pending = false
+                if FileManager.default.fileExists(atPath: hardwareDirectory.path) {
+                    pending = try FileSessionJournal(directory: hardwareDirectory).loadAuthorityState(domain: .hardware)?.ledger?.pendingRestoration ?? false
+                }
+                let response = HelperInstallationReply(nonce: nonce, processIdentifier: getpid(), effectiveUID: geteuid(),
+                    teamIdentifier: proof.teamIdentifier, applicationCDHash: proof.applicationCDHash, helperCDHash: proof.helperCDHash,
+                    applicationSHA256: proof.fingerprint.applicationSHA256, helperSHA256: proof.fingerprint.helperSHA256,
+                    launchDaemonSHA256: proof.fingerprint.launchDaemonSHA256, pendingHardwareRestoration: pending,
+                    simulationPhase: self.lastReply.control.phase.rawValue)
+                reply(try JSONEncoder().encode(response))
+            } catch { reply(Data()) } // No permissive fallback for an unreadable hardware journal or untrusted bundle.
+        }
+    }
+
     func rejectHardwareStart(challengeID: String, planSHA256: String, reply: @escaping (Data) -> Void) {
         queue.async {
             let valid = challengeID.utf8.count == 36 && UUID(uuidString: challengeID) != nil &&
@@ -96,6 +119,7 @@ private final class ConnectionEndpoint: NSObject, VentilatorHelperProtocol {
     private let coordinator: HelperCoordinator
     init(_ coordinator: HelperCoordinator) { self.coordinator = coordinator }
     func status(reply: @escaping (Data) -> Void) { coordinator.request(owner: owner, command: "status", sessionID: nil, reply: reply) }
+    func installationStatus(_ nonce: String, reply: @escaping (Data) -> Void) { coordinator.installationStatus(nonce: nonce, reply: reply) }
     func startSimulation(reply: @escaping (Data) -> Void) { coordinator.request(owner: owner, command: "start", sessionID: nil, reply: reply) }
     func heartbeat(_ sessionID: String, reply: @escaping (Data) -> Void) { coordinator.request(owner: owner, command: "heartbeat", sessionID: sessionID, reply: reply) }
     func restoreSimulation(_ sessionID: String, reply: @escaping (Data) -> Void) { coordinator.request(owner: owner, command: "restore", sessionID: sessionID, reply: reply) }
@@ -115,7 +139,7 @@ func bundledCandidatePlan() throws -> CandidateExperimentPlan {
 }
 
 final class HelperServer: NSObject, NSXPCListenerDelegate {
-    enum Acceptance { case anonymousSimulation, signedApplication(team: String) }
+    enum Acceptance { case anonymousSimulation, signedApplication(proof: SignedBundleProof) }
     private let acceptance: Acceptance
     private let coordinator: HelperCoordinator
     init(acceptance: Acceptance, directory: URL) throws {
@@ -126,9 +150,9 @@ final class HelperServer: NSObject, NSXPCListenerDelegate {
     func waitForSimulationWorkerExit() throws { try coordinator.waitForSimulationWorkerExit() }
 
     func listener(_ listener: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection) -> Bool {
-        if case .signedApplication(let team) = acceptance {
-            // Team is validated as ten ASCII letters/digits by appleTeamIdentifier().
-            connection.setCodeSigningRequirement("anchor apple generic and identifier \"dev.ventilator.macos\" and certificate leaf[subject.OU] = \"\(team)\"")
+        if case .signedApplication(let proof) = acceptance {
+            guard let requirement = try? SignedBundleInspector.requirement(role: .application, proof: proof) else { return false }
+            connection.setCodeSigningRequirement(requirement)
         }
         let endpoint = ConnectionEndpoint(coordinator)
         connection.exportedInterface = NSXPCInterface(with: VentilatorHelperProtocol.self)
@@ -138,21 +162,4 @@ final class HelperServer: NSObject, NSXPCListenerDelegate {
         connection.resume()
         return true
     }
-}
-
-func appleTeamIdentifier() -> String? {
-    var code: SecCode?
-    guard SecCodeCopySelf([], &code) == errSecSuccess, let code else { return nil }
-    var requirement: SecRequirement?
-    guard SecRequirementCreateWithString("anchor apple generic and identifier \"dev.ventilator.helper\"" as CFString, [], &requirement) == errSecSuccess,
-          let requirement, SecCodeCheckValidity(code, [], requirement) == errSecSuccess else { return nil }
-    var information: CFDictionary?
-    var staticCode: SecStaticCode?
-    guard SecCodeCopyStaticCode(code, [], &staticCode) == errSecSuccess, let staticCode,
-          SecCodeCopySigningInformation(staticCode, SecCSFlags(rawValue: kSecCSSigningInformation), &information) == errSecSuccess,
-          let values = information as? [String: Any],
-          let team = values[kSecCodeInfoTeamIdentifier as String] as? String,
-          team.utf8.count == 10,
-          team.utf8.allSatisfy({ (48...57).contains($0) || (65...90).contains($0) }) else { return nil }
-    return team
 }

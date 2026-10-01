@@ -2,6 +2,7 @@ import Darwin
 import CSystemPower
 import Foundation
 import VentilatorControl
+import VentilatorInstallation
 
 @main
 enum HelperMain {
@@ -64,7 +65,7 @@ enum HelperMain {
                 return
             }
             if arguments.count == 2, ["--simulation-worker", "--simulation-worker-restore-failure"].contains(arguments[0]) {
-                guard geteuid() != 0 || appleTeamIdentifier() != nil else { throw CheckError.failed("Unsigned root worker refused") }
+                guard geteuid() != 0 || (try? SignedBundleInspector.requireCurrentProcess(role: .helper)) != nil else { throw CheckError.failed("Untrusted installed root worker refused") }
                 try runSimulationWorker(directory: URL(fileURLWithPath: arguments[1], isDirectory: true),
                                         restoreFailure: arguments[0].hasSuffix("restore-failure"))
                 return
@@ -112,10 +113,11 @@ enum HelperMain {
                 }
                 return
             }
-            guard arguments.isEmpty, let team = appleTeamIdentifier(), geteuid() == 0 else {
+            guard arguments.isEmpty, geteuid() == 0 else {
                 throw CheckError.failed("Daemon requires an Apple-issued helper signature and root; launchd registration is separate")
             }
-            let server = try HelperServer(acceptance: .signedApplication(team: team),
+            let proof = try SignedBundleInspector.requireCurrentProcess(role: .helper)
+            let server = try HelperServer(acceptance: .signedApplication(proof: proof),
                                           directory: URL(fileURLWithPath: "/Library/Application Support/Ventilator/HelperSimulation", isDirectory: true))
             let listener = NSXPCListener(machServiceName: "dev.ventilator.helper")
             listener.delegate = server
@@ -142,6 +144,10 @@ private final class ReplyBox {
 }
 
 private func rpc(_ connection: NSXPCConnection, send: (VentilatorHelperProtocol, @escaping (Data) -> Void) -> Void) throws -> HelperReply {
+    try JSONDecoder().decode(HelperReply.self, from: rpcData(connection, send: send))
+}
+
+private func rpcData(_ connection: NSXPCConnection, send: (VentilatorHelperProtocol, @escaping (Data) -> Void) -> Void) throws -> Data {
     let box = ReplyBox()
     guard let proxy = connection.remoteObjectProxyWithErrorHandler({ box.set(.failure($0)) }) as? VentilatorHelperProtocol else {
         throw CheckError.failed("XPC proxy type")
@@ -150,7 +156,7 @@ private func rpc(_ connection: NSXPCConnection, send: (VentilatorHelperProtocol,
     let deadline = Date().addingTimeInterval(4)
     while box.get() == nil, Date() < deadline { RunLoop.current.run(until: Date().addingTimeInterval(0.02)) }
     guard let result = box.get() else { throw CheckError.failed("XPC reply timeout") }
-    return try JSONDecoder().decode(HelperReply.self, from: result.get())
+    return try result.get()
 }
 
 private func loopbackCheck() throws {
@@ -169,6 +175,10 @@ private func loopbackCheck() throws {
     let initial = try rpc(client) { $0.status(reply: $1) }
     guard initial.protocolVersion == 1, !initial.hardwareControlAvailable, initial.control.phase == .idle else {
         throw CheckError.failed("Unexpected initial helper status")
+    }
+    let installationDenied = try rpcData(client) { $0.installationStatus(UUID().uuidString, reply: $1) }
+    guard installationDenied.isEmpty else {
+        throw CheckError.failed("Anonymous simulation claimed an installed root helper")
     }
     let preparation = try rpc(client) { $0.prepareHardwareExperiment(reply: $1) }
     guard let prepared = preparation.preparation, !prepared.readyForOwnerApproval else { throw CheckError.failed("Hardware readiness was granted") }
@@ -199,6 +209,6 @@ private func loopbackCheck() throws {
     }
     guard restored else { throw CheckError.failed("Three separated Auto-code reads missing") }
     try server.waitForSimulationWorkerExit()
-    print("XPC loopback: status, hardware preparation/refusal, malformed approval, simulation start, owner binding, heartbeat and restore passed; hardwareControlAvailable=false")
+    print("XPC loopback: status, empty installation refusal, hardware preparation/refusal, malformed approval, simulation start, owner binding, heartbeat and restore passed; hardwareControlAvailable=false")
     withExtendedLifetime(server) {}
 }

@@ -20,9 +20,9 @@ tags: [macOS, SMC, approval, preparation]
 
 Перед записью повторно проверяются профиль, два вентилятора, свежая метаинформация ключа и условия шага. Для Fixed также проверяются точные диапазоны, порядок, трёхсекундное ожидание после unlock и deadline непосредственно перед IOKit. Повтор одного шага на соединении запрещён; ошибка закрывает дальнейший Fixed. Kernel failure, неверный размер ответа, SMC result и неквалифицированный nonzero status отвергаются. Это проверено чистыми пакетами и компиляцией; сам аппаратный путь **не запускался**.
 
-`NativeExperimentDevice` дополнительно требует аппаратный журнал, текущую загрузку ОС, совпадающие хеши, Apple-issued подписи app/helper одной команды и `ArmedHardwareRecovery`. Свидетельство восстановления нельзя декодировать из XPC и у него нет публичного конструктора. Симуляция его не выдаёт. Подготовленный аппаратный child может получить его из bound probe и consumed hardware ledger; public hardware start ещё закрыт; локальный issuer только сохраняет approval. Синхронный IOKit вызов не имеет доказанного здесь верхнего предела задержки: проверки deadline не гарантируют отмену уже начатого вызова.
+`NativeExperimentDevice` дополнительно требует signed/root-owned installed bundle и аппаратный журнал, текущую загрузку ОС, совпадающие хеши, Apple-issued подписи app/helper одной команды и `ArmedHardwareRecovery`. Свидетельство восстановления нельзя декодировать из XPC и у него нет публичного конструктора. Симуляция его не выдаёт. Подготовленный аппаратный child может получить его из bound probe и consumed hardware ledger; public hardware start ещё закрыт; локальный issuer только сохраняет approval. Синхронный IOKit вызов не имеет доказанного здесь верхнего предела задержки: проверки deadline не гарантируют отмену уже начатого вызова.
 
-GUI не зависит от `VentilatorExperiment`/`CSMCExperiment`; отсутствие writer-symbols проверяется на собранном executable.
+GUI не зависит от `VentilatorExperiment`/`CSMCExperiment`; CLI зависит от отдельного `VentilatorInstallation`, который не линкует writer; отсутствие writer-symbols проверяется на собранном executable.
 
 Перед каждым device I/O `ExperimentWriteAdmission` повторно проверяет живой ledger, boot, pending состояние, последнюю зарезервированную попытку, роль и исходный срок. Durable closure отзывает уже выданный, но ещё не исполненный Fixed reservation. Нативный device проверяет журнал после ответа восстановителя; роль Fixed не может выполнить Auto, роль восстановления — Fixed. Это уменьшает окно между reservation и I/O; атомарная отмена начатого kernel вызова не установлена.
 
@@ -71,6 +71,8 @@ Power observer теперь поддерживает отложенный acknow
 ## Доступный XPC
 
 `prepareHardwareExperiment` возвращает хеш кандидата и причины `readyForOwnerApproval=false`. `startApprovedHardwareExperiment` отвергает старт с `hardwareRuntimeNotPrepared`, даже если передан правильный хеш; неверный формат — `invalidApprovalRequest`. Отказ проверен настоящим anonymous XPC до старта симуляции. Самостоятельное предъявление digest не выдаёт согласие.
+
+Новый [installed gate](feature-helper-installation.md) усиляет native identity: точный root-owned bundle, layout, expiry/trust anchors и CDHash текущего процесса. Положительный установленный путь по-прежнему не выполнялся.
 
 ## Локальное подтверждение полного сеанса
 

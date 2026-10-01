@@ -4,6 +4,7 @@ import Darwin
 import Foundation
 import Security
 import VentilatorControl
+import VentilatorInstallation
 
 public enum NativeExperimentError: Error, Equatable {
     case simulationCannotOpenHardware, rootRequired, untrustedSignature, wrongBinary, invalidScope, openFailed
@@ -127,20 +128,5 @@ public enum HardwareRecoveryIdentity {
 }
 
 internal func trustedHelperAndApplication() -> Bool {
-    var code: SecCode?, helperRequirement: SecRequirement?
-    guard SecCodeCopySelf([], &code) == errSecSuccess, let code,
-          SecRequirementCreateWithString("anchor apple generic and identifier \"dev.ventilator.helper\"" as CFString, [], &helperRequirement) == errSecSuccess,
-          let helperRequirement, SecCodeCheckValidity(code, [], helperRequirement) == errSecSuccess else { return false }
-    var staticCode: SecStaticCode?, information: CFDictionary?
-    guard SecCodeCopyStaticCode(code, [], &staticCode) == errSecSuccess, let staticCode,
-          SecCodeCopySigningInformation(staticCode, SecCSFlags(rawValue: kSecCSSigningInformation), &information) == errSecSuccess,
-          let values = information as? [String: Any], let team = values[kSecCodeInfoTeamIdentifier as String] as? String,
-          team.utf8.count == 10, team.utf8.allSatisfy({ (48...57).contains($0) || (65...90).contains($0) }) else { return false }
-    let helper = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
-    let app = helper.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-    var application: SecStaticCode?, requirement: SecRequirement?
-    guard SecStaticCodeCreateWithPath(app as CFURL, [], &application) == errSecSuccess, let application,
-          SecRequirementCreateWithString("anchor apple generic and identifier \"dev.ventilator.macos\" and certificate leaf[subject.OU] = \"\(team)\"" as CFString, [], &requirement) == errSecSuccess,
-          let requirement else { return false }
-    return SecStaticCodeCheckValidity(application, [], requirement) == errSecSuccess
+    (try? SignedBundleInspector.requireCurrentProcess(role: .helper)) != nil
 }

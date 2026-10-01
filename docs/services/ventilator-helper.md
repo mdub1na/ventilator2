@@ -12,15 +12,15 @@ publishes: [VentilatorHelper]
 
 # Помощник
 
-SwiftPM собирает отдельный исполняемый файл и библиотеку `VentilatorControl`. Bundle содержит helper в `Contents/MacOS/` и plist в `Contents/Library/LaunchDaemons/`. Он **не зарегистрирован и не установлен**: приложение не вызывает `SMAppService.daemon.register()`, GUI не подключён к его XPC и не запущен от root.
+SwiftPM собирает отдельный исполняемый файл и библиотеку `VentilatorControl`. Bundle содержит helper в `Contents/MacOS/` и plist в `Contents/Library/LaunchDaemons/`. Он **не зарегистрирован и не установлен**. Автоматической регистрации нет; подготовленный register вызывается только явной app CLI-командой после native identity gate. Окно/значок не подключены к его XPC; новый app CLI выполняет диагностику. Приложение явно отвергает root.
 
-Текущие действующие RPC: status, startSimulation, heartbeat(UUID), restoreSimulation(UUID). Все изменения только на подставном транспорте. Добавлены prepareHardwareExperiment и startApprovedHardwareExperiment: первый возвращает кандидат/блокеры, второй всегда отказывает до готовности runtime; выдачи одобрения по XPC нет. Произвольных SMC-ключей/байтов, путей и команд оболочки на интерфейсе нет. Сеанс привязан к серверному owner ID соединения. Coordinator последовательно передаёт симуляционные команды worker через приватные pipe с ограниченными фреймами/таймаутами.
+Текущие действующие RPC: status, startSimulation, heartbeat(UUID), restoreSimulation(UUID), installationStatus(nonce). Все изменения только на подставном транспорте; installationStatus — только диагностика trusted root helper, anonymous simulation получает отказ. Добавлены prepareHardwareExperiment и startApprovedHardwareExperiment: первый возвращает кандидат/блокеры, второй всегда отказывает до готовности runtime; выдачи одобрения по XPC нет. Произвольных SMC-ключей/байтов, путей и команд оболочки на интерфейсе нет. Сеанс привязан к серверному owner ID соединения. Coordinator последовательно передаёт симуляционные команды worker через приватные pipe с ограниченными фреймами/таймаутами.
 
 ## Запуск и подпись
 
 `scripts/build-app.sh` собирает оба бинарника, помещает plist, подписывает helper и bundle, проверяет каждую подпись. По умолчанию ad hoc. `VENTILATOR_SIGN_IDENTITY` позволяет использовать уже настроенную identity; самостоятельно сертификаты скрипт не создаёт.
 
-Обычный режим демона проверяет Apple-issued подпись своего executable с identifier `dev.ventilator.helper`, получает Team ID и требует root. Предназначен для launchd, но происхождение процесса от launchd отдельно не проверяется. При отсутствии условий завершает работу с кодом 78. Перед приёмом сообщений выставляет requirement: Apple anchor, identifier `dev.ventilator.macos` и тот же Team ID. Положительный сценарий с подписанным установленным демоном **не проверен**. До PR #2 команда сообщала 0 identities; теперь появился кандидат Apple Development без revoked пометки, но его фактическая подпись и installed путь ещё не проверены. Ad hoc smoke test не доказывает эту аутентификацию.
+Обычный режим демона требует root, текущий signed/root-owned `/Applications/Ventilator.app`, точный app/helper/LaunchDaemon layout и динамическую подпись helper по CDHash. Перед приёмом сообщений требует Apple anchor, identifier `dev.ventilator.macos`, тот же Team ID и CDHash конкретного app. При отсутствии условий — exit 78. Происхождение от launchd отдельно не проверяется; клиент дополнительно подтверждает живой root peer через bound XPC. Положительный установленный сценарий **не проверен**. Есть кандидат Apple Development без revoked пометки, но бездиалоговый signing probe остановился до codesign; [новый gate и его границы](../features/feature-helper-installation.md).
 
 `--loopback-check` использует приватный anonymous listener и клиента в том же непривилегированном процессе; его acceptance обход относится только к симуляционному anonymous listener. Публичный daemon listener эту политику не использует. Подход anonymous listener для начального XPC рекомендует [Apple DTS](https://developer.apple.com/forums/thread/799910).
 
@@ -61,6 +61,7 @@ Worker подключает публичный `IORegisterForSystemPower`: пр�
 После сборки:
 
 ```sh
+python3 scripts/installation-dry-run.py
 python3 scripts/control-dry-run.py
 python3 scripts/recovery-dry-run.py
 python3 scripts/local-approval-restart-dry-run.py
@@ -83,6 +84,7 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 | Кандидатный план | `Sources/VentilatorControl/CandidateExperimentPlan.swift`, `scripts/prepare-experiment-plan.py` |
 | Подготовленный аппаратный протокол | `Sources/CSMCExperiment/`, `Sources/VentilatorExperiment/`, `Sources/VentilatorControl/ExperimentAuthority.swift` |
 | Read-only наблюдение опыта | `Sources/VentilatorHelper/ExperimentReadOnlyCheck.swift`, `Sources/VentilatorExperiment/ReadOnlyExperimentObserver.swift` |
+| Installed signature/lifecycle/XPC | `Sources/VentilatorInstallation/`, `Sources/Ventilator/HelperServiceCLI.swift`, `scripts/installation-dry-run.py` |
 | Режимы запуска | `Sources/VentilatorHelper/HelperMain.swift` |
 | Локальное одобрение и restart | `Sources/VentilatorHelper/LocalApprovalCLI.swift`, `Sources/VentilatorExperiment/LocalApprovalIssuer.swift`, `Sources/VentilatorExperiment/BrokerRestartRecovery.swift`, `scripts/local-approval-restart-dry-run.py` |
 | Plist и сборка | `Resources/dev.ventilator.helper.plist`, `scripts/build-app.sh` |
