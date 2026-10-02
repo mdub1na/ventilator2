@@ -12,7 +12,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Реализованы диагностика bundle, явные app CLI-команды управления регистрацией и ограниченный XPC handshake. Владелец подписал и установил прежний пакет: native static/dynamic подписи, root ownership, installed path и совпадение seal подтверждены. **Первая регистрация остановилась до framework register**, privileged XPC не проверен. Новая исправленная сборка ad hoc требует подписи/замены владельцем. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
+Реализованы диагностика bundle, явные app CLI-команды управления регистрацией и ограниченный XPC handshake. Владелец подписал и установил прежний пакет: native static/dynamic подписи, root ownership, installed path и совпадение seal подтверждены. **Первая регистрация остановилась до framework register**, privileged XPC не проверен. Исправленная сборка уже подписана владельцем; временный отказ public revocation и последующий успех на тех же файлах сохранены. Подготовка из signed файлов позволяет продолжить без повторной подписи. Замена требует владельца. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
 
 ## Проверки и границы
 
@@ -20,7 +20,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 Проверяются expiration и системные trust anchors; network lookup отключён в этих диагностических/device путях. Строгая code-signature проверка требует explicit Apple anchor/identifier/leaf OU; отдельный BasicX509 trust использует системные anchors без network fetch. Online CodeSigning + обязательный положительный revocation-ответ проверяются отдельным процессом до seal, с внешним сроком 20 с; notarization не заявляется. SDK-флаг `checkTrustedAnchors` оказался недопустимым для validation на macOS 27 (`-67070`); оставлены реально проверенные `considerExpiration`/`noNetworkAccess`. [Матрица флагов и qualification](../research/evidence/owner-signing-validation.json).
 
-Для signed installed ветки требуется Hardened Runtime без разрешений debugger, DYLD injection, unsigned executable memory, JIT или отключения library validation. Signing wrapper задаёт runtime; native gate сверяет flags/entitlements. Эта policy проверена на данных модели и на сохранённом подписанном владельцем пакете. Исправленные executable ещё нужно подписать; старый пакет с ошибкой validation устанавливать нельзя.
+Для signed installed ветки требуется Hardened Runtime без разрешений debugger, DYLD injection, unsigned executable memory, JIT или отключения library validation. Signing wrapper задаёт runtime; native gate сверяет flags/entitlements. Эта policy проверена на данных модели и на сохранённом подписанном владельцем пакете. На момент исправления validation executable требовали новой подписи; старый пакет с ошибкой устанавливать нельзя. Последующая owner подпись и текущее состояние приведены ниже.
 
 Перед запуском обычного daemon, root simulation worker и подготовленного аппаратного device проверяется также динамическая подпись текущего процесса по CDHash. Приложение явно отказывается запускаться от root. Root-owned расположение — наш выбор для фиксированного M2 bundle, не требование Apple ко всем приложениям SMAppService.
 
@@ -45,9 +45,11 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 ## Подпись без диалогов
 
+Дополнение 2026-10-02: `owner-session.py prepare --signed-session` копирует сохранённый failed signing package в новый output с текущим полным PLAN/script, проверкой исходных bindings/owner signing marker и неизменности signed хешей при копировании. Прежний installed pin переносится. Частичный seal, изменённые инструкции или отсутствие marker запрещают импорт. `sign` для такого пакета запрещён. Отдельный `qualify` не требует TTY: он не использует ключ/sudo/service/device, только public certificate CLI (20 с) и candidate CLI. До seal проверяются exact leaf/Team/positive revocation/неизменные хеши и инструкции. Одноразовый marker запрещает повтор после ошибки; диагноз и новый пакет предшествуют следующей попытке. Это подготовка полного review, а не локальное аппаратное одобрение. [Реальный отказ и последующий успех](../research/evidence/owner-revocation-failure.json).
+
 `scripts/sign-app-without-ui.py` читает public fingerprint настроенных identities, исключает явно flagged записи и требует единственного кандидата. Wrapper `tools/sign_without_ui.swift` сначала создаёт отдельную security session без graphics/TTY и проверяет эти атрибуты. Только после этого разрешён exec `/usr/bin/codesign` для собственного staging bundle в `.build`; исходный ad hoc bundle сохраняется. Keychain не разблокируется, ключи не экспортируются, ACL не изменяются. После обеих подписей нужны strict verify и native inspector.
 
-На текущем Mac SessionCreate вернул `OSStatus=100001`, wrapper завершился до codesign. [Результат](../research/evidence/installation-signing.json): `signed=false`, `signingAttempted=false`, `headlessSecuritySessionUnavailable`. Это прежняя бездиалоговая попытка. Подпись владельцем затем прошла, но старый qualification завершился exit 78 из-за недопустимого флага. После исправления владелец повторно подписал пакет, создал seal и установил root-owned bundle; эти gates подтверждены на реальных файлах. Первая регистрация остановилась на неверной предварительной проверке notFound. Новая сборка требует подписи и ограниченной замены; положительная регистрация/удаление, настоящий сон и аппаратный опыт ещё не проверены.
+На текущем Mac SessionCreate вернул `OSStatus=100001`, wrapper завершился до codesign. [Результат](../research/evidence/installation-signing.json): `signed=false`, `signingAttempted=false`, `headlessSecuritySessionUnavailable`. Это прежняя бездиалоговая попытка. Подпись владельцем затем прошла, но старый qualification завершился exit 78 из-за недопустимого флага. После исправления владелец повторно подписал пакет, создал seal и установил root-owned bundle; эти gates подтверждены на реальных файлах. Первая регистрация остановилась на неверной предварительной проверке notFound. Владелец уже подписал новую сборку; теперь требуется ограниченная замена; положительная регистрация/удаление, настоящий сон и аппаратный опыт ещё не проверены.
 
 ## Code anchors
 
@@ -131,5 +133,13 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 **Дано:** pinned previous fingerprint и replacement package.
 **Когда:** registration/identity/hash/journal не удовлетворяют policy либо installed hash меняется во время staging.
 **Тогда:** замена отвергнута; после изменения hash обе mv-команды не выполняются, marker сохраняется. Успех модели сохраняет старый bundle до переноса нового.
+
+**Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Отказ проверки отзыва не требует повторной подписи
+
+**Дано:** сохранённый unsealed signing package с owner marker, валидными исходными bindings и прежним installation pin.
+**Когда:** подготовлен новый пакет из signed файлов и вызван qualify.
+**Тогда:** source не меняется, sign запрещён; seal создаётся только после exact certificate/Team/positive response и проверки хешей/инструкций. Timeout/отказ/подмена не создают seal; повтор не вызывает external CLI. Ad hoc fixture отвергается реальным native gate, положительный путь проверен отдельно на ответе модели.
 
 **Automated:** `scripts/owner-session-dry-run.py`

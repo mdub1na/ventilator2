@@ -22,3 +22,25 @@ Owner script SHA-256: f2e26ab0ab9a6d90c932bb50c83c477f9075296f3ec063c6f900879f18
 Actual privileged replacement/framework registration/admin approval/root XPC/physical Fixed-Auto/real sleep remain unverified.
 Next owner sequence: check/sign -> replace-installed/register -> enable/ready -> run A, local APPROVE B -> START A -> collect; full revised session in docs/owner-session.md.
 New signing changes binary hashes; final sealed review and one local explicit approval still required before any hardware experiment; GUI remains read-only.
+
+2026-10-02: owner public-revocation qualification failure and preparation recovery.
+Only Python package workflow and docs changed; Swift executables/recovery unchanged. Prior final software gates remain bound to unchanged ad hoc hashes 4d21fd25.../e9d3bc41....
+Owner-session dry-run passed: immutable source copy, retained previous installation pin, re-sign refusal, real ad hoc rejection, mocked positive/error/timeout/wrong-certificate/changed-files cases; failures produce no seal or external retry.
+Native public certificate qualification succeeded on saved owner-signed files and new copied package; mandatory positive revocation unchanged, timeout20s, no private key/signing/sudo/registration/device.
+Original failed signing package preserved with every file hash unchanged. Revised full PLAN/script bound in manifest; seal/review/check passed.
+sourceArchive: .build/owner-session-2026-10-02-revocation-failed
+allSourceFileHashesPreserved: True
+package: .build/owner-session
+privateKeyAccess: False
+binariesRebuilt: False
+certificateQualificationExitCode: 0
+positiveRevocation: True
+sameSignedFingerprint: True
+reviewSHA256: 8a94ee40813142c9daac9e1fd180c7e850ddfe6550797dafa1c1f17c2cbb5a95
+fullReviewBytes: 14557
+instructionsBytes: 12242
+candidatePlanSHA256: 8d8704c7b0ddfab2839954cc26c68f2db3d194063bd25e65a799161982a4a75e
+packageFiles: {'PLAN.md': 'd0dbe3fdc7c93162bf34e998678e17b0f2eeee61303e036911b1d9a84b68f63e', 'session.py': '240f068f06936c3ee19423cd3074ce37c3f3b7f4d288bd340f522be5714f5197'}
+sealedCheckPassed: True
+Installed previous signed/root-owned app remains exact pinned fingerprint, registration=notFound, helperVerified=false; staging/backup/hardware journal root absent.
+docs_check passed: 13 documents,70 BDD scenarios,no errors. Physical writes/Auto/root XPC remain unverified. Next owner action: check -> replace-installed -> register, then full PLAN enable/ready/APPROVE/START/collect. Do not repeat sign.

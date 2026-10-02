@@ -207,6 +207,14 @@ PR #5 был объединён в исходную ветку PR #4; отдел
 - [Исходное задание владельца](evidence/owner-brief.txt)
 - [Входная точка документации](../README.md)
 
+## Повторный отказ проверки отзыва — 2026-10-02
+
+Владелец подписал исправленный пакет, но public qualification остановился с `-67635`: underlying error сообщает, что отзыв leaf не удалось проверить. Seal не создан, замена/регистрация/SMC не начаты. Один последующий read-only вызов того же CLI с внешним сроком 20 с на **тех же signed файлах** прошёл: `positiveRevocation=true`, Team `4659S5GD6X`, app/helper хеши неизменны. [Фактический результат](evidence/owner-revocation-failure.json).
+
+Это не доказательство revoked certificate и не установление причины сбоя сети/сервера/cache. SDK `SecPolicy.h` и [Apple policy](https://developer.apple.com/documentation/security/ksecrevocationrequirepositiveresponse) требуют проверенный положительный ответ; сама возможность network fetch его не гарантирует. Policy остаётся обязательной. Повторная подпись уже подписанного кода не исправляет отсутствие такого ответа. Для продолжения нужен новый пакет с сохранёнными signed бинарниками, полной новой инструкцией и отдельной ограниченной public qualification до seal; исходный failed пакет сохраняется. Это подготовка, не аппаратное одобрение.
+
+Продолжение выполнено: `prepare --signed-session` перенёс exact signed файлы и previous installation pin в новый пакет; исходный failed пакет архивирован с неизменными хешами всех файлов. Отдельный `qualify` с обязательной прежней native policy прошёл, full review **14557 байт**, digest `8a94ee40813142c9daac9e1fd180c7e850ddfe6550797dafa1c1f17c2cbb5a95`; `check` прошёл. Python workflow/model проверки отвергли real ad hoc, timeout, отказ отзыва, чужой leaf, изменённые бинарники/инструкции и повтор после попытки; source остаётся неизменным. [Протокол](evidence/owner-session-dry-run.txt). Swift не пересобран, ключ/привилегии/SMC не использованы. Старый installed bundle всё ещё valid/root-owned, registration=notFound, hardware journal/staging/backup отсутствуют. Следующий шаг — замена и первая framework регистрация владельцем по полному плану; root XPC и аппаратная запись ещё неизвестны.
+
 ## Отказ первой регистрации — 2026-10-02
 
 Владелец подписал новый пакет и установил точные sealed файлы в `/Applications/Ventilator.app`; `register` завершился exit 78 с `invalidLayout`. Read-only `--helper-status` вне sandbox подтвердил trustedBundle/rootOwned/installedLocation=true и совпадение трёх signed хешей с seal. Значит фактические layout, статическая/динамическая подпись и ownership gates прошли. HelperVerified=false, registration=notFound, аппаратный запуск не выполнялся. [Проверенные значения](evidence/owner-registration-failure.json).

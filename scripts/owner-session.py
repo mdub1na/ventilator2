@@ -18,6 +18,7 @@ HARDWARE_ROOT = Path("/Library/Application Support/Ventilator")
 ROOT = Path(__file__).resolve().parents[1] if Path(__file__).parent.name == "scripts" else None
 SESSION = ROOT / ".build/owner-session" if ROOT else Path(__file__).resolve().parent
 PREVIOUS_SESSION = None
+SIGNED_SESSION = None
 
 
 def sha(path):
@@ -65,12 +66,22 @@ def candidate(bundle):
     return result
 
 
+def package_files(directory, manifest):
+    for name, digest in manifest["packageFiles"].items():
+        if name not in ["session.py", "PLAN.md"] or sha(directory / name) != digest:
+            raise RuntimeError(f"Package changed: {name}")
+    if set(manifest["packageFiles"]) != {"session.py", "PLAN.md"}:
+        raise RuntimeError("Incomplete package binding")
+
+
 def check(sealed=False):
     manifest = json.loads((SESSION / "manifest.json").read_text())
-    for name, digest in manifest["packageFiles"].items():
-        if sha(SESSION / name) != digest:
-            raise RuntimeError(f"Package changed: {name}")
-    reference = json.loads((SESSION / "sealed.json").read_text())["fingerprint"] if sealed else manifest["fingerprint"]
+    package_files(SESSION, manifest)
+    reference = manifest["fingerprint"]
+    if (SESSION / "signature-ready.json").exists():
+        reference = json.loads((SESSION / "signature-ready.json").read_text())["fingerprint"]
+    if sealed:
+        reference = json.loads((SESSION / "sealed.json").read_text())["fingerprint"]
     if fingerprints(SESSION / "Ventilator.app") != reference:
         if not sealed and (SESSION / "sign-started.json").exists():
             raise RuntimeError("Signing began but qualification/seal did not complete. Do not repeat sign or install; send the STOP output to the developer")
@@ -85,6 +96,24 @@ def check(sealed=False):
         if review["candidate"] != candidate(SESSION / "Ventilator.app")["plan"]:
             raise RuntimeError("Signed candidate changed")
     return manifest
+
+
+def signed_source():
+    """Import a preserved failed signing package; never rewrite it or access the signing key."""
+    manifest = json.loads((SIGNED_SESSION / "manifest.json").read_text())
+    package_files(SIGNED_SESSION, manifest)
+    started = json.loads((SIGNED_SESSION / "sign-started.json").read_text())
+    if manifest.get("certificateSHA1") != CERTIFICATE or manifest.get("teamIdentifier") != TEAM or \
+            started.get("certificateSHA1") != CERTIFICATE or started.get("hardwareWritesExecuted") != 0:
+        raise RuntimeError("Unexpected source signing identity/state")
+    for name in ["sealed.json", "candidate.json", "review.json", "review.sha256",
+                 "replacement-started.json", "replacement-completed.json", "result.json"]:
+        if os.path.lexists(SIGNED_SESSION / name):
+            raise RuntimeError(f"Source is not a failed, unsealed signing package: {name}")
+    bundle = SIGNED_SESSION / "Ventilator.app"
+    return bundle, fingerprints(bundle), {"manifestSHA256": sha(SIGNED_SESSION / "manifest.json"),
+        "signStartedSHA256": sha(SIGNED_SESSION / "sign-started.json"), "packageFiles": manifest["packageFiles"],
+        "originalFingerprint": manifest["fingerprint"], "installedReplacement": manifest.get("installedReplacement")}
 
 
 def owner_terminal():
@@ -108,28 +137,49 @@ def prepare():
     instructions = (ROOT / "docs/owner-session.md").read_text()
     if len(instructions.encode()) > 12288:
         raise RuntimeError("Owner instructions exceed review budget")
-    plan = candidate(ROOT / ".build/Ventilator.app")
+    bundle = ROOT / ".build/Ventilator.app"
+    imported = None
+    if SIGNED_SESSION:
+        bundle, signed_hashes, imported = signed_source()
+    plan = candidate(bundle)
     SESSION.mkdir(mode=0o700, parents=True)
-    shutil.copytree(ROOT / ".build/Ventilator.app", SESSION / "Ventilator.app", symlinks=False)
+    shutil.copytree(bundle, SESSION / "Ventilator.app", symlinks=False)
     shutil.copyfile(__file__, SESSION / "session.py")
     (SESSION / "PLAN.md").write_text(instructions)
     manifest = {"schema": 1, "certificateSHA1": CERTIFICATE, "teamIdentifier": TEAM,
         "fingerprint": fingerprints(SESSION / "Ventilator.app"), "candidatePlanSHA256": plan["planSHA256"],
         "packageFiles": {n: sha(SESSION / n) for n in ["session.py", "PLAN.md"]},
         "hardwareWritesExecuted": 0, "signed": False}
+    if imported:
+        if fingerprints(bundle) != signed_hashes or manifest["fingerprint"] != signed_hashes:
+            raise RuntimeError("Signed source changed while copying")
+        source_manifest = json.loads((SIGNED_SESSION / "manifest.json").read_text())
+        package_files(SIGNED_SESSION, source_manifest)
+        if sha(SIGNED_SESSION / "manifest.json") != imported["manifestSHA256"] or \
+                sha(SIGNED_SESSION / "sign-started.json") != imported["signStartedSHA256"]:
+            raise RuntimeError("Source package changed while copying")
+        manifest["signatureReady"] = True
+        manifest["resumedFrom"] = imported
+        if imported["installedReplacement"] is not None:
+            manifest["installedReplacement"] = imported["installedReplacement"]
     if PREVIOUS_SESSION:
         previous = json.loads((PREVIOUS_SESSION / "sealed.json").read_text())
         if previous["certificateSHA1"] != CERTIFICATE or previous["teamIdentifier"] != TEAM or not previous["positiveRevocation"]:
             raise RuntimeError("Unexpected previous signed package")
         if fingerprints(PREVIOUS_SESSION / "Ventilator.app") != previous["fingerprint"]:
             raise RuntimeError("Previous signed package changed")
+        if "installedReplacement" in manifest and manifest["installedReplacement"] != previous["fingerprint"]:
+            raise RuntimeError("Previous installation conflicts with signed source")
         manifest["installedReplacement"] = previous["fingerprint"]
     save("manifest.json", manifest)
     print(f"Prepared {SESSION}. No signing, install, sudo or hardware writes.")
 
 
 def sign():
-    owner_terminal(); check()
+    owner_terminal()
+    manifest = check()
+    if manifest.get("signatureReady") or os.path.lexists(SESSION / "signature-ready.json"):
+        raise RuntimeError("Package is already signed; do not sign again")
     # A failed signing/qualification is preserved for diagnosis, never retried by this command.
     save("sign-started.json", {"certificateSHA1": CERTIFICATE, "hardwareWritesExecuted": 0})
     bundle = SESSION / "Ventilator.app"
@@ -137,20 +187,38 @@ def sign():
         subprocess.run(["/usr/bin/codesign", "--force", "--sign", CERTIFICATE, "--options", "runtime",
                         "--identifier", identifier, "--timestamp=none", str(path)], check=True)
         subprocess.run(["/usr/bin/codesign", "--verify", "--strict", str(path)], check=True)
+    save("signature-ready.json", {"fingerprint": fingerprints(bundle), "hardwareWritesExecuted": 0})
+    qualify()
+
+
+def qualify():
+    # Public certificate reads and local preparation only; no Terminal/private-key/privileged action.
+    manifest = check()
+    if not manifest.get("signatureReady") and not (SESSION / "signature-ready.json").exists():
+        raise RuntimeError("No completed signature; sign once in owner Terminal first")
+    for name in ["qualification-started.json", "sealed.json", "candidate.json", "review.json", "review.sha256"]:
+        if os.path.lexists(SESSION / name):
+            raise RuntimeError("Qualification/sealing was already attempted; preserve package and diagnose, no retry")
+    bundle = SESSION / "Ventilator.app"
+    before = fingerprints(bundle)
+    save("qualification-started.json", {"fingerprint": before, "hardwareWritesExecuted": 0})
     qualification = json.loads(output([files(bundle)["applicationSHA256"], "--qualify-owner-signature", bundle, CERTIFICATE], timeout=20))
-    if qualification["teamIdentifier"] != TEAM or not qualification["positiveRevocation"] or qualification["notarizationClaimed"]:
+    if qualification.get("certificateSHA1") != CERTIFICATE or qualification.get("teamIdentifier") != TEAM or \
+            qualification.get("positiveRevocation") is not True or qualification.get("notarizationClaimed") is not False:
         raise RuntimeError("Certificate qualification failed")
-    if qualification["fingerprint"] != fingerprints(bundle):
+    if qualification["fingerprint"] != before or fingerprints(bundle) != before:
         raise RuntimeError("Qualification fingerprint mismatch")
     plan = candidate(bundle)
     review = {"domain": "hardware", "candidate": plan["plan"], "ownerInstructions": (SESSION / "PLAN.md").read_text()}
     canonical = json.dumps(review, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
     if len(canonical) > 16384:
         raise RuntimeError("Full review exceeds protected-file budget")
+    check()
     save("sealed.json", qualification)
     save("candidate.json", plan)
     save("review.json", review)
-    (SESSION / "review.sha256").write_text(hashlib.sha256(canonical).hexdigest() + "\n")
+    with (SESSION / "review.sha256").open("x") as stream:
+        stream.write(hashlib.sha256(canonical).hexdigest() + "\n")
     (SESSION / "review.sha256").chmod(0o600)
     check(sealed=True)
     print("Signed and public certificate qualified; no install or SMC writes. Review SHA-256:", hashlib.sha256(canonical).hexdigest())
@@ -258,11 +326,12 @@ def collect():
 
 
 def main():
-    global SESSION, PREVIOUS_SESSION
+    global SESSION, PREVIOUS_SESSION, SIGNED_SESSION
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["prepare", "check", "sign", "install", "replace-installed", "register", "ready", "run", "collect", "unregister"])
+    parser.add_argument("command", choices=["prepare", "check", "sign", "qualify", "install", "replace-installed", "register", "ready", "run", "collect", "unregister"])
     parser.add_argument("--output", type=Path, help="Repository-only prepare/check output under .build")
     parser.add_argument("--previous-session", type=Path, help="Prepare a pinned replacement from a preserved signed package under .build")
+    parser.add_argument("--signed-session", type=Path, help="Prepare from a preserved failed signing package under .build without signing again")
     args = parser.parse_args()
     if args.output:
         if ROOT is None or args.command not in ["prepare", "check"] or not args.output.resolve().is_relative_to(ROOT / ".build"):
@@ -272,10 +341,14 @@ def main():
         if ROOT is None or args.command != "prepare" or not args.previous_session.resolve().is_relative_to(ROOT / ".build"):
             raise RuntimeError("Previous session allowed only for repository prepare under .build")
         PREVIOUS_SESSION = args.previous_session.resolve()
+    if args.signed_session:
+        if ROOT is None or args.command != "prepare" or not args.signed_session.resolve().is_relative_to(ROOT / ".build"):
+            raise RuntimeError("Signed session allowed only for repository prepare under .build")
+        SIGNED_SESSION = args.signed_session.resolve()
     if os.geteuid() == 0:
         raise RuntimeError("Run without root; only listed child commands may use owner sudo")
     actions = {"prepare": prepare, "check": lambda: print(json.dumps(check(sealed=(SESSION / "sealed.json").exists()), indent=2)),
-        "sign": sign, "install": install, "replace-installed": replace_installed, "register": lambda: service("--register-helper"), "ready": ready,
+        "sign": sign, "qualify": qualify, "install": install, "replace-installed": replace_installed, "register": lambda: service("--register-helper"), "ready": ready,
         "run": run, "collect": collect, "unregister": lambda: service("--unregister-helper")}
     actions[args.command]()
 

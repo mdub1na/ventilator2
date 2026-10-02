@@ -1,6 +1,6 @@
 # Единый сеанс владельца: опыт 2500 RPM
 
-**Шаги 1 → 5, переход только после указанного результата. При `STOP` сохраните вывод, сообщите разработчику и не повторяйте команду.**
+**Шаги 1 → 5, переход после указанного результата. При `STOP` сохраните вывод, сообщите разработчику; команду не повторять.**
 
 Mac15,7, macOS 27.0.0 (26A428), два вентилятора. Запись ещё не проверена; GUI read-only. План: **один Fixed и один Auto**, без повторов, аварийных тестов и сна. Сон/авария и независимое управление этим опытом не квалифицируются.
 
@@ -8,37 +8,38 @@ Mac15,7, macOS 27.0.0 (26A428), два вентилятора. Запись ещ
 
 ## Исправление и файлы
 
-Подпись и установка прошли; наш код блокировал первую регистрацию без BTM record. Новые executable требуют подписи. Прежний пакет сохранён в `.build/owner-session-2026-10-02-register-failed/`, новый — `.build/owner-session/`.
+Первая регистрация без BTM record исправлена. Executable **уже подписаны** владельцем. Проверка отзыва остановилась, затем прошла на тех же файлах; причина временного отказа неизвестна.
 
-Manifest связывает ad hoc app/helper/plist/PLAN/script и signed хеши прежней установки. Подпись меняет Mach-O: sealed.json/candidate.json/review.json/review.sha256 свяжут финальные хеши с планом. Root TTY покажет их перед `APPROVE challenge planSHA reviewSHA`. До одобрения и START записей нет.
+Failed пакет: `.build/owner-session-2026-10-02-revocation-failed/`; прежний installed: `.build/owner-session-2026-10-02-register-failed/`. Новый `.build/owner-session/` сохраняет signed бинарники. Manifest связывает их, PLAN/script, прежнюю установку и source hashes. `qualify`: public certificate/positive revocation, срок 20 с, без ключа/sudo/SMC, одна попытка. Seal/review связывают полный план с финальными хешами.
 
-Проверенная новая **ad hoc** сборка, SHA-256:
+Новая **signed** сборка:
 
 ```text
-Ventilator:       4d21fd25f25a81d0992e79abe88963bc20342e212b5234315a57c447ac2a8c89
-VentilatorHelper: e9d3bc41f44b41d77f33e9a126a3b7111770361d23493a59dafe447c8d09ba1b
+Ventilator:       610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d
+VentilatorHelper: 9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe
 ```
 
-Прежняя установленная **signed** сборка, допустимая для замены:
+Executable не пересобраны. Root TTY покажет хеши перед `APPROVE challenge planSHA reviewSHA`. До одобрения и START записей нет.
+
+Прежняя **signed** установка:
 
 ```text
 Ventilator:       0a1aac6866239bb78eda03b88107c01c17d119c9595874f4c156317fd9f96a9c
 VentilatorHelper: 9c0a164d1fb6c56651402908471fac49f8704d99d5d1ab62bdefef4914fae7aa
 ```
 
-Identity `4895C06FF7407EAF5F350E78CF23D0B41AD466C9`, Team `4659S5GD6X`. Keychain/Touch ID: разовое разрешение, пароль только в системном окне/Terminal. ACL не меняются. Positive revocation обязателен, timeout 20 с — остановка. Локальная Development сборка без notarization; Gatekeeper не обходить.
+Identity `4895C06FF7407EAF5F350E78CF23D0B41AD466C9`, Team `4659S5GD6X`. Подпись завершена: `sign` больше не выполнять. ACL не меняются. Локальная Development сборка без notarization; Gatekeeper не обходить.
 
-## Шаг 1. Подписать исправленный пакет
+## Шаг 1. Проверить подготовленный пакет
 
-Обычный **Terminal A**, весь script без sudo:
+**Terminal A**, script без sudo:
 
 ```sh
 cd /Users/mdub1na/IdeaProjects/ventilator2
 python3 .build/owner-session/session.py check
-python3 .build/owner-session/session.py sign
 ```
 
-Успех: **`Signed and public certificate qualified`**. Созданы sealed.json и review.sha256. До этого не выполнять замену.
+Успех: manifest без STOP; **sealed.json и review.sha256 уже существуют** после qualification разработчиком. Иначе остановитесь и сообщите разработчику.
 
 ## Шаг 2. Замена и регистрация
 

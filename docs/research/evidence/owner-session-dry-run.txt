@@ -1,11 +1,13 @@
-Owner session dry-run: 2026-10-02T01:32:59+05:00
+Owner session dry-run: 2026-10-02T20:35:02+05:00
 Non-root offline files and anonymous model only; no private key, signing, sudo, installation or native writes.
 Underlying qualification stderr is preserved in STOP diagnostics.
 Pinned replacement policy rejects active/approved service, changed hashes, invalid identity/ownership and any hardware journal directory; pure inputs only.
 Replacement orchestration preserved backup order on mocked commands; an installed hash change during staging stopped both moves and retained its marker.
 Collector retained a failed read diagnostic and continued status/audit collection on mocked responses; no installed/native commands.
+Signed-source import preserved every source file and previous installation pin, refused re-signing; mocked public trust success sealed the full review. Real ad hoc rejection, revocation failure, timeout, wrong leaf, changed bundle/plan produced no seal or retry; commands limited to certificate/candidate reads.
+Changed source instructions, partial seal and missing owner signing marker rejected before destination creation.
 Copied package fingerprints/check passed; changed plan rejected; eight owner actions rejected before mutation without Terminal.
-Full 14475-byte UTF-8 review imported through real model CLI; canonical digest matched Swift; no approval/ledger/device. Wrong digest and symlink refused.
+Full 14559-byte UTF-8 review imported through real model CLI; canonical digest matched Swift; no approval/ledger/device. Wrong digest and symlink refused.
 Ad hoc owner start/status/certificate qualification and non-root hardware stage/audit refused before native authority.
 This offline suite does not sign or positively qualify Apple-issued code, install root service, run sudo stages or execute hardware experiment.
 SHA-256 of tested helper: e9d3bc41f44b41d77f33e9a126a3b7111770361d23493a59dafe447c8d09ba1b
