@@ -1,9 +1,9 @@
 {
-  "candidatePlanSHA256": "f648c927618714a724eb9787e5ed9e004d61310e172297d974442f570fec0940",
+  "candidatePlanSHA256": "8d8704c7b0ddfab2839954cc26c68f2db3d194063bd25e65a799161982a4a75e",
   "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
   "fingerprint": {
-    "applicationSHA256": "4d21fd25f25a81d0992e79abe88963bc20342e212b5234315a57c447ac2a8c89",
-    "helperSHA256": "e9d3bc41f44b41d77f33e9a126a3b7111770361d23493a59dafe447c8d09ba1b",
+    "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+    "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
     "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
   },
   "hardwareWritesExecuted": 0,
@@ -13,10 +13,29 @@
     "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
   },
   "packageFiles": {
-    "PLAN.md": "115d61d0a99c15f87b01959fa6deb17b30cc4646305c7e43c8f91adf4b50b4be",
-    "session.py": "f2e26ab0ab9a6d90c932bb50c83c477f9075296f3ec063c6f900879f1871dc63"
+    "PLAN.md": "d0dbe3fdc7c93162bf34e998678e17b0f2eeee61303e036911b1d9a84b68f63e",
+    "session.py": "240f068f06936c3ee19423cd3074ce37c3f3b7f4d288bd340f522be5714f5197"
+  },
+  "resumedFrom": {
+    "installedReplacement": {
+      "applicationSHA256": "0a1aac6866239bb78eda03b88107c01c17d119c9595874f4c156317fd9f96a9c",
+      "helperSHA256": "9c0a164d1fb6c56651402908471fac49f8704d99d5d1ab62bdefef4914fae7aa",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "manifestSHA256": "6a02aca092a58924cb525e5d0662aa780ca374806e94c9f44f3b81904075a188",
+    "originalFingerprint": {
+      "applicationSHA256": "4d21fd25f25a81d0992e79abe88963bc20342e212b5234315a57c447ac2a8c89",
+      "helperSHA256": "e9d3bc41f44b41d77f33e9a126a3b7111770361d23493a59dafe447c8d09ba1b",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "packageFiles": {
+      "PLAN.md": "115d61d0a99c15f87b01959fa6deb17b30cc4646305c7e43c8f91adf4b50b4be",
+      "session.py": "f2e26ab0ab9a6d90c932bb50c83c477f9075296f3ec063c6f900879f1871dc63"
+    },
+    "signStartedSHA256": "0da1a54a45d82b68a2c430f9a711f9c63f4a67750da9f81c6bd5bd7b7775a7f7"
   },
   "schema": 1,
+  "signatureReady": true,
   "signed": false,
   "teamIdentifier": "4659S5GD6X"
 }

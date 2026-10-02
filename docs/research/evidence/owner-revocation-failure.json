@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-02",
+  "profile": "Mac15,7 / macOS 27.0 (26A428)",
+  "ownerCommand": "python3 .build/owner-session/session.py sign",
+  "ownerReportedResult": {
+    "codesignCompletedForApplicationAndHelper": true,
+    "qualificationExitCode": 78,
+    "errorDomain": "NSOSStatusErrorDomain",
+    "errorCode": -67635,
+    "underlyingReason": "Unable to verify revocation of leaf Apple Development certificate",
+    "sealedFilesCreated": false
+  },
+  "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+  "teamIdentifier": "4659S5GD6X",
+  "signedFingerprint": {
+    "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+    "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+    "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+  },
+  "boundedReadOnlyDiagnostic": {
+    "command": "already-signed Ventilator --qualify-owner-signature saved-bundle certificateSHA1",
+    "externalTimeoutSeconds": 20,
+    "exitCode": 0,
+    "positiveRevocation": true,
+    "notarizationClaimed": false,
+    "sameFingerprint": true,
+    "privateKeyAccess": false,
+    "sealCreatedByDiagnostic": false
+  },
+  "interpretation": "The reported error is a failed positive-revocation evaluation, not proof of revocation. Later evaluation of exactly the same files succeeded. Network/server/cache cause is not established; availability is not guaranteed.",
+  "source": "Security.framework macOS 27 SDK SecPolicy.h: kSecRevocationRequirePositiveResponse fails without a verified positive response; Sources/VentilatorInstallation/CertificateQualification.swift keeps that policy enabled.",
+  "installedBundleReplaced": false,
+  "frameworkRegistrationExecuted": false,
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "resumedPreparation": {
+    "sourceArchive": ".build/owner-session-2026-10-02-revocation-failed",
+    "allSourceFileHashesPreserved": true,
+    "package": ".build/owner-session",
+    "privateKeyAccess": false,
+    "binariesRebuilt": false,
+    "certificateQualificationExitCode": 0,
+    "positiveRevocation": true,
+    "sameSignedFingerprint": true,
+    "reviewSHA256": "8a94ee40813142c9daac9e1fd180c7e850ddfe6550797dafa1c1f17c2cbb5a95",
+    "fullReviewBytes": 14557,
+    "instructionsBytes": 12242,
+    "candidatePlanSHA256": "8d8704c7b0ddfab2839954cc26c68f2db3d194063bd25e65a799161982a4a75e",
+    "packageFiles": {
+      "PLAN.md": "d0dbe3fdc7c93162bf34e998678e17b0f2eeee61303e036911b1d9a84b68f63e",
+      "session.py": "240f068f06936c3ee19423cd3074ce37c3f3b7f4d288bd340f522be5714f5197"
+    },
+    "sealedCheckPassed": true
+  }
+}

@@ -35,7 +35,8 @@
 - [x] Подготовить owner client/full-review import и единый план с проверенными ad hoc хешами, seal финальных signed хешей, всеми SMC-записями и stop-процедурой; проверить offline/model путь.
 - [x] Исправить owner qualification после реальной подписи: проверить допустимые Security flags, фактический Team и positive revocation; сохранить failed пакет и подготовить новую сборку/последовательность.
 - [x] Исправить первую регистрацию без BTM record; подтвердить реальные signed/root-owned installed gates, подготовить ограниченную замену незарегистрированной версии с backup и проверками, сохранить план/результаты.
-- [ ] Выполнить с владельцем подпись/qualification/установку и получить одно локальное одобрение точного sealed опыта.
+- [x] Разделить подпись и public qualification; восстановить подготовку из сохранённых signed файлов без повторного доступа к ключу, сохранив исходный пакет и полный новый review.
+- [ ] Выполнить с владельцем замену/регистрацию/installed XPC gate и получить одно локальное одобрение точного sealed опыта.
 - [ ] После одобрения выполнить ровно один ограниченный аппаратный опыт и проверить устойчивый возврат Auto.
 
 Проверено 2026-09-30: [симуляция](docs/features/feature-control-simulation.md), независимый процесс восстановления, [подготовленный протокол](docs/features/feature-experiment-protocol.md) и [dry-run](docs/research/evidence/control-dry-run.txt). На текущем шаге локальный issuer и restart подготовлены и проверены на модели; для аппаратного runtime нужны подключение broker к daemon/public start и положительный signed/installed gate. Кандидатный план не готов к одобрению. GUI по-прежнему read-only; hardwareControlAvailable=false. До PR #2 локально было 0 valid identities; последняя команда сообщает 2, одна помечена revoked. Подпись второй identity и установленный helper ещё не проверены.

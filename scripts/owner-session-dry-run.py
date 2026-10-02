@@ -99,6 +99,101 @@ def run(command, success=True):
     return result
 
 
+# Real package copying, with only the public certificate response mocked for success/error cases.
+# The fixture is ad hoc: model successes cannot qualify its certificate for installation.
+for mode in ["success", "native-rejection", "revocation-failed", "timeout", "wrong-certificate", "changed-bundle", "changed-plan"]:
+    with tempfile.TemporaryDirectory(prefix="ventilator-sign-resume-", dir=root / ".build") as tmp:
+        source = Path(tmp) / "source"
+        resumed = Path(tmp) / "resumed"
+        with patch.object(session, "SESSION", source):
+            session.prepare()
+            session.save("sign-started.json", {"certificateSHA1": session.CERTIFICATE, "hardwareWritesExecuted": 0})
+        source_manifest = json.loads((source / "manifest.json").read_text())
+        source_manifest["installedReplacement"] = previous
+        (source / "manifest.json").write_text(json.dumps(source_manifest))
+        source_state = {str(p.relative_to(source)): session.sha(p) for p in source.rglob("*") if p.is_file()}
+        with patch.object(session, "SESSION", resumed), patch.object(session, "SIGNED_SESSION", source):
+            session.prepare()
+            manifest = session.check()
+            assert manifest["signatureReady"] and manifest["installedReplacement"] == previous
+            assert manifest["fingerprint"] == session.fingerprints(source / "Ventilator.app")
+            with patch.object(session, "owner_terminal"), patch.object(session.subprocess, "run") as external:
+                try:
+                    session.sign()
+                    raise AssertionError("Imported package signed again")
+                except RuntimeError as error:
+                    assert "already signed" in str(error)
+                external.assert_not_called()
+            proof = {"certificateSHA1": session.CERTIFICATE, "teamIdentifier": session.TEAM,
+                     "positiveRevocation": True, "notarizationClaimed": False, "fingerprint": manifest["fingerprint"]}
+            original_output = session.output
+            calls = []
+
+            def public_response(command, timeout=5):
+                calls.append([str(x) for x in command])
+                if "--qualify-owner-signature" not in command:
+                    return original_output(command, timeout)
+                assert timeout == 20
+                if mode == "native-rejection":
+                    return original_output(command, timeout)
+                if mode == "revocation-failed":
+                    raise RuntimeError("Unable to verify revocation")
+                if mode == "timeout":
+                    raise subprocess.TimeoutExpired(command, timeout)
+                if mode == "wrong-certificate":
+                    return json.dumps({**proof, "certificateSHA1": "0" * 40})
+                if mode == "changed-bundle":
+                    session.files(resumed / "Ventilator.app")["helperSHA256"].write_bytes(b"changed")
+                return json.dumps(proof)
+
+            if mode == "changed-plan":
+                (resumed / "PLAN.md").write_text("changed")
+            with patch.object(session, "output", side_effect=public_response):
+                if mode == "success":
+                    session.qualify()
+                    session.check(sealed=True)
+                    assert json.loads((resumed / "sealed.json").read_text()) == proof
+                    review = json.loads((resumed / "review.json").read_text())
+                    assert review["ownerInstructions"] == (root / "docs/owner-session.md").read_text()
+                else:
+                    try:
+                        session.qualify()
+                        raise AssertionError(f"Unsafe qualification sealed: {mode}")
+                    except (RuntimeError, subprocess.SubprocessError):
+                        pass
+                    assert not (resumed / "sealed.json").exists()
+                first_calls = len(calls)
+                try:
+                    session.qualify()
+                    raise AssertionError("Qualification retried automatically")
+                except RuntimeError:
+                    pass
+                assert len(calls) == first_calls
+                assert all(c[1] in ["--qualify-owner-signature", "--candidate-plan"] for c in calls)
+            assert source_state == {str(p.relative_to(source)): session.sha(p) for p in source.rglob("*") if p.is_file()}
+lines.append("Signed-source import preserved every source file and previous installation pin, refused re-signing; mocked public trust success sealed the full review. Real ad hoc rejection, revocation failure, timeout, wrong leaf, changed bundle/plan produced no seal or retry; commands limited to certificate/candidate reads.")
+
+# Reject a changed source plan and a source with a partial seal before creating a destination.
+for mode in ["changed-plan", "partial-seal", "missing-marker"]:
+    with tempfile.TemporaryDirectory(prefix="ventilator-source-refusal-", dir=root / ".build") as tmp:
+        source = Path(tmp) / "source"; destination = Path(tmp) / "destination"
+        with patch.object(session, "SESSION", source):
+            session.prepare()
+            if mode != "missing-marker":
+                session.save("sign-started.json", {"certificateSHA1": session.CERTIFICATE, "hardwareWritesExecuted": 0})
+        if mode == "changed-plan":
+            (source / "PLAN.md").write_text("changed")
+        elif mode == "partial-seal":
+            (source / "sealed.json").write_text("{}")
+        with patch.object(session, "SESSION", destination), patch.object(session, "SIGNED_SESSION", source):
+            try:
+                session.prepare()
+                raise AssertionError("Unsafe source imported")
+            except (RuntimeError, OSError):
+                pass
+            assert not destination.exists()
+lines.append("Changed source instructions, partial seal and missing owner signing marker rejected before destination creation.")
+
 package = root / f".build/owner-session-check-{uuid.uuid4()}"
 try:
     run(["python3", root / "scripts/owner-session.py", "prepare", "--output", package])
@@ -109,6 +204,8 @@ try:
         refusal = run(["python3", package / "session.py", command], success=False)
         assert "non-root Terminal" in refusal.stderr
     assert not (package / "sign-started.json").exists()
+    assert "No completed signature" in run(["python3", package / "session.py", "qualify"], success=False).stderr
+    assert not (package / "qualification-started.json").exists()
     original = (package / "PLAN.md").read_text()
     (package / "PLAN.md").write_text(original + "modified")
     assert "Package changed" in run(["python3", package / "session.py", "check"], success=False).stderr
