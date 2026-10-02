@@ -12,7 +12,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Реализованы диагностика bundle, явные app CLI-команды управления регистрацией и ограниченный XPC handshake. Владелец подписал и установил прежний пакет: native static/dynamic подписи, root ownership, installed path и совпадение seal подтверждены. **Первая регистрация остановилась до framework register**, privileged XPC не проверен. Исправленная сборка уже подписана владельцем; временный отказ public revocation и последующий успех на тех же файлах сохранены. Подготовка из signed файлов позволяет продолжить без повторной подписи. Замена требует владельца. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
+Реализованы диагностика bundle, явные app CLI-команды управления регистрацией и ограниченный XPC handshake. Владелец подписал и установил исправленный пакет: native static/dynamic подписи, root ownership, installed path и совпадение seal подтверждены. Защищённая замена завершена, прежний bundle сохранён как backup. **Первая framework регистрация создала BTM record и ожидает административного одобрения: requiresApproval**. Enabled daemon и privileged XPC не проверены. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
 
 ## Проверки и границы
 
@@ -39,9 +39,11 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 | `--register-helper` | После native identity/layout/ownership gate один раз вызывает register для notRegistered/notFound. Enabled/requiresApproval не регистрируются повторно. Framework error сохраняется, автоматического retry нет. |
 | `--unregister-helper` | После identity gate и живого enabled XPC запрещает удаление при pending hardware или активной/неопределённой simulation. Для notRegistered — без изменения. |
 
-Положительная регистрация требует административного одобрения по [Apple](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). `enabled` означает допуск службы, не подтверждение процесса. На ad hoc bundle register/unregister отказывают до framework mutation. На owner-signed installed bundle status=notFound: системный журнал подтвердил отсутствие BTM record, а не повреждённый plist. Прежний код ошибочно превращал это состояние в invalidLayout и не вызывал первую регистрацию; исправлен переход. [Фактический результат](../research/evidence/owner-registration-failure.json). Положительная регистрация, privileged XPC и unregister ещё не проверены.
+Положительная регистрация требует административного одобрения по [Apple](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). `enabled` означает допуск службы, не подтверждение процесса. На ad hoc bundle register/unregister отказывают до framework mutation. До исправления на owner-signed installed bundle status=notFound: системный журнал подтвердил отсутствие BTM record, а не повреждённый plist. Прежний код ошибочно превращал это состояние в invalidLayout и не вызывал первую регистрацию; исправлен переход. [Фактический результат](../research/evidence/owner-registration-failure.json). Enabled служба, privileged XPC и unregister ещё не проверены; текущий этап requiresApproval описан ниже.
 
-`owner-session.py replace-installed` допускает только точные прежние signed hashes из manifest, native trusted/root-owned/installed identity, notFound/notRegistered с serviceNotEnabled и отсутствие любого `/Library/Application Support/Ventilator`. Сначала staging копируется/chown/chmod и проверяется native inspector, затем прежняя установка проверяется повторно и сохраняется как backup; только после этого новая переносится на fixed path. Existing stage/backup и одноразовый marker блокируют повтор; ошибка ничего не удаляет. Pure policy и orchestration с mocked внешними командами проверены; реальная privileged замена требует владельца по [полному плану](../owner-session.md).
+`owner-session.py replace-installed` допускает только точные прежние signed hashes из manifest, native trusted/root-owned/installed identity, notFound/notRegistered с serviceNotEnabled и отсутствие любого `/Library/Application Support/Ventilator`. Сначала staging копируется/chown/chmod и проверяется native inspector, затем прежняя установка проверяется повторно и сохраняется как backup; только после этого новая переносится на fixed path. Existing stage/backup и одноразовый marker блокируют повтор; ошибка ничего не удаляет. Pure policy и orchestration с mocked внешними командами проверены; замена владельцем затем прошла по [полному плану](../owner-session.md), фактический результат ниже.
+
+Фактическое продолжение 2026-10-02: владелец выполнил replacement, новый installed fingerprint совпадает с seal, backup — с предыдущим pin. Framework register вернул `SMAppServiceErrorDomain / 1 / Operation not permitted`; subsequent status **requiresApproval**, BTM log `registerLaunchItem: result=no error` и disallowed disposition. Apple DTS [описывает error 1 до административного одобрения](https://developer.apple.com/forums/thread/802443). Wrapper сохраняет ошибку и печатает STOP; диагноз требует чтения actual status, номер ошибки сам по себе не разрешает продолжение. На данном пакете подтверждено ожидание одобрения. Следующий шаг уже есть в sealed PLAN: системное разрешение Ventilator, затем ready. Повтор register/sign/replace не нужен; бинарники, session.py/PLAN/review не меняются. [Результат](../research/evidence/owner-helper-approval-pending.json). Enabled root XPC, unregister и аппаратное одобрение ещё не проверены.
 
 ## Подпись без диалогов
 
@@ -49,7 +51,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 `scripts/sign-app-without-ui.py` читает public fingerprint настроенных identities, исключает явно flagged записи и требует единственного кандидата. Wrapper `tools/sign_without_ui.swift` сначала создаёт отдельную security session без graphics/TTY и проверяет эти атрибуты. Только после этого разрешён exec `/usr/bin/codesign` для собственного staging bundle в `.build`; исходный ad hoc bundle сохраняется. Keychain не разблокируется, ключи не экспортируются, ACL не изменяются. После обеих подписей нужны strict verify и native inspector.
 
-На текущем Mac SessionCreate вернул `OSStatus=100001`, wrapper завершился до codesign. [Результат](../research/evidence/installation-signing.json): `signed=false`, `signingAttempted=false`, `headlessSecuritySessionUnavailable`. Это прежняя бездиалоговая попытка. Подпись владельцем затем прошла, но старый qualification завершился exit 78 из-за недопустимого флага. После исправления владелец повторно подписал пакет, создал seal и установил root-owned bundle; эти gates подтверждены на реальных файлах. Первая регистрация остановилась на неверной предварительной проверке notFound. Владелец уже подписал новую сборку; теперь требуется ограниченная замена; положительная регистрация/удаление, настоящий сон и аппаратный опыт ещё не проверены.
+На текущем Mac SessionCreate вернул `OSStatus=100001`, wrapper завершился до codesign. [Результат](../research/evidence/installation-signing.json): `signed=false`, `signingAttempted=false`, `headlessSecuritySessionUnavailable`. Это прежняя бездиалоговая попытка. Подпись владельцем затем прошла, но старый qualification завершился exit 78 из-за недопустимого флага. После исправления владелец повторно подписал пакет, создал seal и установил root-owned bundle; эти gates подтверждены на реальных файлах. Первая регистрация остановилась на неверной предварительной проверке notFound. Владелец затем выполнил ограниченную замену; BTM регистрация ожидает системного одобрения. Enabled root XPC/удаление, настоящий сон и аппаратный опыт ещё не проверены.
 
 ## Code anchors
 
@@ -143,3 +145,11 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 **Тогда:** source не меняется, sign запрещён; seal создаётся только после exact certificate/Team/positive response и проверки хешей/инструкций. Timeout/отказ/подмена не создают seal; повтор не вызывает external CLI. Ad hoc fixture отвергается реальным native gate, положительный путь проверен отдельно на ответе модели.
 
 **Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Первая системная регистрация ожидает администратора
+
+**Дано:** исправленный signed/root-owned installed bundle совпадает с seal; прежний bundle сохранён в backup.
+**Когда:** owner register возвращает framework error 1, затем выполнена read-only диагностика.
+**Тогда:** BTM record создана, status=requiresApproval, helperVerified/hardwareControlAvailable=false. Следующий предусмотренный шаг — системное одобрение; до него root XPC и аппаратная готовность не подтверждены, register не повторяется.
+
+Проверено на Mac15,7/macOS 27; [ручное свидетельство](../research/evidence/owner-helper-approval-pending.json).

@@ -207,6 +207,12 @@ PR #5 был объединён в исходную ветку PR #4; отдел
 - [Исходное задание владельца](evidence/owner-brief.txt)
 - [Входная точка документации](../README.md)
 
+## Первая framework регистрация ожидает одобрения — 2026-10-02
+
+Владелец выполнил защищённую замену: installed app/helper/plist совпадают с новым seal (`610afb3f…`/`9c6d361b…`), backup совпадает с pinned прежней установкой; staging отсутствует. Native static/dynamic identity, installed path и root ownership проходят. Framework register вернул `SMAppServiceErrorDomain / 1 / Operation not permitted`, но создал BTM record: журнал `backgroundtaskmanagementd` сообщает `registerLaunchItem: result=no error`, disposition `[enabled, disallowed, not notified]`. Последующий read-only status — **requiresApproval**, helperVerified=false. [Фактические файлы, статус и событие](evidence/owner-helper-approval-pending.json).
+
+Apple DTS в [Getting Started with SMAppService](https://developer.apple.com/forums/thread/802443) прямо воспроизводит error 1 перед административным одобрением daemon. Это объясняет текущий результат на macOS 27 в сочетании с локальными status/log, а не по одному номеру ошибки. Здесь нужен следующий **уже предусмотренный** шаг полного плана: разрешить Ventilator в системных настройках, затем один `ready`. Повтор register/sign/replace не нужен. Текущие PLAN/script/review не менялись: никаких новых действий/записей в аппаратный опыт не добавлено. Enabled root daemon и положительный XPC остаются непроверенными; hardware root отсутствует, одобрение опыта/SMC-записи не выполнялись.
+
 ## Повторный отказ проверки отзыва — 2026-10-02
 
 Владелец подписал исправленный пакет, но public qualification остановился с `-67635`: underlying error сообщает, что отзыв leaf не удалось проверить. Seal не создан, замена/регистрация/SMC не начаты. Один последующий read-only вызов того же CLI с внешним сроком 20 с на **тех же signed файлах** прошёл: `positiveRevocation=true`, Team `4659S5GD6X`, app/helper хеши неизменны. [Фактический результат](evidence/owner-revocation-failure.json).
