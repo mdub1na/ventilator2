@@ -31,12 +31,13 @@
 - [ ] Сделать аппаратный протокол с проверяемым одобрением конкретного плана и привязкой записей к точной модели/сборке ОС, диапазонам и сроку lease. Симуляция такого одобрения не выдаёт.
 - [ ] Подключить файловый маркер, реальные системные события и независимый ограниченный восстановитель к аппаратному helper; доказать восстановление в утверждённом опыте.
 - [x] Добавить предварительные проверки машины/показаний и отдельные критерии наблюдаемого изменения RPM и устойчивого кода Auto на подставных снимках.
-- [ ] Провести dry-run, собрать и подписать установленный bundle с подходящей identity.
+- [x] Провести dry-run, собрать и подписать установленный bundle с подходящей identity; positive qualification и exact root-owned installed hashes подтверждены.
 - [x] Подготовить owner client/full-review import и единый план с проверенными ad hoc хешами, seal финальных signed хешей, всеми SMC-записями и stop-процедурой; проверить offline/model путь.
 - [x] Исправить owner qualification после реальной подписи: проверить допустимые Security flags, фактический Team и positive revocation; сохранить failed пакет и подготовить новую сборку/последовательность.
 - [x] Исправить первую регистрацию без BTM record; подтвердить реальные signed/root-owned installed gates, подготовить ограниченную замену незарегистрированной версии с backup и проверками, сохранить план/результаты.
 - [x] Разделить подпись и public qualification; восстановить подготовку из сохранённых signed файлов без повторного доступа к ключу, сохранив исходный пакет и полный новый review.
-- [ ] Выполнить с владельцем замену/регистрацию/installed XPC gate и получить одно локальное одобрение точного sealed опыта.
+- [x] Выполнить защищённую замену с backup и первую framework регистрацию: BTM record создана, requiresApproval подтверждён после error 1.
+- [ ] Получить системное одобрение helper, проверить enabled root XPC gate и получить одно локальное одобрение точного sealed опыта.
 - [ ] После одобрения выполнить ровно один ограниченный аппаратный опыт и проверить устойчивый возврат Auto.
 
 Проверено 2026-09-30: [симуляция](docs/features/feature-control-simulation.md), независимый процесс восстановления, [подготовленный протокол](docs/features/feature-experiment-protocol.md) и [dry-run](docs/research/evidence/control-dry-run.txt). На текущем шаге локальный issuer и restart подготовлены и проверены на модели; для аппаратного runtime нужны подключение broker к daemon/public start и положительный signed/installed gate. Кандидатный план не готов к одобрению. GUI по-прежнему read-only; hardwareControlAvailable=false. До PR #2 локально было 0 valid identities; последняя команда сообщает 2, одна помечена revoked. Подпись второй identity и установленный helper ещё не проверены.
@@ -50,6 +51,8 @@ PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https:/
 Подготовка после PR #4: [installed gate](docs/features/feature-helper-installation.md) реализован; ad hoc/register/layout отказы и peer/pending policies проверены. Headless signing probe остановился с SessionCreate OSStatus=100001 до codesign; ключи/ACL не изменялись. Положительные подпись, установка и privileged XPC остаются открытыми. Следующий шаг — завершить hardware admission/runtime и полный единый сеанс владельца; не просить отдельного keychain/installation действия до этого плана.
 
 После PR #6: guarded session runtime реализован; положительные аппаратные проверки остаются открытыми. Следующий шаг — owner CLI/review staging и единый готовый сеанс, затем участие владельца для подписи/установки и конкретного опыта.
+
+2026-10-02: владелец завершил защищённую замену; новый installed bundle и backup совпали с pinned hashes. Первая framework registration создала BTM record, но вернула error 1 до административного одобрения; actual status=requiresApproval. [Свидетельство](docs/research/evidence/owner-helper-approval-pending.json). Следующий уже предусмотренный шаг — разрешение helper в System Settings и ready; повтор подписи/замены/register не нужен. Sealed PLAN/script/review не меняются, аппаратный опыт не запускался.
 
 ## M3 — управление и поставка
 

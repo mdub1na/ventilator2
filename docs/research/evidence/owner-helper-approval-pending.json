@@ -1,0 +1,66 @@
+{
+  "verifiedAt": "2026-10-02T20:55:41+05:00",
+  "ownerReportedError": {
+    "domain": "SMAppServiceErrorDomain",
+    "code": 1,
+    "description": "Operation not permitted",
+    "exitCode": 78
+  },
+  "installedReadOnlyStatus": {
+    "error": "serviceNotEnabled",
+    "fingerprint": {
+      "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+      "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": false,
+    "installedLocation": true,
+    "registration": "requiresApproval",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "protectedReplacementExecutedByOwner": true,
+  "replacementCompleted": {
+    "fingerprint": {
+      "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+      "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareWritesExecuted": 0,
+    "previous": {
+      "applicationSHA256": "0a1aac6866239bb78eda03b88107c01c17d119c9595874f4c156317fd9f96a9c",
+      "helperSHA256": "9c0a164d1fb6c56651402908471fac49f8704d99d5d1ab62bdefef4914fae7aa",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    }
+  },
+  "backupFingerprint": {
+    "applicationSHA256": "0a1aac6866239bb78eda03b88107c01c17d119c9595874f4c156317fd9f96a9c",
+    "helperSHA256": "9c0a164d1fb6c56651402908471fac49f8704d99d5d1ab62bdefef4914fae7aa",
+    "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+  },
+  "sourcePlanAndScriptUnchanged": true,
+  "reviewSHA256": "8a94ee40813142c9daac9e1fd180c7e850ddfe6550797dafa1c1f17c2cbb5a95",
+  "systemLog": {
+    "process": "backgroundtaskmanagementd",
+    "eventTime": "2026-10-02 20:52:33.281 +05:00",
+    "message": "registerLaunchItem: result=no error",
+    "itemUUID": "7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F",
+    "name": "VentilatorHelper",
+    "label": "dev.ventilator.helper",
+    "disposition": [
+      "enabled",
+      "disallowed",
+      "not notified"
+    ],
+    "launchdJobNotFoundAfterPendingRegistration": true
+  },
+  "interpretation": "The BTM record was created. Native status is requiresApproval: administrator consent is the next documented installation action, not a new register/replacement/sign attempt. Enabled daemon/root XPC/hardware admission are not proven.",
+  "applePrimarySource": "https://developer.apple.com/forums/thread/802443",
+  "pendingOwnerAction": "Allow Ventilator background helper in System Settings, then run existing session.py ready once.",
+  "hardwareRootAbsent": true,
+  "hardwareWritesExecuted": 0,
+  "hardwareApprovalIssued": false,
+  "physicalAutoVerified": false,
+  "developerActions": "Read-only status/fingerprints and scoped system log only; no register, sudo, signing, service consent or native writer."
+}
