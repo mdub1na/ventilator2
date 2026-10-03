@@ -3,10 +3,18 @@ id: research-architecture
 title: Ventilator — исследование архитектуры и аппаратных ограничений
 type: research
 status: active
-date: 2026-10-01
+date: 2026-10-03
 ---
 
 # Исследование
+
+## Последняя проверка: ready deadline, 2026-10-03
+
+После системного одобрения actual registration=enabled, signed/root-owned/installed gates прошли, но root XPC дал deadline. Launchd успешно spawn-ил helper, а тот завершился exit 78 примерно через 10 мс; это не подтверждает гипотезу медленного cold start. Старый код вычислял bundle/child paths из argv[0]. На установленном signed приложении с overridden relative argv воспроизведён invalidLayout. Actual root argv получить не удалось, поэтому причина именно этого daemon отказа остаётся гипотезой. [Факты и границы](evidence/owner-ready-deadline.json).
+
+Исправление использует `_NSGetExecutablePath` для загруженного executable и сохраняет прежнюю проверку aliases/signatures/ownership. [Apple dyld](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dyld.3.html) допускает symlink в возвращённом пути; ранний realpath не применяется. Проверены relative/foreign/opaque argv[0] на настоящих app/helper subprocess. Startup log фиксирует этап identity/runtime/listener. Увеличение срока handshake не требуется для этого воспроизведённого дефекта.
+
+Runtime root отсутствовал, ready остановился до защищённого review/approval/SMC. Для новой сборки подготовлен полный disabled update: owner выключает фоновое разрешение; wrapper требует точный старый pin, native gates, non-enabled status, отсутствие всего root state/активного PID и сохраняет отдельный backup. Лишь остаточный точный inactive job допускает один bootout; после staging job или смена hash запрещают оба mv. Узкий unregister требует requiresApproval и lstat ENOENT всего runtime root; enabled путь по-прежнему требует живой peer без pending. Framework error 1 нормализуется только с actual requiresApproval; диагностическое сообщение сохраняется. Эти новые ветки проверены на модели, реальная новая установка/root XPC не выполнены. Прежний sealed пакет сохраняется целиком; из-за изменения executable требуется новая подпись по [полному плану](../owner-session.md). Mac остаётся read-only, physicalAutoVerified=false.
 
 ## Область и статус
 

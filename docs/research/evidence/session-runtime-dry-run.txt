@@ -1,4 +1,4 @@
-Session runtime verification: 2026-10-02T01:31:27+05:00
+Session runtime verification: 2026-10-03T14:52:06+05:00
 UID=501; anonymous XPC and file simulation only, no native open/write, registration or root.
 Runtime XPC model: explicit Auto passed; missing/wrong-owner approval, heartbeat, restore, status and replay; no hardware authority.
 Runtime XPC model: connection invalidation passed; missing/wrong-owner approval, heartbeat, restore, status and replay; no hardware authority.
@@ -10,4 +10,4 @@ Actual route consumed local model approval after isolated nonce/PID/deadline-bou
 Independent Fixed observation, wrong connection control, explicit Auto, XPC invalidation and spent replay verified.
 Hardware runtime is compiled behind root/installed identity, local hardware receipt and private pipes; positive installed execution remains unverified.
 Hardware pending/physicalAutoVerified=false are retained; no product controls enabled.
-SHA-256 of tested helper: e9d3bc41f44b41d77f33e9a126a3b7111770361d23493a59dafe447c8d09ba1b
+SHA-256 of tested helper: 5e287756e358debbc4514797d2c4e13af26c700762c7683ea19c09110243d32a

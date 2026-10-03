@@ -1,5 +1,6 @@
 import Darwin
 import Foundation
+import VentilatorInstallation
 import ServiceManagement
 import VentilatorControl
 import VentilatorExperiment
@@ -130,7 +131,7 @@ private final class ExperimentBrokerClient {
     private(set) var fixedRPMObserved = false
     init(directory: URL, ledger: ApprovedExperimentLedger, restarting: Bool, boot: UUID) throws {
         channel = try WorkerChannel(input: output.fileHandleForReading.fileDescriptor, output: input.fileHandleForWriting.fileDescriptor)
-        process.executableURL = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
+        process.executableURL = try CurrentExecutable.url()
         process.arguments = ledger.domain == .hardware ? ["--hardware-broker"] : ["--approved-model-broker", directory.path]
         process.standardInput = input; process.standardOutput = output; process.standardError = FileHandle.standardError
         try process.run()

@@ -6,6 +6,28 @@ import VentilatorControl
 @testable import VentilatorInstallation
 
 final class InstallationTests: XCTestCase {
+    func testRegistrationErrorNeedsActualPendingApprovalState() throws {
+        guard #available(macOS 15.0, *) else { throw XCTSkip("SMAppService error domain is available on macOS 15+") }
+        let error = NSError(domain: SMAppServiceErrorDomain, code: 1)
+        XCTAssertTrue(HelperServiceController.registrationAwaitsApproval(error, status: .requiresApproval))
+        for status: SMAppService.Status in [.enabled, .notRegistered, .notFound] {
+            XCTAssertFalse(HelperServiceController.registrationAwaitsApproval(error, status: status))
+        }
+        XCTAssertFalse(HelperServiceController.registrationAwaitsApproval(NSError(domain: "other", code: 1), status: .requiresApproval))
+        XCTAssertFalse(HelperServiceController.registrationAwaitsApproval(NSError(domain: SMAppServiceErrorDomain, code: 2), status: .requiresApproval))
+    }
+
+    func testLoadedExecutablePathMatchesSecurityCodeIdentity() throws {
+        var code: SecCode?, staticCode: SecStaticCode?, info: CFDictionary?
+        XCTAssertEqual(SecCodeCopySelf([], &code), errSecSuccess)
+        let current = try XCTUnwrap(code)
+        XCTAssertEqual(SecCodeCopyStaticCode(current, [], &staticCode), errSecSuccess)
+        XCTAssertEqual(SecCodeCopySigningInformation(try XCTUnwrap(staticCode), SecCSFlags(rawValue: kSecCSSigningInformation), &info), errSecSuccess)
+        let securityPath = try XCTUnwrap((info as? [String: Any])?[kSecCodeInfoMainExecutable as String] as? URL)
+        // Xcode launches xctest through a symlink; Security returns its resolved code path.
+        XCTAssertEqual(try CurrentExecutable.url().resolvingSymlinksInPath(), securityPath.resolvingSymlinksInPath())
+    }
+
     private let nonce = UUID()
     private func proof(path: String = SignedBundleInspector.installedPath, rootOwned: Bool = true,
                        team: String = "ABCDEFGHIJ", cdhash: String = String(repeating: "a", count: 40)) -> SignedBundleProof {
@@ -101,6 +123,22 @@ final class InstallationTests: XCTestCase {
         for phase in ["waitingForFixed", "fixedObserved", "restoring", "recoveryRequired", "unknown"] {
             XCTAssertThrowsError(try HelperServiceController.admitRemoval(reply(phase: phase)))
         }
+    }
+
+    func testUnapprovedUnstartedRemovalRequiresAbsentRuntimeRoot() throws {
+        let parent = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let state = parent.appendingPathComponent("state")
+        try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: parent) }
+        try HelperServiceController.admitUnstartedRemoval(status: .requiresApproval, stateURL: state)
+        for status: SMAppService.Status in [.enabled, .notFound, .notRegistered] {
+            XCTAssertThrowsError(try HelperServiceController.admitUnstartedRemoval(status: status, stateURL: state))
+        }
+        try Data().write(to: state)
+        XCTAssertThrowsError(try HelperServiceController.admitUnstartedRemoval(status: .requiresApproval, stateURL: state))
+        try FileManager.default.removeItem(at: state)
+        try FileManager.default.createSymbolicLink(at: state, withDestinationURL: parent.appendingPathComponent("missing"))
+        XCTAssertThrowsError(try HelperServiceController.admitUnstartedRemoval(status: .requiresApproval, stateURL: state))
     }
 
     func testUnsignedBundleAndSymlinkAreRejectedBeforeServiceAccess() throws {

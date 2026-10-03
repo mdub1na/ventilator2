@@ -170,7 +170,7 @@ private final class ConnectionEndpoint: NSObject, VentilatorHelperProtocol {
 }
 
 func bundledCandidatePlan() throws -> CandidateExperimentPlan {
-    let helper = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
+    let helper = try CurrentExecutable.url()
     let application = helper.deletingLastPathComponent().appendingPathComponent("Ventilator")
     return CandidateExperimentPlan(binaries: .init(
         applicationSHA256: CandidateExperimentPlan.digest(try Data(contentsOf: application)),

@@ -1,6 +1,7 @@
 import Darwin
 import CSystemPower
 import Foundation
+import VentilatorInstallation
 import VentilatorControl
 import VentilatorCore
 import VentilatorExperiment
@@ -127,7 +128,7 @@ private final class ExperimentChildClient {
         self.bootstrap = bootstrap
         channel = try WorkerChannel(input: output.fileHandleForReading.fileDescriptor,
                                     output: input.fileHandleForWriting.fileDescriptor)
-        process.executableURL = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
+        process.executableURL = try CurrentExecutable.url()
         process.arguments = [bootstrap.scope.domain == .simulation ? "--approved-model-child" : "--prepared-hardware-child", directory.path]
         process.standardInput = input; process.standardOutput = output; process.standardError = FileHandle.standardError
         try process.run()

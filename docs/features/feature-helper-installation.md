@@ -12,7 +12,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Реализованы диагностика bundle, явные app CLI-команды управления регистрацией и ограниченный XPC handshake. Владелец подписал и установил исправленный пакет: native static/dynamic подписи, root ownership, installed path и совпадение seal подтверждены. Защищённая замена завершена, прежний bundle сохранён как backup. **Первая framework регистрация создала BTM record и ожидает административного одобрения: requiresApproval**. Enabled daemon и privileged XPC не проверены. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
+Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. Signed/root-owned installed bundle и системное одобрение подтверждены. **Registration=enabled, но helper завершается exit 78; root XPC не отвечает**. Исправлена воспроизведённая ошибка пути запуска, подготовлена ограниченная замена disabled службы без runtime state. Новая сборка проверена на модели, её installed root XPC ещё не проверен. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
 
 ## Проверки и границы
 
@@ -23,6 +23,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 Для signed installed ветки требуется Hardened Runtime без разрешений debugger, DYLD injection, unsigned executable memory, JIT или отключения library validation. Signing wrapper задаёт runtime; native gate сверяет flags/entitlements. Эта policy проверена на данных модели и на сохранённом подписанном владельцем пакете. На момент исправления validation executable требовали новой подписи; старый пакет с ошибкой устанавливать нельзя. Последующая owner подпись и текущее состояние приведены ниже.
 
 Перед запуском обычного daemon, root simulation worker и подготовленного аппаратного device проверяется также динамическая подпись текущего процесса по CDHash. Приложение явно отказывается запускаться от root. Root-owned расположение — наш выбор для фиксированного M2 bundle, не требование Apple ко всем приложениям SMAppService.
+
+`CurrentExecutable` получает путь загруженного executable через `_NSGetExecutablePath`; argv[0] не используется для bundle, candidate hashes или дочерних процессов. По [Apple dyld](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dyld.3.html) путь может содержать symlink: helper не скрывает его через realpath, прежний layout gate по-прежнему отвергает aliases. Relative/foreign/opaque argv[0] реально проверены из cwd=/ на app/helper. Startup log `dev.ventilator.helper/startup` фиксирует этап identity/runtime/listener и отказ без nonce/approval содержимого.
 
 `InstalledHelperClient` использует privileged Mach service. Обе стороны XPC требуют Apple anchor, точный identifier/Team ID и CDHash своего counterpart. Каждый запрос имеет новый nonce и срок 2 с по continuous clock. JSON не аутентифицирует peer: UID/PID берутся из `NSXPCConnection`, UID должен быть root, PID должен совпасть с reply. Версия, nonce, CDHash и все три digest сверяются; oversized (>16 KiB), поздний, чужой или заявляющий hardware control ответ отвергается. Успешный handshake означает живой проверенный helper, не SMC admission или физический Auto.
 
@@ -36,14 +38,16 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 |---|---|
 | `--helper-status` | Диагностика подписи, местоположения, прав, регистрации; при enabled и валидном bundle проверяется XPC. Ошибка отражается в JSON. Регистрацию не меняет. |
 | `--verify-installed-helper` | Та же проверка; exit 78, если helper не подтверждён. |
-| `--register-helper` | После native identity/layout/ownership gate один раз вызывает register для notRegistered/notFound. Enabled/requiresApproval не регистрируются повторно. Framework error сохраняется, автоматического retry нет. |
-| `--unregister-helper` | После identity gate и живого enabled XPC запрещает удаление при pending hardware или активной/неопределённой simulation. Для notRegistered — без изменения. |
+| `--register-helper` | После native gates один register для notRegistered/notFound. Enabled/requiresApproval без повторного register. Только framework error 1 с actual requiresApproval возвращает отчёт с registrationDiagnostic; другие ошибки сохраняются, retry нет. |
+| `--unregister-helper` | Enabled требует живой root XPC без pending hardware/active simulation. Для requiresApproval разрешён только узкий pre-experiment repair при lstat ENOENT всего runtime root. Файл/каталог/broken symlink/ошибка доступа блокируют этот путь. NotRegistered — без изменения. |
 
 Положительная регистрация требует административного одобрения по [Apple](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). `enabled` означает допуск службы, не подтверждение процесса. На ad hoc bundle register/unregister отказывают до framework mutation. До исправления на owner-signed installed bundle status=notFound: системный журнал подтвердил отсутствие BTM record, а не повреждённый plist. Прежний код ошибочно превращал это состояние в invalidLayout и не вызывал первую регистрацию; исправлен переход. [Фактический результат](../research/evidence/owner-registration-failure.json). Enabled служба, privileged XPC и unregister ещё не проверены; текущий этап requiresApproval описан ниже.
 
-`owner-session.py replace-installed` допускает только точные прежние signed hashes из manifest, native trusted/root-owned/installed identity, notFound/notRegistered с serviceNotEnabled и отсутствие любого `/Library/Application Support/Ventilator`. Сначала staging копируется/chown/chmod и проверяется native inspector, затем прежняя установка проверяется повторно и сохраняется как backup; только после этого новая переносится на fixed path. Existing stage/backup и одноразовый marker блокируют повтор; ошибка ничего не удаляет. Pure policy и orchestration с mocked внешними командами проверены; замена владельцем затем прошла по [полному плану](../owner-session.md), фактический результат ниже.
+`owner-session.py replace-installed` допускает только точные прежние signed hashes, native trusted/root-owned/installed identity, notFound/notRegistered/requiresApproval с serviceNotEnabled и отсутствие **всего** runtime root. Enabled никогда не допускается. После отключения фонового разрешения владельцем оставшийся точный inactive launchd job допускает один scoped bootout; active PID/чужие metadata/ошибка чтения запрещают его. Перед staging и mv job обязан отсутствовать. Staging копируется/chown/chmod и проверяется native inspector, затем прежняя установка повторно проверяется и сохраняется как backup. Existing stage/backup/marker блокируют повтор, ошибка ничего не удаляет. Новые stage/backup paths сохраняют прежний backup. Policy/orchestration проверены на mocked командах, реальная новая замена ещё не выполнена.
 
 Фактическое продолжение 2026-10-02: владелец выполнил replacement, новый installed fingerprint совпадает с seal, backup — с предыдущим pin. Framework register вернул `SMAppServiceErrorDomain / 1 / Operation not permitted`; subsequent status **requiresApproval**, BTM log `registerLaunchItem: result=no error` и disallowed disposition. Apple DTS [описывает error 1 до административного одобрения](https://developer.apple.com/forums/thread/802443). Wrapper сохраняет ошибку и печатает STOP; диагноз требует чтения actual status, номер ошибки сам по себе не разрешает продолжение. На данном пакете подтверждено ожидание одобрения. Следующий шаг уже есть в sealed PLAN: системное разрешение Ventilator, затем ready. Повтор register/sign/replace не нужен; бинарники, session.py/PLAN/review не меняются. [Результат](../research/evidence/owner-helper-approval-pending.json). Enabled root XPC, unregister и аппаратное одобрение ещё не проверены.
+
+2026-10-03: системное разрешение выполнено, ready остановился с deadline до root review staging. Launchd успешно spawn-ил helper, тот завершался exit 78 до listener. Старое приложение с относительным argv[0] воспроизвело invalidLayout; фактический argv root-процесса и точный этап прежнего отказа не установлены. Runtime root отсутствовал; аппаратный опыт не начинался. Прежний sealed пакет сохраняется целиком, изменённый код требует новой подписи и полной процедуры disabled update. [Факты](../research/evidence/owner-ready-deadline.json), [план](../owner-session.md).
 
 ## Подпись без диалогов
 
@@ -58,6 +62,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 | Компонент | Code |
 |---|---|
 | Layout, подписи, root ownership и runtime | `Sources/VentilatorInstallation/SignedBundleInspector.swift` |
+| Путь загруженного executable | `Sources/VentilatorInstallation/CurrentExecutable.swift` |
 | XPC peer, nonce, fingerprint и срок | `Sources/VentilatorInstallation/InstalledHelperClient.swift`, `Sources/VentilatorControl/HelperProtocol.swift` |
 | Registration/removal | `Sources/VentilatorInstallation/HelperServiceController.swift`, `Sources/Ventilator/HelperServiceCLI.swift` |
 | Server/client requirements | `Sources/VentilatorHelper/HelperServer.swift`, `Sources/VentilatorHelper/HelperMain.swift` |
@@ -153,3 +158,27 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 **Тогда:** BTM record создана, status=requiresApproval, helperVerified/hardwareControlAvailable=false. Следующий предусмотренный шаг — системное одобрение; до него root XPC и аппаратная готовность не подтверждены, register не повторяется.
 
 Проверено на Mac15,7/macOS 27; [ручное свидетельство](../research/evidence/owner-helper-approval-pending.json).
+
+### Scenario: Относительное имя запуска не меняет bundle
+
+**Дано:** реальный app/helper запускается из cwd=/ с относительным, чужим абсолютным или opaque argv[0].
+**Когда:** выполняется status либо candidate-plan.
+**Тогда:** используется загруженный executable; layout достигает прежнего ad hoc signature refusal, candidate hashes соответствуют реальным файлам, записей нет.
+
+**Automated:** `scripts/installation-dry-run.py`, `Tests/VentilatorInstallationTests/InstallationTests.swift::testLoadedExecutablePathMatchesSecurityCodeIdentity`
+
+### Scenario: Disabled repair не удаляет runtime state
+
+**Дано:** requiresApproval либо иной service status и путь runtime root.
+**Когда:** проверяется unstarted removal.
+**Тогда:** только requiresApproval с lstat ENOENT допускается; enabled/неизвестное состояние, файл и broken symlink отвергаются. В wrapper active/неопределённый launchd job запрещает update, job после staging останавливает оба mv.
+
+**Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testUnapprovedUnstartedRemovalRequiresAbsentRuntimeRoot`, `scripts/owner-session-dry-run.py`
+
+### Scenario: Error 1 сам по себе не означает ожидание одобрения
+
+**Дано:** framework registration error и actual post-register status.
+**Когда:** выбирается pending-approval response.
+**Тогда:** только SMAppServiceErrorDomain/code 1 с requiresApproval допускает diagnostic response; другие domain/code/status остаются ошибками без retry.
+
+**Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testRegistrationErrorNeedsActualPendingApprovalState`

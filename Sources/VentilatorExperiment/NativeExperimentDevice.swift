@@ -36,7 +36,7 @@ public final class NativeExperimentDevice: ExperimentStepDevice {
         guard currentBootSession() == session.approval.challenge.bootSession else { throw NativeExperimentError.wrongBootSession }
         guard let recovery else { throw NativeExperimentError.recoveryNotArmed }
         guard trustedHelperAndApplication() else { throw NativeExperimentError.untrustedSignature }
-        let helper = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
+        let helper = try CurrentExecutable.url()
         let application = helper.deletingLastPathComponent().appendingPathComponent("Ventilator")
         let binaries = CandidateExperimentPlan.Binaries(applicationSHA256: CandidateExperimentPlan.digest(try Data(contentsOf: application)),
                                                        helperSHA256: CandidateExperimentPlan.digest(try Data(contentsOf: helper)))

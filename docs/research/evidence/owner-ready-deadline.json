@@ -1,0 +1,137 @@
+{
+  "date": "2026-10-03",
+  "ownerReadyFailure": {
+    "exitCode": 78,
+    "error": "deadline",
+    "registration": "enabled",
+    "helperVerified": false
+  },
+  "installedReadOnlyStatus": {
+    "error": "deadline",
+    "fingerprint": {
+      "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+      "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": false,
+    "installedLocation": true,
+    "registration": "enabled",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "launchdState": {
+    "state": "spawn scheduled",
+    "programIdentifier": "Contents/MacOS/VentilatorHelper",
+    "parentBundleIdentifier": "dev.ventilator.macos",
+    "validationCategory": 3,
+    "teamIdentifier": "4659S5GD6X",
+    "runs": 7,
+    "lastExitCode": 78,
+    "activeEndpoint": false
+  },
+  "systemLog": {
+    "spawnTime": "2026-10-03 14:18:06.414 +05:00",
+    "inactiveTime": "2026-10-03 14:18:06.424 +05:00",
+    "spawnSucceeded": true,
+    "subsequentExitedStartsObserved": true
+  },
+  "pathReproduction": {
+    "exitCode": 0,
+    "stdout": "{\n  \"error\" : \"invalidLayout\",\n  \"hardwareControlAvailable\" : false,\n  \"helperVerified\" : false,\n  \"installedLocation\" : false,\n  \"registration\" : \"enabled\",\n  \"rootOwned\" : false,\n  \"trustedBundle\" : false\n}\n",
+    "stderr": ""
+  },
+  "hypothesis": "Helper startup path derived from argv[0] can resolve relative BundleProgram from the wrong directory. This path bug is reproduced on signed app with overridden argv; actual root argv unavailable (procargs error22), so the exact daemon refusal stage remains unproven. Current binary emits stderr only; no structured startup error in log.",
+  "developerActions": "Scoped launchd/log/process reads and read-only status/relative-argv reproduction; no ready/sudo/register/approval/SMC writer",
+  "hardwarePreparationReached": false,
+  "physicalAutoVerified": false,
+  "repair": {
+    "executablePath": "dyld loaded path; no argv[0] fallback or early symlink resolution",
+    "relativeArgvRegression": "Real app/helper from cwd=/ with relative, foreign absolute and opaque argv[0]; native layout reached ad hoc signature rejection, candidate hashes matched actual files",
+    "startupLogging": "dev.ventilator.helper/startup: identity, runtime, listener, error; root positive execution not performed",
+    "replacementPolicy": "Exact old hashes/native gates, non-enabled registration, lstat ENOENT entire runtime root; only matching inactive job may be booted out once; absence before staging and moves; preserve separate backup",
+    "unregisterPolicy": "requiresApproval plus lstat ENOENT entire runtime root; initialized state forbids narrow repair; enabled path still verifies root peer and pending/simulation policy",
+    "registrationErrorPolicy": "SMAppServiceErrorDomain code1 normalized only with actual requiresApproval; diagnostic retained, no retry"
+  },
+  "softwareVerification": {
+    "swiftUnitTests": {
+      "passed": 104,
+      "core": 10,
+      "control": 22,
+      "experiment": 56,
+      "installation": 16
+    },
+    "recoveryProcessCases": 17,
+    "localApprovalTTY": 6,
+    "brokerRestartCases": 6,
+    "sessionRuntimeCases": 4,
+    "controlInstallationOwnerDryRuns": "passed; non-root model/ad hoc only",
+    "fullModelReviewUTF8Bytes": 14600,
+    "documents": 13,
+    "bddScenarios": 74,
+    "docsCheck": "No errors",
+    "adHocStrictSignatureVerify": "passed",
+    "nativeWriterAbsentFromGUI": true,
+    "helperSHA256": "5e287756e358debbc4514797d2c4e13af26c700762c7683ea19c09110243d32a",
+    "applicationSHA256": "79d0bc12992a1dfed748155b77bcea64d74879a008442ee53d77873c687fd35f",
+    "installedRootXPCOfNewCode": "not tested; owner signing/update required"
+  },
+  "beforeOwnerUpdate": {
+    "runtimeRoot": "absent (lstat ENOENT)",
+    "installedFingerprint": {
+      "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+      "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "newStageExists": false,
+    "newBackupExists": false,
+    "previousBackupExists": true
+  },
+  "preservedPreviousPackage": {
+    "archive": ".build/owner-session-2026-10-03-deadline-failed",
+    "filesSHA256": {
+      "candidate.json": "657df957fda90f3bde39fb4a80d80a1c1cddeb52dbf45910d34396ef805e3a2a",
+      "sealed.json": "2f2240c62731178919e849c2a2ca8d2e71136544ef1c843d06654ac4a52ee875",
+      "session.py": "240f068f06936c3ee19423cd3074ce37c3f3b7f4d288bd340f522be5714f5197",
+      "replacement-completed.json": "933d177792b9347b4346be690cec30d674c20f436617bae7cfa2fff049346f73",
+      "review.sha256": "1d4b2905bee6f2f3a6a9b5d130ab907729db9958113e5847899c6553003b6514",
+      "manifest.json": "6281f39726fca09f8c949ebf4bd3d87c412911de2fdd5f28576e9bf238a8dc23",
+      "PLAN.md": "d0dbe3fdc7c93162bf34e998678e17b0f2eeee61303e036911b1d9a84b68f63e",
+      "qualification-started.json": "1e3879d22ddb416f25179e1719f076169a9b0c179ccafd8eacc95d67c2d09136",
+      "review.json": "698fb8963658a976212908d001fe8412e9b148976fbdf137d7f515d5a2b11e47",
+      "replacement-started.json": "462c4f25cb52e029e206716aa3e220cca4b62fa2d3e9ca89376f762cf73b6c34",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "5883c89de57b7fb79ccbb5b884bf21cf77e6dbf5028b9c833a9ddc561f2b4b17",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+      "Ventilator.app/Contents/MacOS/Ventilator": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "allFilesPreserved": true,
+    "previousReviewSHA256": "8a94ee40813142c9daac9e1fd180c7e850ddfe6550797dafa1c1f17c2cbb5a95"
+  },
+  "preparedOwnerPackage": {
+    "candidatePlanSHA256": "2c734af3b987dfbf1f5e62c4448641e7ea511a090cb5675ffaff83c1bb0c139c",
+    "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+    "fingerprint": {
+      "applicationSHA256": "79d0bc12992a1dfed748155b77bcea64d74879a008442ee53d77873c687fd35f",
+      "helperSHA256": "5e287756e358debbc4514797d2c4e13af26c700762c7683ea19c09110243d32a",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareWritesExecuted": 0,
+    "installedReplacement": {
+      "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+      "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "packageFiles": {
+      "PLAN.md": "ee2dc702aeabc035f8d846c4e2269a26f206a71496b6bee09672141b928b42b7",
+      "session.py": "df70644a04b90059768eba56788fee08f38751726c6bceed0c0120f64c90169a"
+    },
+    "schema": 1,
+    "signed": false,
+    "teamIdentifier": "4659S5GD6X",
+    "planUTF8Bytes": 12277,
+    "check": "passed; not signed/sealed; no owner commands executed"
+  },
+  "hardwareWritesExecuted": 0
+}

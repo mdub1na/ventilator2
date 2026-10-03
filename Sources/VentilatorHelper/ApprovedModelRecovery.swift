@@ -1,5 +1,6 @@
 import Darwin
 import Foundation
+import VentilatorInstallation
 import VentilatorControl
 import VentilatorExperiment
 
@@ -30,7 +31,7 @@ func runApprovedModelParent(directory: URL, fault: ModelRecoveryCase) throws {
     try journal.saveSimulationDevice(SimulationDeviceState())
     let process = Process(), input = Pipe(), output = Pipe()
     let channel = try WorkerChannel(input: output.fileHandleForReading.fileDescriptor, output: input.fileHandleForWriting.fileDescriptor)
-    process.executableURL = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
+    process.executableURL = try CurrentExecutable.url()
     process.arguments = ["--approved-model-broker", directory.path]
     process.standardInput = input; process.standardOutput = output; process.standardError = FileHandle.standardError
     try process.run()

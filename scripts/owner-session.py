@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -12,8 +13,8 @@ import sys
 CERTIFICATE = "4895C06FF7407EAF5F350E78CF23D0B41AD466C9"
 TEAM = "4659S5GD6X"
 INSTALLED = Path("/Applications/Ventilator.app")
-REPLACEMENT_STAGE = Path("/Applications/Ventilator-registration-fix-staging.app")
-REPLACEMENT_BACKUP = Path("/Applications/Ventilator-before-registration-fix.app")
+REPLACEMENT_STAGE = Path("/Applications/Ventilator-helper-path-staging.app")
+REPLACEMENT_BACKUP = Path("/Applications/Ventilator-before-helper-path-fix.app")
 HARDWARE_ROOT = Path("/Library/Application Support/Ventilator")
 ROOT = Path(__file__).resolve().parents[1] if Path(__file__).parent.name == "scripts" else None
 SESSION = ROOT / ".build/owner-session" if ROOT else Path(__file__).resolve().parent
@@ -243,9 +244,27 @@ def admit_replacement(report, actual, previous, hardware_root_exists):
         raise RuntimeError("Installed bundle differs from the pinned previous package")
     if not all(report.get(k) is True for k in ["trustedBundle", "rootOwned", "installedLocation"]):
         raise RuntimeError("Previous installed identity/ownership not verified")
-    if report.get("registration") not in ["notFound", "notRegistered"] or report.get("error") != "serviceNotEnabled" or \
+    if report.get("registration") not in ["notFound", "notRegistered", "requiresApproval"] or report.get("error") != "serviceNotEnabled" or \
             report.get("helperVerified") is not False or report.get("hardwareControlAvailable") is not False:
-        raise RuntimeError("Replacement requires an unregistered, inactive helper")
+        raise RuntimeError("Replacement requires a disabled, unstarted helper")
+
+
+def launchd_job_present():
+    result = subprocess.run(["/bin/launchctl", "print", "system/dev.ventilator.helper"],
+                            capture_output=True, text=True, timeout=5)
+    if result.returncode == 113 and 'Could not find service "dev.ventilator.helper"' in result.stderr:
+        return False
+    if result.returncode != 0:
+        raise RuntimeError("Could not establish launchd job state: " + result.stderr.strip())
+    fields = [r"managed_by = com\.apple\.xpc\.ServiceManagement",
+              r"parent bundle identifier = dev\.ventilator\.macos",
+              r"program identifier = Contents/MacOS/VentilatorHelper \(mode: 2\)",
+              r"state = (?:not running|spawn scheduled)"]
+    if not result.stdout.startswith("system/dev.ventilator.helper = {") or \
+            not all(re.search(r"(?m)^\s*" + field + r"\s*$", result.stdout) for field in fields) or \
+            re.search(r"(?m)^\s*pid\s*=", result.stdout):
+        raise RuntimeError("Launchd job is active or does not match the expected helper")
+    return True
 
 
 def replace_installed():
@@ -269,6 +288,13 @@ def replace_installed():
     if os.path.lexists(REPLACEMENT_STAGE) or os.path.lexists(REPLACEMENT_BACKUP):
         raise RuntimeError("Replacement staging/backup already exists; preserve it and stop")
     save("replacement-started.json", {"previous": previous, "hardwareWritesExecuted": 0})
+    # Owner first disables background permission. The state-root gate proves no initialized
+    # runtime/approval/ledger exists; only a verified inactive job may be booted out once.
+    if launchd_job_present():
+        verify_previous()
+        subprocess.run(["sudo", "/bin/launchctl", "bootout", "system/dev.ventilator.helper"], check=True)
+    if launchd_job_present():
+        raise RuntimeError("Launchd job remains; preserve state and stop")
     for command in [["sudo", "/usr/bin/ditto", str(SESSION / "Ventilator.app"), str(REPLACEMENT_STAGE)],
                     ["sudo", "/usr/sbin/chown", "-R", "root:wheel", str(REPLACEMENT_STAGE)],
                     ["sudo", "/bin/chmod", "-R", "go-w", str(REPLACEMENT_STAGE)]]:
@@ -278,11 +304,13 @@ def replace_installed():
     if staged.get("trustedBundle") is not True or staged.get("rootOwned") is not True or staged.get("fingerprint") != seal["fingerprint"]:
         raise RuntimeError("Staged signed/root-owned bundle not verified")
     verify_previous()
+    if launchd_job_present():
+        raise RuntimeError("Launchd job appeared during staging; do not move bundles")
     subprocess.run(["sudo", "/bin/mv", str(INSTALLED), str(REPLACEMENT_BACKUP)], check=True)
     subprocess.run(["sudo", "/bin/mv", str(REPLACEMENT_STAGE), str(INSTALLED)], check=True)
     installed_check()
     save("replacement-completed.json", {"previous": previous, "fingerprint": seal["fingerprint"], "hardwareWritesExecuted": 0})
-    print("Replaced exact unregistered bundle; old signed app preserved at", REPLACEMENT_BACKUP)
+    print("Replaced exact disabled unstarted bundle; old signed app preserved at", REPLACEMENT_BACKUP)
 
 
 def service(command):

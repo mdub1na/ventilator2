@@ -74,7 +74,7 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 
 Подготовленный [session runtime](../features/feature-owner-experiment-runtime.md) связывает receipt, preflight и broker; новые experimental heartbeat/restore/status RPC отделены от simulation. Startup daemon продолжает только оставшиеся Auto при свободном lifetime lock и точном boot/binary binding. Hardware pending остаётся для владельческого результата.
 
-[Единый сеанс владельца](../owner-session.md) подготовлен: Terminal client удерживает проверенное соединение, root staging импортирует full review, audit читает защищённый outcome. Независимые baseline/Fixed/три Auto сохраняются с фактическими значениями. Подпись и installed gate новой сборки подтверждены; системное одобрение, enabled root XPC и hardware positive пока не проверены.
+[Единый сеанс владельца](../owner-session.md) подготовлен: Terminal client удерживает проверенное соединение, root staging импортирует full review, audit читает защищённый outcome. Независимые baseline/Fixed/три Auto сохраняются с фактическими значениями. Системное одобрение старой сборки выполнено, но enabled helper завершается exit 78; root XPC/hardware positive не подтверждены. Ошибка пути argv[0] воспроизведена и исправлена; bundle/candidate/child paths теперь используют `CurrentExecutable`, startup этапы пишутся в unified log. Новый код проверен на модели, требуется подпись/disabled update и новый root handshake. [Диагностика](../research/evidence/owner-ready-deadline.json).
 
 ## Code anchors
 
