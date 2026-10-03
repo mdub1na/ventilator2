@@ -1,0 +1,140 @@
+{
+  "date": "2026-10-03",
+  "ownerCommand": "python3 /Users/mdub1na/IdeaProjects/ventilator2/.build/owner-session/session.py setup",
+  "beforeRegisterMarker": {
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareWritesExecuted": 0,
+    "previousStatus": "notRegistered"
+  },
+  "afterRegisterMarkerAndOwnerOutput": {
+    "error": "serviceNotEnabled",
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": false,
+    "installedLocation": true,
+    "registration": "requiresApproval",
+    "registrationDiagnostic": "Error Domain=SMAppServiceErrorDomain Code=1 \"Operation not permitted\" UserInfo={NSLocalizedFailureReason=Operation not permitted}",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "wrapperOutcome": {
+    "message": "Setup paused for system approval. Do not repeat setup/register; follow PLAN.md.",
+    "readyCalled": false,
+    "reviewStaged": false
+  },
+  "laterNativeReadOnlyStatus": {
+    "error": "remoteFailure",
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": false,
+    "installedLocation": true,
+    "registration": "enabled",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "nativeStatusLogTime": "2026-10-03 21:32:54 (unified log local time)",
+  "registrationLogEvents": [
+    {
+      "time": "21:31:45.804",
+      "process": "smd",
+      "message": "Found status: 0; effective disposition disabled, disallowed, not notified",
+      "correlation": "Ventilator caller PID 83086; resolved canonical appURL and plist/hash"
+    },
+    {
+      "time": "21:31:45.809",
+      "process": "backgroundtaskmanagementd",
+      "message": "Existing VentilatorHelper item 16.dev.ventilator.helper; UUID 7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F"
+    },
+    {
+      "time": "21:31:45.809",
+      "process": "smd",
+      "message": "Job is not allowed to bootstrap; effective disposition enabled, disallowed, not notified",
+      "correlation": "same register call"
+    },
+    {
+      "time": "21:31:45.811",
+      "process": "smd",
+      "message": "Creating an item for a daemon that doesn't have uid 0, uid: -2; bootstrap completed error: 1",
+      "limit": "OS item bookkeeping diagnostic; not evidence that VentilatorHelper ran with a non-root UID"
+    },
+    {
+      "time": "21:31:45.815",
+      "process": "smd",
+      "message": "Found status: 2",
+      "correlation": "same Ventilator caller; requiresApproval report"
+    },
+    {
+      "time": "21:32:54.644",
+      "process": "smd",
+      "message": "Found status: 1",
+      "correlation": "installed --helper-status PID 83320; enabled report"
+    }
+  ],
+  "launchd": {
+    "target": "system/dev.ventilator.helper",
+    "printExitCode": 113,
+    "found": false,
+    "printDisabledEntry": "enabled",
+    "meaning": "No disabled override observed; this does not prove that the job is loaded."
+  },
+  "runtime": {
+    "path": "/Library/Application Support/Ventilator",
+    "lstatErrno": 2,
+    "exists": false
+  },
+  "settingsReadOnlyAX": {
+    "window": "Объекты входа",
+    "elementID": "background-switch-Ventilator",
+    "value": "on",
+    "description": "Работало в фоновом режиме сегодня",
+    "agentChangedSetting": false
+  },
+  "currentBTMDump": {
+    "completed": false,
+    "stdoutBytes": 0,
+    "terminated": true,
+    "exitCode": 130,
+    "limit": "No current BTM record snapshot obtained; historical records are not asserted as current."
+  },
+  "diagnosis": "The single register reached requiresApproval; setup preserved the result and paused before ready. A later read-only status reports enabled, but the root XPC request fails and launchd has no job. The transition cause and effective current OS authorization are not established. No repeated registration or helper retry was performed by the developer.",
+  "ownerInformationPending": "Whether a new system notification after setup was allowed with administrator authentication. Requested once; no new action sequence prescribed until clarified.",
+  "appleReference": {
+    "url": "https://developer.apple.com/forums/thread/802443",
+    "verifiedOn": "2026-10-03",
+    "scope": "DTS example on macOS 15.6.1: error 1 before Allow/authentication; job is loaded after approval. It does not explain the enabled-without-job observation on macOS 27."
+  },
+  "packagePreservation": {
+    "path": ".build/owner-session",
+    "unchangedSealedFiles": 13,
+    "addedOwnerMarkers": [
+      "registration-completed.json",
+      "registration-started.json"
+    ],
+    "fileCount": 15,
+    "reviewSHA256": "4cb17d79e12c2f77e65970e45319dc714d471cf8c433afaf58e1beafa8815bee",
+    "planAndScriptEdited": false,
+    "installedFilesEdited": false
+  },
+  "rootXPC": "not verified",
+  "hardwareExperimentStarted": false,
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "verification": {
+    "documents": "docs_check.py --on-main: 13 documents, 81 BDD scenarios, no errors",
+    "whitespace": "git diff --check passed",
+    "evidence": "Exact owner marker and saved native report equality; all 13 sealed package SHA-256 values unchanged",
+    "nativeCodeChanged": false
+  }
+}
