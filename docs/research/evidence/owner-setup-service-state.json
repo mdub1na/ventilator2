@@ -109,7 +109,6 @@
     "limit": "No current BTM record snapshot obtained; historical records are not asserted as current."
   },
   "diagnosis": "The single register reached requiresApproval; setup preserved the result and paused before ready. A later read-only status reports enabled, but the root XPC request fails and launchd has no job. The transition cause and effective current OS authorization are not established. No repeated registration or helper retry was performed by the developer.",
-  "ownerInformationPending": "Whether a new system notification after setup was allowed with administrator authentication. Requested once; no new action sequence prescribed until clarified.",
   "appleReference": {
     "url": "https://developer.apple.com/forums/thread/802443",
     "verifiedOn": "2026-10-03",
@@ -136,5 +135,10 @@
     "whitespace": "git diff --check passed",
     "evidence": "Exact owner marker and saved native report equality; all 13 sealed package SHA-256 values unchanged",
     "nativeCodeChanged": false
-  }
+  },
+  "ownerFollowUp": {
+    "answer": "не появлялось уведомление и подтверждение",
+    "meaning": "No new notification or administrative confirmation after setup is reported. The later enabled state is not attributed to a new Allow action."
+  },
+  "nextDiagnosticPreparation": "owner-registration-diagnostics-preparation.json"
 }
