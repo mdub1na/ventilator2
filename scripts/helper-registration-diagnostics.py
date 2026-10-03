@@ -81,7 +81,50 @@ def scoped_btm(text):
     return records
 
 
-def prepare(repo):
+def unstarted_job_absent():
+    metadata = runtime_metadata()
+    if metadata.get("lstatErrno") != 2:
+        raise RuntimeError("Runtime state exists or cannot be inspected; system permission cycle refused")
+    result = subprocess.run(["/bin/launchctl", "print", "system/dev.ventilator.helper"],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=5)
+    if result.returncode != 113:
+        raise RuntimeError("Job exists or its absence is uncertain; system permission cycle refused")
+    return metadata
+
+
+def approval_prerequisite(repo):
+    previous = repo / ".build/helper-registration-diagnostics"
+    manifest = check(previous)
+    result = json.loads((previous / "result.json").read_text())
+    if (result.get("scriptSHA256") != manifest["scriptSHA256"] or result.get("planSHA256") != manifest["planSHA256"] or
+            result.get("installedFingerprint") != manifest["installedFingerprint"] or
+            result.get("hardwareWritesExecuted") != 0 or result.get("steps", {}).get("launchd", {}).get("exitCode") != 113):
+        raise RuntimeError("Exact previous administrative snapshot required")
+    if (result.get("runtimeBefore", {}).get("lstatErrno") != 2 or
+            result.get("runtimeAfter", {}).get("lstatErrno") != 2 or
+            result["steps"]["launchd"] != json.loads((previous / "launchd.json").read_text()) or
+            result["steps"]["btm"] != json.loads((previous / "btm.json").read_text())):
+        raise RuntimeError("Previous runtime absence and matching step records required")
+    btm = result.get("steps", {}).get("btm", {})
+    if btm.get("exitCode") != 0 or btm.get("complete") is not True or btm.get("formatRecognized") is not True:
+        raise RuntimeError("Complete recognized administrative BTM snapshot required")
+    parents = {r["uid"]: r["fields"] for r in btm.get("records", [])
+               if r["fields"].get("Identifier") == "2.dev.ventilator.macos"}
+    for uid in (-2, os.getuid()):
+        if (parents.get(uid, {}).get("URL") != "/Applications/Ventilator.app" or
+                "pending authorization" not in parents.get(uid, {}).get("Disposition", "")):
+            raise RuntimeError("Canonical pending app records for this owner required")
+    children = [r["fields"] for r in btm["records"] if r["fields"].get("Identifier") == "16.dev.ventilator.helper"]
+    if (len(children) != 1 or children[0].get("Parent Identifier") != "2.dev.ventilator.macos" or
+            children[0].get("URL") != "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist" or
+            children[0].get("Executable Path") != "Contents/MacOS/VentilatorHelper" or
+            not children[0].get("Disposition", "").startswith("[enabled, allowed,")):
+        raise RuntimeError("Exact helper/parent association required")
+    paths = ["snapshot.py", "PLAN.md", "manifest.json", "started.json", "launchd.json", "btm.json", "result.json"]
+    return {"ownerUID": os.getuid(), "sourceFilesSHA256": {name: digest(previous / name) for name in paths}}
+
+
+def prepare(repo, approval=False):
     if os.geteuid() == 0:
         raise RuntimeError("Prepare as the ordinary developer, without sudo")
     owner = repo / ".build/owner-session"
@@ -97,17 +140,23 @@ def prepare(repo):
     installed = Path("/Applications/Ventilator.app")
     if {key: digest(installed / name) for key, name in INSTALLED_FILES.items()} != fingerprint:
         raise RuntimeError("Installed fingerprint changed")
-    package = repo / ".build/helper-registration-diagnostics"
+    prerequisite = approval_prerequisite(repo) if approval else None
+    if approval:
+        unstarted_job_absent()
+    package = repo / (".build/helper-registration-approval" if approval else ".build/helper-registration-diagnostics")
     package.mkdir(mode=0o700)
     shutil.copyfile(Path(__file__), package / "snapshot.py")
-    shutil.copyfile(repo / "docs/helper-registration-diagnostics.md", package / "PLAN.md")
+    plan_name = "helper-registration-approval.md" if approval else "helper-registration-diagnostics.md"
+    shutil.copyfile(repo / "docs" / plan_name, package / "PLAN.md")
     save(package / "manifest.json", {
         "preparedAt": now(), "installedFingerprint": fingerprint,
         "ownerFilesSHA256": {name: digest(owner / name) for name in sorted(names)},
         "scriptSHA256": digest(package / "snapshot.py"), "planSHA256": digest(package / "PLAN.md"),
         "commands": COMMANDS, "hardwareWritesExecuted": 0,
+        "purpose": "oneSystemApprovalCycle" if approval else "readOnlySnapshot",
+        "approvalPrerequisite": prerequisite,
     })
-    print(f"Prepared read-only diagnostic package: {package}")
+    print(f"Prepared owner system session: {package}")
 
 
 def check(package, installed=Path("/Applications/Ventilator.app")):
@@ -125,6 +174,16 @@ def check(package, installed=Path("/Applications/Ventilator.app")):
         raise RuntimeError("Owner session advanced; preserve state and diagnose")
     if {key: digest(installed / name) for key, name in INSTALLED_FILES.items()} != manifest["installedFingerprint"]:
         raise RuntimeError("Installed fingerprint changed")
+    if manifest.get("purpose") == "oneSystemApprovalCycle":
+        proof = manifest["approvalPrerequisite"]
+        if proof["ownerUID"] != os.getuid():
+            raise RuntimeError("The original owner account is required")
+        previous = package.parent / "helper-registration-diagnostics"
+        for name, expected in proof["sourceFilesSHA256"].items():
+            if digest(previous / name) != expected:
+                raise RuntimeError(f"Previous administrative evidence changed: {name}")
+    elif manifest.get("purpose", "readOnlySnapshot") != "readOnlySnapshot":
+        raise RuntimeError("Unknown diagnostic purpose")
     return manifest
 
 
@@ -136,12 +195,21 @@ def owner_terminal():
 def collect(package):
     owner_terminal()
     manifest = check(package)
+    approval = manifest.get("purpose") == "oneSystemApprovalCycle"
+    if approval:
+        unstarted_job_absent()
     # Exclusive marker precedes the first privileged command. A stopped attempt is never replayed.
     save(package / "started.json", {"startedAt": now(), "scriptSHA256": manifest["scriptSHA256"], "hardwareWritesExecuted": 0})
     print((package / "PLAN.md").read_text(), flush=True)
     report = {"startedAt": now(), "installedFingerprint": manifest["installedFingerprint"],
               "scriptSHA256": manifest["scriptSHA256"], "planSHA256": manifest["planSHA256"],
               "runtimeBefore": runtime_metadata(), "hardwareWritesExecuted": 0, "steps": {}}
+    if approval:
+        answer = input("One Ventilator off/on cycle in System Settings, authenticate if prompted; then type DONE here: ")
+        if answer != "DONE":
+            raise RuntimeError("Owner cycle not confirmed; no administrative snapshot requested")
+        report["ownerActionReported"] = "One off/on cycle of Ventilator; authentication if prompted"
+        save(package / "owner-action.json", {"reportedAt": now(), "action": report["ownerActionReported"], "hardwareWritesExecuted": 0})
     for name in ("launchd", "btm"):
         print(f"Read-only {name}: sudo authentication in this Terminal; then bounded system read.", flush=True)
         # Inherit stderr so sudo's password prompt and native diagnostics remain visible.
@@ -167,12 +235,12 @@ def collect(package):
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("prepare", "collect"):
+    if len(sys.argv) != 2 or sys.argv[1] not in ("prepare", "prepare-approval", "collect"):
         raise RuntimeError("Use prepare from the repository or collect from the frozen diagnostic package")
     source = Path(__file__).absolute()
-    if sys.argv[1] == "prepare":
-        prepare(source.parent.parent)
-    elif source.parent.name == "helper-registration-diagnostics":
+    if sys.argv[1] in ("prepare", "prepare-approval"):
+        prepare(source.parent.parent, approval=sys.argv[1] == "prepare-approval")
+    elif source.parent.name in ("helper-registration-diagnostics", "helper-registration-approval"):
         collect(source.parent)
     else:
         raise RuntimeError("Collect only from the prepared .build/helper-registration-diagnostics/snapshot.py")

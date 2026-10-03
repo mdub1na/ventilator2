@@ -1,0 +1,109 @@
+{
+  "verifiedAt": "2026-10-04T00:05:26+05:00",
+  "purpose": "oneSystemApprovalCycle",
+  "preparedAt": "2026-10-03T23:57:35+05:00",
+  "packagePath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/helper-registration-approval",
+  "manifest": {
+    "preparedAt": "2026-10-03T23:57:35+05:00",
+    "installedFingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "ownerFilesSHA256": {
+      "PLAN.md": "80217afe0faa01f7e8ea1765117ae1c53a05cd6a61a3bbb9f79c48d7dae225a7",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Ventilator.app/Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb",
+      "candidate.json": "611beae7cc61f2ab0b3a5892f33400fedeec11b73502610a59cefcc28d3c6243",
+      "manifest.json": "47c12ec7064781a0153ffcb04b9ab2178ad2e8dd7793a52b3428cd45ed49073a",
+      "qualification-started.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "registration-completed.json": "917c6151abd8cf09cddc4a72d69410e6665cc50b731279f52f81fc91e111e2e6",
+      "registration-started.json": "37263e896658b2a756d1541d9a593e6eddd2702a10162bba19824652667693f0",
+      "review.json": "6cb96a66cdbcd7b391a9f150e278e2cdaa885a951359ef3110d7c72cb911cf49",
+      "review.sha256": "d563760ece4ff61363aa45a9e3138cb85112f5df7e9b7dea9aa9f126cf0383ae",
+      "sealed.json": "ce83ee9d947a79e9ba927d0de532a87ff8c09bb26a9a14cebf2dc5f764098001",
+      "session.py": "f475e8413456043d99f165cccddd7438487ac3a81da1e37c7ae1b800cc48ae90"
+    },
+    "scriptSHA256": "dfa54b2b869bec26bc01e148d2306fe936d8d2ad562ff777110ba188e706facc",
+    "planSHA256": "e704614d89bf989f9bfa54424c4a08c222dccaa1657d60e501323dc47d75fda0",
+    "commands": {
+      "launchd": [
+        "/usr/bin/sudo",
+        "--",
+        "/usr/bin/perl",
+        "-e",
+        "alarm 5; exec \"/bin/launchctl\", \"print\", \"system/dev.ventilator.helper\"; die \"exec failed\\n\";"
+      ],
+      "btm": [
+        "/usr/bin/sudo",
+        "--",
+        "/usr/bin/perl",
+        "-e",
+        "alarm 20; exec \"/usr/bin/sfltool\", \"dumpbtm\"; die \"exec failed\\n\";"
+      ]
+    },
+    "hardwareWritesExecuted": 0,
+    "purpose": "oneSystemApprovalCycle",
+    "approvalPrerequisite": {
+      "ownerUID": 501,
+      "sourceFilesSHA256": {
+        "snapshot.py": "dc6950f39a93c0063df9737a72f274a31cc3b3afe510b8ce5b9fefe8a8df525e",
+        "PLAN.md": "083cbefab229df1217cf23a2d710baa8e0a9a1766ffda0213f389f2a7784f698",
+        "manifest.json": "a0b81a1dc6a1a04252ca24a82ce1a2f0e4ded9e580e7206e7699eac5d6af6f32",
+        "started.json": "ba522141b37943d527cf33cddfd6e9e26c3f57856d08a1eda45e45a7db6ac7ff",
+        "launchd.json": "0c30d793b60848124d98be32a1a8d1fc835e7ec45c95108877cded9aef0d0e67",
+        "btm.json": "3cc284394e2a37859786bad898dbcf2c26fb9d4cf02d6de7d0f93a0e7f09e511",
+        "result.json": "e95d61ff25d5d16d74c8fd3e6a63a263d9ff1592c8c41ad0714eb13e0eb969c9"
+      }
+    }
+  },
+  "frozenSourceMatches": true,
+  "unstarted": true,
+  "admission": {
+    "runtimeMetadata": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    },
+    "normalUserJobAbsentExit": 113,
+    "ownerUID": 501
+  },
+  "actualNoTTYCollection": {
+    "exitCode": 1,
+    "stderr": "STOP: Run this one explicit action in the owner's non-root Terminal, without sudo. Preserve the snapshot; no retry.",
+    "markerCreated": false,
+    "privilegedCommandsExecuted": false
+  },
+  "preservation": {
+    "ownerFilesCount": 15,
+    "previousDiagnosticFilesCount": 7,
+    "installedFingerprintsUnchanged": true
+  },
+  "verification": {
+    "modelScript": "scripts/helper-registration-diagnostics-dry-run.py",
+    "modelOutput": "docs/research/evidence/system-approval-session-dry-run.txt",
+    "actualSystemTogglePerformed": false,
+    "liveRootPeerVerified": false,
+    "dryRunPassed": true,
+    "docsCheck": {
+      "command": ".venv-docs/bin/python scripts/docs_check.py --on-main",
+      "documents": 13,
+      "bddScenarios": 86,
+      "errors": 0
+    },
+    "gitDiffCheckPassed": true
+  },
+  "ownerSequence": [
+    "Run prepared snapshot.py collect in the non-root owner Terminal",
+    "Only when prompted: one off/on of Ventilator in System Settings; authenticate if prompted",
+    "Type DONE in the same Terminal",
+    "Authenticate the two fixed read-only administrative commands if prompted",
+    "After Saved report the snapshot and stop; do not repeat"
+  ],
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "limitations": "The BTM mismatch remains unexplained. The single system cycle is a bounded owner test, not a guaranteed fix. Existing hardware review is preserved; a complete updated hardware plan is required before physical continuation."
+}

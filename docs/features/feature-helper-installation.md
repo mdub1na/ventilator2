@@ -12,7 +12,9 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. Последняя чистая установка signed/root-owned bundle подтверждена. **Один owner setup получил requiresApproval и остановился; последующий read-only status — enabled/remoteFailure при отсутствующем launchd job**, helperVerified=false. Причина смены статуса пока не установлена. [Последние факты](../research/evidence/owner-setup-service-state.json). Исправлена воспроизведённая ошибка пути запуска, но installed root XPC новой сборки ещё не проверен. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
+Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. Signed/root-owned установка подтверждена. После owner setup requiresApproval последующий native status стал enabled/remoteFailure. **Административный снимок подтвердил отсутствующий system job (113), enabled/allowed helper record и pending authorization у parent app для UID -2 и 501**; runtime root отсутствует. Точная причина расхождения не установлена, живой root XPC ещё не подтверждён. [Последние факты](../research/evidence/owner-registration-administrative-snapshot.json). GUI-кнопки RPM отключены.
+
+Подготовлен отдельный [полный системный сеанс](../helper-registration-approval.md): владелец один раз выключает/включает только Ventilator, после DONE wrapper собирает два bounded административных чтения. Admission требует текущие owner/installed hashes, exact предыдущий административный снимок, исходный owner UID и отсутствие runtime/job перед действием. Exclusive marker запрещает повтор UI prompt и sudo; отмена до DONE исключает sudo. Wrapper не вызывает app/helper или lifecycle команды и не создаёт hardware approval. Фактический успех системного действия на macOS 27 остаётся непроверенным. [Подготовка и проверки](../research/evidence/owner-system-approval-session.json).
 
 ## Проверки и границы
 
@@ -83,7 +85,7 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 | Native gate | `Sources/VentilatorExperiment/NativeExperimentDevice.swift` |
 | Signing gate | `tools/sign_without_ui.swift`, `scripts/sign-app-without-ui.py` |
 | Owner seal и online public certificate qualification | `scripts/owner-session.py`, `Sources/VentilatorInstallation/CertificateQualification.swift` |
-| Отдельный read-only снимок system job / BTM | `scripts/helper-registration-diagnostics.py`, `scripts/helper-registration-diagnostics-dry-run.py` |
+| Снимок system job / BTM и один owner цикл системного разрешения | `scripts/helper-registration-diagnostics.py`, `scripts/helper-registration-diagnostics-dry-run.py` |
 | Проверки | `Tests/VentilatorInstallationTests/InstallationTests.swift`, `scripts/installation-dry-run.py` |
 
 ### Scenario: Ad hoc bundle не устанавливает helper
@@ -179,6 +181,22 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Дано:** BTM dump с несколькими UID, embedded numbering и записями других приложений.
 **Когда:** snapshot извлекает app/helper records.
 **Тогда:** UID, URL и parent disposition Ventilator сохраняются, похожее имя с другим identifier и чужие записи исключаются. Незнакомый формат помечается отдельно; пустой stdout не доказывает отсутствие records.
+
+**Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
+
+### Scenario: Системный цикл требует отсутствующего job и runtime
+
+**Дано:** пакет одного owner цикла, привязанный к предыдущему полному административному снимку и исходному owner UID.
+**Когда:** runtime существует или недоступен, job загружен, owner UID либо прошлый снимок изменился.
+**Тогда:** отказ происходит до owner UI prompt и sudo. Старый аппаратный пакет сохраняется.
+
+**Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
+
+### Scenario: Отмена и повтор системного цикла
+
+**Дано:** допустимый owner сеанс с exclusive marker до ручного системного действия.
+**Когда:** владелец отменяет ввод либо сообщает DONE после одного цикла; затем пытается повторить collect.
+**Тогда:** отмена исключает sudo; DONE выполняет только два фиксированных system read, сохраняет owner report без hardware approval. Повтор не показывает UI prompt и не вызывает sudo. DONE само по себе не подтверждает системное разрешение или root peer.
 
 **Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
 

@@ -131,4 +131,87 @@ with tempfile.TemporaryDirectory(prefix="ventilator-registration-denied-", dir=r
         report = json.loads((package / "result.json").read_text())
         assert report["stoppedAt"] == "launchd" and "btm" not in report["steps"]
     print("Sudo refusal stops before BTM; partial result retained without a second administrative command.")
-print("Registration diagnostics dry-run passed; no registration, installed app execution, root commands or SMC.")
+for metadata in [{"exists": True}, {"exists": None, "lstatErrno": 13}]:
+    with patch.object(snapshot, "runtime_metadata", return_value=metadata), patch.object(snapshot.subprocess, "run") as external:
+        try:
+            snapshot.unstarted_job_absent()
+            raise AssertionError("Existing/unknown runtime admitted for cycle")
+        except RuntimeError:
+            pass
+        external.assert_not_called()
+with patch.object(snapshot, "runtime_metadata", return_value={"lstatErrno": 2}), \
+        patch.object(snapshot.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, "job loaded")):
+    try:
+        snapshot.unstarted_job_absent()
+        raise AssertionError("Loaded job admitted for cycle")
+    except RuntimeError:
+        pass
+print("System cycle refuses runtime presence/unreadability and loaded job before owner UI action.")
+
+# Admission must bind the original owner and the previous administrative evidence before UI or sudo.
+with tempfile.TemporaryDirectory(prefix="ventilator-system-proof-model-", dir=root / ".build") as directory:
+    work = Path(directory)
+    previous = work / "helper-registration-diagnostics"
+    package = work / "helper-registration-approval"
+    owner = work / "owner-session"
+    previous.mkdir(); package.mkdir(); owner.mkdir()
+    (previous / "result.json").write_text("model previous evidence")
+    (owner / "sealed.json").write_text("model owner seal")
+    (package / "snapshot.py").write_text("model script")
+    (package / "PLAN.md").write_text("model one system cycle")
+    cycle_manifest = dict(manifest, purpose="oneSystemApprovalCycle",
+                          scriptSHA256=snapshot.digest(package / "snapshot.py"),
+                          planSHA256=snapshot.digest(package / "PLAN.md"),
+                          ownerFilesSHA256={"sealed.json": snapshot.digest(owner / "sealed.json")},
+                          approvalPrerequisite={"ownerUID": os.getuid(),
+                                                "sourceFilesSHA256": {"result.json": snapshot.digest(previous / "result.json")}})
+    snapshot.save(package / "manifest.json", cycle_manifest)
+    with patch.object(snapshot, "digest", side_effect=lambda p: fingerprints[next(k for k, n in snapshot.INSTALLED_FILES.items()
+                      if str(p).endswith(n))] if str(p).startswith("/Applications/") else hashlib.sha256(p.read_bytes()).hexdigest()):
+        snapshot.check(package)
+        for substitution in ("owner", "evidence"):
+            (previous / "result.json").write_text("changed" if substitution == "evidence" else "model previous evidence")
+            with patch.object(snapshot.os, "getuid", return_value=os.getuid() + (1 if substitution == "owner" else 0)), \
+                    patch.object(snapshot, "owner_terminal"), patch("builtins.input") as owner_input, \
+                    patch.object(snapshot.subprocess, "run") as external:
+                try:
+                    snapshot.collect(package)
+                    raise AssertionError("Changed owner/evidence admitted")
+                except RuntimeError:
+                    pass
+                owner_input.assert_not_called(); external.assert_not_called()
+                assert not (package / "started.json").exists()
+print("Changed owner UID or previous administrative evidence refused before UI prompt, marker or sudo.")
+
+for answer in ("cancel", "DONE"):
+    with tempfile.TemporaryDirectory(prefix="ventilator-system-cycle-model-", dir=root / ".build") as directory:
+        package = Path(directory)
+        (package / "PLAN.md").write_text("Model one system cycle; no hardware approval.")
+        cycle_manifest = dict(manifest, purpose="oneSystemApprovalCycle")
+        with patch.object(snapshot, "owner_terminal"), patch.object(snapshot, "check", return_value=cycle_manifest), \
+                patch.object(snapshot, "unstarted_job_absent"), \
+                patch.object(snapshot, "runtime_metadata", return_value={"lstatErrno": 2}), \
+                patch("builtins.input", return_value=answer) as owner_input, \
+                patch.object(snapshot.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, "")) as external:
+            if answer == "cancel":
+                try:
+                    snapshot.collect(package)
+                    raise AssertionError("Canceled UI cycle proceeded")
+                except RuntimeError:
+                    pass
+                external.assert_not_called()
+            else:
+                snapshot.collect(package)
+                assert external.call_count == 2 and (package / "owner-action.json").exists()
+                report = json.loads((package / "result.json").read_text())
+                assert "ownerActionReported" in report and report["hardwareWritesExecuted"] == 0
+                assert [c.args[0] for c in external.call_args_list] == list(snapshot.COMMANDS.values())
+            owner_input.reset_mock(); external.reset_mock()
+            try:
+                snapshot.collect(package)
+                raise AssertionError("Owner UI cycle replayed")
+            except FileExistsError:
+                pass
+            owner_input.assert_not_called(); external.assert_not_called()
+print("Cancel stops before sudo; DONE performs two fixed reads only; marker blocks repeated UI prompt and sudo.")
+print("Registration diagnostics dry-run passed; no registration, actual UI cycle, installed app execution, root commands or SMC.")
