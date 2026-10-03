@@ -76,6 +76,8 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 
 [Единый сеанс владельца](../owner-session.md) подготовлен: Terminal client удерживает проверенное соединение, root staging импортирует full review, audit читает защищённый outcome. Независимые baseline/Fixed/три Auto сохраняются с фактическими значениями. Системное одобрение старой сборки выполнено, но enabled helper завершается exit 78; root XPC/hardware positive не подтверждены. Ошибка пути argv[0] воспроизведена и исправлена; bundle/candidate/child paths теперь используют `CurrentExecutable`, startup этапы пишутся в unified log. Новый код проверен на модели, требуется подпись/disabled update и новый root handshake. [Диагностика](../research/evidence/owner-ready-deadline.json).
 
+Продолжение: подпись исправления уже выполнена; public qualification отказал, затем отдельная диагностика прошла на exact файлах. Wrapper разделяет sign/qualify и их результаты; developer resume использует сохранённые signed файлы, без новой подписи. Installed update/root handshake всё ещё требуют владельца. [Свидетельство](../research/evidence/owner-signing-stages.json).
+
 ## Code anchors
 
 | Компонент | Code |

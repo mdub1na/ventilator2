@@ -58,6 +58,8 @@ PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https:/
 
 2026-10-03: ready остановился с deadline до review staging. Launchd успешно запускал helper, но тот завершался exit 78. На signed app с relative argv[0] воспроизведён invalidLayout; actual root argv/точный этап отказа не доказаны. Исправление и disabled update проверены на модели; текущая служба ещё старая. Прежний sealed пакет сохраняется целиком, новый требует подписи из-за изменения executable. Следующий шаг — полный [обновлённый owner сеанс](docs/owner-session.md); аппаратный опыт не начинался. [Факты](docs/research/evidence/owner-ready-deadline.json).
 
+2026-10-03, после PR #13: подпись исправленных executable выполнена, но sign смешивал её результат с отдельной online проверкой сертификата. При -67635 эта проверка отказала; strict verify и отдельная public диагностика затем прошли на тех же файлах без ключа. Sign/qualify разделены, check показывает отдельные стадии, signed package сохраняется для developer resume. Повтор подписи/пересборки не нужен. Следующий owner шаг — disabled update и root XPC по полному плану, аппаратный опыт не начинался. [Результат](docs/research/evidence/owner-signing-stages.json).
+
 ## M3 — управление и поставка
 
 - [ ] Подтвердить атрибуцию CPU/GPU и повторить температурные чтения после сна/пробуждения; текущие кандидаты не считать доказанными датчиками.

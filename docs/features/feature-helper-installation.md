@@ -51,6 +51,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 ## Подпись без диалогов
 
+2026-10-03: после подписи новой сборки owner команда sign опять остановилась на positive-revocation evaluation. Оба файла уже подписаны: strict verify прошёл, отдельная public проверка exact файлов затем прошла без ключа. Это не доказательство отзыва сертификата; причина различия network/cache/process не установлена. Теперь `sign` завершает только два codesign/strict verify и сохраняет signature-ready, `qualify` отдельно проверяет public certificate и создаёт seal. `check` показывает signature/certificateQualification/fullReview раздельно; stopped этап сохраняет запрет повторов, завершённая подпись не объявляется потерянной. Текущий owner пакет импортируется из сохранённых signed файлов и квалифицируется разработчиком; новой подписи/пересборки нет. [Результат](../research/evidence/owner-signing-stages.json).
+
 Дополнение 2026-10-02: `owner-session.py prepare --signed-session` копирует сохранённый failed signing package в новый output с текущим полным PLAN/script, проверкой исходных bindings/owner signing marker и неизменности signed хешей при копировании. Прежний installed pin переносится. Частичный seal, изменённые инструкции или отсутствие marker запрещают импорт. `sign` для такого пакета запрещён. Отдельный `qualify` не требует TTY: он не использует ключ/sudo/service/device, только public certificate CLI (20 с) и candidate CLI. До seal проверяются exact leaf/Team/positive revocation/неизменные хеши и инструкции. Одноразовый marker запрещает повтор после ошибки; диагноз и новый пакет предшествуют следующей попытке. Это подготовка полного review, а не локальное аппаратное одобрение. [Реальный отказ и последующий успех](../research/evidence/owner-revocation-failure.json).
 
 `scripts/sign-app-without-ui.py` читает public fingerprint настроенных identities, исключает явно flagged записи и требует единственного кандидата. Wrapper `tools/sign_without_ui.swift` сначала создаёт отдельную security session без graphics/TTY и проверяет эти атрибуты. Только после этого разрешён exec `/usr/bin/codesign` для собственного staging bundle в `.build`; исходный ad hoc bundle сохраняется. Keychain не разблокируется, ключи не экспортируются, ACL не изменяются. После обеих подписей нужны strict verify и native inspector.
@@ -182,3 +184,11 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 **Тогда:** только SMAppServiceErrorDomain/code 1 с requiresApproval допускает diagnostic response; другие domain/code/status остаются ошибками без retry.
 
 **Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testRegistrationErrorNeedsActualPendingApprovalState`
+
+### Scenario: Отказ public qualification сохраняет завершённую подпись
+
+**Дано:** owner подпись обоих файлов завершена и strict verify прошёл.
+**Когда:** public qualification останавливается либо владелец повторно вызывает sign.
+**Тогда:** check показывает signature=complete, certificateQualification=stopped, fullReview=notSealed; повтор sign не вызывает codesign. Sign сам не вызывает public qualification, sealed import показывает оба complete только после полного bound check.
+
+**Automated:** `scripts/owner-session-dry-run.py`

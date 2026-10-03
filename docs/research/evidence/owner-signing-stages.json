@@ -1,0 +1,127 @@
+{
+  "date": "2026-10-03",
+  "profile": "Mac15,7 / macOS 27.0 (26A428)",
+  "ownerCommand": "python3 .build/owner-session/session.py sign",
+  "ownerReportedFailure": {
+    "errorDomain": "NSOSStatusErrorDomain",
+    "errorCode": -67635,
+    "underlyingReason": "Unable to verify revocation of Apple Development leaf",
+    "codesignCompletedForBothFiles": true,
+    "qualificationStoppedBeforeSeal": true
+  },
+  "strictVerifyBothSignedFiles": "passed outside agent sandbox; no signing operation",
+  "boundedPublicDiagnostic": {
+    "diagnostic": "One bounded public-certificate evaluation of already signed files",
+    "privateKeyAccess": false,
+    "hardwareWritesExecuted": 0,
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "exitCode": 0,
+    "stdout": "{\"certificateSHA1\":\"4895C06FF7407EAF5F350E78CF23D0B41AD466C9\",\"fingerprint\":{\"applicationSHA256\":\"342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa\",\"helperSHA256\":\"24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430\",\"launchDaemonSHA256\":\"f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f\"},\"notarizationClaimed\":false,\"positiveRevocation\":true,\"teamIdentifier\":\"4659S5GD6X\"}\n",
+    "stderr": "",
+    "elapsedSeconds": 0.043,
+    "unchangedFiles": true
+  },
+  "interpretation": "Missing verified revocation response under our explicit positive-response policy, not proof of revocation. Same exact files passed later; cause (network/cache/process/server) is not established.",
+  "policySource": {
+    "appleDocumentation": "https://developer.apple.com/documentation/security/ksecrevocationrequirepositiveresponse",
+    "localSDK": "macOS 27 Security.framework/Headers/SecPolicy.h"
+  },
+  "workflowChange": {
+    "sign": "Only signs and strict-verifies both files, saves signature-ready and returns; no public qualification",
+    "qualify": "One bounded public read and bound full seal/review; does not use private key",
+    "check": "Separates signature, certificate qualification and full review; stopped stage retains no-retry instruction"
+  },
+  "preservedFailedPackage": {
+    "archive": ".build/owner-session-2026-10-03-path-sign-revocation-failed",
+    "allFilesPreserved": true,
+    "filesSHA256": {
+      "session.py": "df70644a04b90059768eba56788fee08f38751726c6bceed0c0120f64c90169a",
+      "sign-started.json": "0da1a54a45d82b68a2c430f9a711f9c63f4a67750da9f81c6bd5bd7b7775a7f7",
+      "manifest.json": "70e80167682df54b1db739b2a8a90426e970c55b79140fe45942570c7499897f",
+      "PLAN.md": "ee2dc702aeabc035f8d846c4e2269a26f206a71496b6bee09672141b928b42b7",
+      "qualification-started.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "signature-ready.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Ventilator.app/Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    }
+  },
+  "resumedPackage": {
+    "path": ".build/owner-session",
+    "binariesRebuilt": false,
+    "signedAgain": false,
+    "privateKeyAccess": false,
+    "sameSignedFingerprint": true,
+    "seal": {
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "fingerprint": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "notarizationClaimed": false,
+      "positiveRevocation": true,
+      "teamIdentifier": "4659S5GD6X"
+    },
+    "manifest": {
+      "candidatePlanSHA256": "3262d0c4aed3d2ae3e6f425c83b49bb8a9f96a5342a0141d29c2a5abaa917329",
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "fingerprint": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareWritesExecuted": 0,
+      "installedReplacement": {
+        "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+        "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "packageFiles": {
+        "PLAN.md": "1095de24cdae069611e4263df58597139abf70808d6a1eb38b265936ecd9e3f3",
+        "session.py": "d0a280b236ebd2f5a469506d00979ffeefb4e4b9f0efa68c59f10e98f106c0a8"
+      },
+      "resumedFrom": {
+        "installedReplacement": {
+          "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+          "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+          "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+        },
+        "manifestSHA256": "70e80167682df54b1db739b2a8a90426e970c55b79140fe45942570c7499897f",
+        "originalFingerprint": {
+          "applicationSHA256": "79d0bc12992a1dfed748155b77bcea64d74879a008442ee53d77873c687fd35f",
+          "helperSHA256": "5e287756e358debbc4514797d2c4e13af26c700762c7683ea19c09110243d32a",
+          "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+        },
+        "packageFiles": {
+          "PLAN.md": "ee2dc702aeabc035f8d846c4e2269a26f206a71496b6bee09672141b928b42b7",
+          "session.py": "df70644a04b90059768eba56788fee08f38751726c6bceed0c0120f64c90169a"
+        },
+        "signStartedSHA256": "0da1a54a45d82b68a2c430f9a711f9c63f4a67750da9f81c6bd5bd7b7775a7f7"
+      },
+      "schema": 1,
+      "signatureReady": true,
+      "signed": false,
+      "teamIdentifier": "4659S5GD6X"
+    },
+    "reviewSHA256": "c124dbb0c8e5f959bdfe9be66986985259c32cee51ec170433c1e7f1bded93f6",
+    "fullReviewUTF8Bytes": 14599,
+    "planUTF8Bytes": 12279,
+    "check": "passed"
+  },
+  "verification": {
+    "ownerWorkflowDryRun": "passed: mocked sign completion/no public call/no repeated codesign; real package import/check, native ad hoc refusal and real model review path; no actual signing",
+    "modelReviewUTF8Bytes": 14601,
+    "nativeBinaries": "unchanged PR13 binaries; prior 104 Swift and recovery/runtime gates retained; no rebuild needed"
+  },
+  "installedNewHelper": false,
+  "rootXPCOfNewHelper": "not tested; owner update required",
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false
+}
