@@ -75,6 +75,32 @@
   "packageFilesChangedByDeveloper": false,
   "reviewSHA256": "c124dbb0c8e5f959bdfe9be66986985259c32cee51ec170433c1e7f1bded93f6",
   "nextAlreadyPlannedStep": "Owner unregister/register, enable background permission, then ready (PLAN step3)",
+  "subsequentOwnerReport": {
+    "date": "2026-10-03",
+    "source": "Owner-pasted Terminal output; these two commands were not rerun by the developer",
+    "register": {
+      "registration": "requiresApproval",
+      "error": "serviceNotEnabled",
+      "trustedBundle": true,
+      "installedLocation": true,
+      "rootOwned": true,
+      "helperVerified": false,
+      "hardwareControlAvailable": false,
+      "fingerprintMatchesRecordedNewPackage": true
+    },
+    "ready": {
+      "exitCode": 78,
+      "registration": "requiresApproval",
+      "error": "serviceNotEnabled",
+      "helperVerified": false,
+      "fingerprintMatchesRecordedNewPackage": true
+    },
+    "verifiedCodePath": "HelperServiceController.status guards enabled before InstalledHelperClient.verify; session.ready requires a successful verify-installed-helper exit before invoking protected review staging",
+    "interpretation": "Registration exists but system consent is pending. This ready invocation stopped before root XPC and protected review staging; it does not reproduce the previous enabled-service deadline.",
+    "nextOwnerAction": "Enable Ventilator in System Settings > General > Login Items & Extensions > App Background Activity, confirm any administrator prompt, then ready once after this state change. No new sign/replacement/unregister/register is needed.",
+    "applePrimarySource": "https://support.apple.com/ru-ru/guide/mac-help/mtusr003/mac",
+    "limitations": "Current Settings toggle and administrator prompt have not been inspected; enabled root XPC of the new helper remains unverified. The unregister result was not included in the owner report."
+  },
   "rootXPCOfNewHelper": "not tested",
   "hardwareWritesExecuted": 0,
   "physicalAutoVerified": false
