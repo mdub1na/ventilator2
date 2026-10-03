@@ -174,7 +174,7 @@ func rpc(_ connection: NSXPCConnection, send: (VentilatorHelperProtocol, @escapi
     try JSONDecoder().decode(HelperReply.self, from: rpcData(connection, send: send))
 }
 
-private func rpcData(_ connection: NSXPCConnection, send: (VentilatorHelperProtocol, @escaping (Data) -> Void) -> Void) throws -> Data {
+func rpcData(_ connection: NSXPCConnection, send: (VentilatorHelperProtocol, @escaping (Data) -> Void) -> Void) throws -> Data {
     let box = ReplyBox()
     guard let proxy = connection.remoteObjectProxyWithErrorHandler({ box.set(.failure($0)) }) as? VentilatorHelperProtocol else {
         throw CheckError.failed("XPC proxy type")

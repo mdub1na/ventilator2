@@ -2,6 +2,7 @@ import Darwin
 import Foundation
 import Security
 import VentilatorControl
+import VentilatorExperiment
 import VentilatorInstallation
 
 enum HelperClock {
@@ -18,11 +19,13 @@ final class HelperCoordinator {
     private let directory: URL
     private var worker: SimulationWorkerClient?
     private let experiment: ExperimentSessionRuntime?
+    private let machineSupported: Bool
     private var lastReply = HelperReply(control: ControlReport(phase: .idle))
 
-    init(directory: URL, experiment: ExperimentSessionRuntime? = nil) throws {
+    init(directory: URL, experiment: ExperimentSessionRuntime? = nil, machineSupported: Bool = true) throws {
         self.directory = directory
         self.experiment = experiment
+        self.machineSupported = machineSupported
         try experiment?.recoverOnStartup()
         let journal = try FileSessionJournal(directory: directory)
         if try journal.load() != nil {
@@ -82,8 +85,10 @@ final class HelperCoordinator {
     func hardwarePreparation(owner: UUID, reply: @escaping (Data) -> Void) {
         queue.async {
             let preparation = try? HardwarePreparation(planSHA256: bundledCandidatePlan().sha256(),
-                connectionOwner: owner, runtimePrepared: self.experiment != nil)
-            let response = HelperReply(control: self.lastReply.control, errorCode: self.experiment == nil ? "hardwareRuntimeNotPrepared" : nil, preparation: preparation)
+                connectionOwner: owner, runtimePrepared: self.experiment != nil, machineSupported: self.machineSupported)
+            let response = HelperReply(control: self.lastReply.control,
+                errorCode: self.experiment == nil ? (self.machineSupported ? "hardwareRuntimeNotPrepared" : "unsupportedMachine") : nil,
+                preparation: preparation)
             reply((try? JSONEncoder().encode(response)) ?? Data())
         }
     }
@@ -93,7 +98,9 @@ final class HelperCoordinator {
         queue.async {
             var report: HardwareExperimentReport?, errorCode: String?
             do {
-                guard let experiment = self.experiment else { throw CheckError.failed("hardwareRuntimeNotPrepared") }
+                guard let experiment = self.experiment else {
+                    throw CheckError.failed(self.machineSupported ? "hardwareRuntimeNotPrepared" : "unsupportedMachine")
+                }
                 guard self.worker?.process.isRunning != true else { throw ControlError.sessionAlreadyUsed }
                 if command == "status" { report = try experiment.status() }
                 else {
@@ -178,18 +185,29 @@ func bundledCandidatePlan() throws -> CandidateExperimentPlan {
 }
 
 final class HelperServer: NSObject, NSXPCListenerDelegate {
-    enum Acceptance { case anonymousSimulation, anonymousExperimentModel(boot: UUID), signedApplication(proof: SignedBundleProof) }
+    enum Acceptance {
+        case anonymousSimulation, anonymousExperimentModel(boot: UUID), signedApplication(proof: SignedBundleProof)
+        case anonymousUnsupportedMachineModel(machine: ExperimentMachine)
+    }
     private let acceptance: Acceptance
     private let coordinator: HelperCoordinator
     init(acceptance: Acceptance, directory: URL) throws {
         self.acceptance = acceptance
         let experiment: ExperimentSessionRuntime?
+        let machineSupported: Bool
         switch acceptance {
-        case .anonymousSimulation: experiment = nil
-        case .anonymousExperimentModel(let boot): experiment = try .simulation(directory: directory, boot: boot)
-        case .signedApplication: experiment = try .hardware()
+        case .anonymousSimulation: experiment = nil; machineSupported = true
+        case .anonymousExperimentModel(let boot): experiment = try .simulation(directory: directory, boot: boot); machineSupported = true
+        case .signedApplication:
+            let machine = ExperimentMachine.current()
+            experiment = try .hardwareIfSupported(machine: machine)
+            machineSupported = machine == .candidate
+        case .anonymousUnsupportedMachineModel(let machine):
+            guard machine != .candidate else { throw CheckError.failed("Unsupported model cannot initialize hardware") }
+            experiment = try .hardwareIfSupported(machine: machine)
+            machineSupported = false
         }
-        self.coordinator = try HelperCoordinator(directory: directory, experiment: experiment)
+        self.coordinator = try HelperCoordinator(directory: directory, experiment: experiment, machineSupported: machineSupported)
     }
 
     func waitForSimulationWorkerExit() throws { try coordinator.waitForSimulationWorkerExit() }

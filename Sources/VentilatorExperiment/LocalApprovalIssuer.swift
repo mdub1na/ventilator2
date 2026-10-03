@@ -37,7 +37,8 @@ public final class LocalApprovalIssuer {
         guard geteuid() == 0, isatty(STDIN_FILENO) == 1, isatty(STDOUT_FILENO) == 1 else {
             throw ExperimentAuthorityError.localTerminalRequired
         }
-        guard trustedHelperAndApplication(), ExperimentMachine.current() == .candidate else { throw NativeExperimentError.untrustedSignature }
+        guard ExperimentMachine.current() == .candidate else { throw NativeExperimentError.unsupportedMachine }
+        guard trustedHelperAndApplication() else { throw NativeExperimentError.untrustedSignature }
         guard SMAppService.daemon(plistName: "dev.ventilator.helper.plist").status == .enabled else {
             throw LocalApprovalError.installationNotEnabled
         }

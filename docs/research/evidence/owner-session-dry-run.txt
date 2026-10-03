@@ -1,4 +1,4 @@
-Owner session dry-run: 2026-10-03T20:57:11+05:00
+Owner session dry-run: 2026-10-04T00:36:04+05:00
 Non-root offline files and anonymous model only; no private key, signing, sudo, installation or native writes.
 Underlying qualification stderr is preserved in STOP diagnostics.
 Mocked signing completed after exactly two codesign + two strict verify calls, without public qualification; subsequent qualification failure retained signature=complete and repeated sign invoked no external command.
@@ -17,5 +17,5 @@ Copied package fingerprints/check passed; changed plan rejected; nine owner acti
 Full 13952-byte UTF-8 review imported through real model CLI; canonical digest matched Swift; no approval/ledger/device. Wrong digest and symlink refused.
 Ad hoc owner start/status/certificate qualification and non-root hardware stage/audit refused before native authority.
 This offline suite does not sign or positively qualify Apple-issued code, install root service, run sudo stages or execute hardware experiment.
-SHA-256 of tested helper: 5e287756e358debbc4514797d2c4e13af26c700762c7683ea19c09110243d32a
-SHA-256 of tested application: 79d0bc12992a1dfed748155b77bcea64d74879a008442ee53d77873c687fd35f
+SHA-256 of tested helper: e144c5e41ee2e752a71b0b2482bcf5c3f92a4b0b686babf216bb303e0e13af9d
+SHA-256 of tested application: 0b6055bcd6b34b42df8ac08cad97486269c008d35c548c407576bfe5e5c65f71

@@ -3,10 +3,20 @@ id: research-architecture
 title: Ventilator — исследование архитектуры и аппаратных ограничений
 type: research
 status: active
-date: 2026-10-03
+date: 2026-10-04
 ---
 
 # Исследование
+
+## Последняя проверка: job загружен, ОС изменилась, 2026-10-04
+
+Один owner off/on завершился: административный print вернул 0, job submitted by SMAppService, runs=0 до XPC-запроса. Child BTM generation выросла 903→905, user parent 18→20; parent pending authorization сохранился. Значит этот текст не препятствует фактически загруженному job в текущем состоянии. Exact owner/installed файлы неизменны. Единственный developer verify-installed-helper получил enabled/deadline, helperVerified=false; launchd затем самостоятельно повторял spawn, каждый helper завершался exit 78. Startup log подтверждает отказ **stage=runtime, error=untrustedSignature**, после проверки identity; runtime root отсутствует.
+
+Read-only `sw_vers` теперь сообщает **27.0.1 (26A434)**, модель прежняя Mac15,7. Immutable candidate остаётся **27.0.0 (26A428)**. `HardwareRecoveryIdentity.currentBoot` объединяет root/profile/signature в один guard с untrustedSignature; несовпадение профиля объясняет этот runtime отказ. Это ошибка диагностики и связи запуска daemon с экспериментальным профилем. Старый hardware plan неприменим к новой ОС; receipt/start/SMC не выполнялись. Следующий шаг — исправить запуск диагностического helper на неподтверждённом профиле, сохранив запрет аппаратного runtime, затем подготовить полный read-only сеанс обновления. [Точные наблюдения](evidence/owner-system-approval-result.json).
+
+Исправление собрано с ad hoc подписью: неподтверждённый профиль сохраняет diagnostic listener и явно закрывает preparation/start, hardware authority/recovery не инициализируются. Candidate 26A428, guards подписи/root/receipt/ledger не расширены. 104 Swift-теста прошли; три unsupported XPC профиля и четыре прежних model runtime пути прошли. Read-only update модель проверила три успеха и двенадцать отказов, включая OS change до marker, signing/qualification, OFF/ON, hash/runtime/removal/register/peer и запрет повторов. Новое обычное read-only приложение на 26A434 прочитало два вентилятора с прежними диапазонами/mode=3; CPU/GPU/SSD оставлены n/a, Tf26 не атрибутирован. [Probe](evidence/macos-26A434-read-only.txt).
+
+Подготовлен unstarted `.build/owner-profile-update`: frozen plan/script, ad hoc fingerprints и точный pin прежней installed копии. Hardware candidate/review/receipt не создаются; hardware и отдельные lifecycle команды закрыты, одна owner-команда выполняет все фазы по [полному read-only плану](../owner-helper-update.md). Actual no-TTY вызов отказал до marker/ключа/sudo. Сохранены 15 owner, 7 прежних diagnostic и 8 system-cycle файлов; installed hashes неизменны. Следующий шаг требует owner Terminal/keychain/Settings/sudo, фактический новый signed root peer пока не проверен. [Подготовка и точные хеши](evidence/owner-profile-update-package.json).
 
 ## Последняя проверка: административный снимок получен, 2026-10-03
 

@@ -16,6 +16,8 @@ tags: [macOS, approval, XPC, broker, preparation]
 
 ## Admission и процессы
 
+На новой macOS **27.0.1/26A434** профиль candidate не совпадает. Signed daemon теперь оставляет diagnostics доступной, но аппаратный runtime не инициализируется: preparation/start/status возвращают unsupportedMachine. Исходный candidate **27.0.0/26A428** не расширен. HardwareRecoveryIdentity и локальный issuer называют неподдержанный профиль отдельно от untrustedSignature. Проверено через anonymous XPC на модели с новой version/build, чужим build и неизвестной моделью; installation proof эта non-root модель не выдаёт. Старый аппаратный план не выполнять. [Факты](../research/evidence/owner-system-approval-result.json), [полное диагностическое обновление](../owner-helper-update.md).
+
 Signed daemon создаёт `ExperimentSessionRuntime.hardware()` только после root/installed/code-signature/profile/SMAppService enabled gates. Connection owner генерируется сервером для каждого XPC соединения и возвращается в preparation. Root TTY issuer из [протокола одобрения](feature-experiment-protocol.md) должен выдать receipt именно этому owner, plan и полному review; XPC не выдаёт одобрение.
 
 Перед begin заново сверяются защищённый review, его digest, candidate и receipt. Отдельный preflight child возвращает read-only `BrokerObservation`; private pipe, nonce, domain, PID собственного Process и общий continuous deadline 2 с связывают ответ. Native sample имеет собственный бюджет 0.5 с. Требуются подтверждённый exit и свежий снимок. Ошибка до begin не расходует receipt и не открывает writer.
@@ -62,6 +64,14 @@ Native signed/root-owned installed app gate подтверждён, но рег�
 | Клиент/публичный сертификат | `Sources/Ventilator/OwnerExperimentCLI.swift`, `Sources/VentilatorInstallation/InstalledHelperClient.swift`, `Sources/VentilatorInstallation/CertificateQualification.swift` |
 | Full review и owner package | `Sources/VentilatorControl/LocalApprovalReview.swift`, `Sources/VentilatorControl/LocalReviewFile.swift`, `Sources/VentilatorHelper/LocalApprovalCLI.swift`, `scripts/owner-session.py`, `scripts/owner-session-dry-run.py` |
 | Process/XPC проверка | `Sources/VentilatorHelper/SessionRuntimeCheck.swift`, `scripts/session-runtime-dry-run.py` |
+
+### Scenario: Неподтверждённый профиль сохраняет диагностику и закрывает аппаратный runtime
+
+**Дано:** anonymous non-root модель, использующая тот же выбор runtime, с новой ОС, чужой сборкой или неизвестной моделью.
+**Когда:** клиент запрашивает status, preparation и valid-form experimental start.
+**Тогда:** idle diagnostic status доступен, preparation явно содержит unsupportedMachine/runtimePrepared=false, start отказывает до authority/device; hardware/simulation ledger отсутствуют. Installation status не выдаёт root proof модели. Immutable candidate не меняется.
+
+**Automated:** `scripts/session-runtime-dry-run.py`
 
 ### Scenario: Receipt другого соединения не запускает broker
 
