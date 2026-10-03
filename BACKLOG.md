@@ -64,6 +64,8 @@ PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https:/
 
 2026-10-03, после owner удаления app/backup: установленных файлов/job/runtime root нет, но BTM хранит ссылку на удалённый backup. Подготовлен свежий sealed полный сеанс из тех же signed файлов: explicit fresh import без старого installed pin, защищённая one-shot установка и bounded пересоздание unstarted registration. Прежний пакет/source сохранены целиком, model/mutation/public qualification прошли; actual установка/consent/root XPC и аппаратный опыт остаются владельцу. [Факты](docs/research/evidence/owner-fresh-install-package.json), [единый план](docs/owner-session.md).
 
+2026-10-03, после fresh установки: installed signed/root-owned gates прошли. System log подтверждает unregister error=0, затем через 70 мс register error=1/bootstrap denied/status=notRegistered. Settings сейчас on, BTM parent pending authorization, job/runtime отсутствуют. Fresh wrapper исправлен: requiresApproval сохраняется без unregister/register; ошибки называют action, запрет повторов остаётся. Model проверяет pending/no-mutation и post-register отказы. Остановленный sealed пакет сохранён, native файлы не менялись; требуется факт административного подтверждения от владельца, root XPC/SMC остаются непроверенными. [Диагноз](docs/research/evidence/owner-fresh-register-denied.json).
+
 ## M3 — управление и поставка
 
 - [ ] Подтвердить атрибуцию CPU/GPU и повторить температурные чтения после сна/пробуждения; текущие кандидаты не считать доказанными датчиками.

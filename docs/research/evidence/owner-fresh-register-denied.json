@@ -1,0 +1,211 @@
+{
+  "date": "2026-10-03",
+  "ownerReport": {
+    "installation": "Installed exact signed bundle at /Applications/Ventilator.app; registration not requested by install",
+    "firstRegister": "SMAppServiceErrorDomain code 1 / Operation not permitted / exit 78",
+    "repeatRegister": "Blocked by preserved registration-started marker; no native retry",
+    "ready": "serviceNotEnabled / notRegistered / exit 78"
+  },
+  "initialRegistrationAttempt": {
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareWritesExecuted": 0,
+    "previousStatus": "requiresApproval"
+  },
+  "installedNativeReadOnlyStatus": {
+    "error": "serviceNotEnabled",
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": false,
+    "installedLocation": true,
+    "registration": "notRegistered",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "scopedSystemLog": [
+    {
+      "timestamp": "2026-10-03 19:50:55.316386+0500",
+      "processID": 67627,
+      "eventMessage": "Service <private> status: 2"
+    },
+    {
+      "timestamp": "2026-10-03 19:50:55.320441+0500",
+      "processID": 67627,
+      "eventMessage": "Service <private> status: 2"
+    },
+    {
+      "timestamp": "2026-10-03 19:50:55.324412+0500",
+      "processID": 67627,
+      "eventMessage": "Service <private> status: 2"
+    },
+    {
+      "timestamp": "2026-10-03 19:50:55.328347+0500",
+      "processID": 67627,
+      "eventMessage": "Unregister (<private>) error: 0"
+    },
+    {
+      "timestamp": "2026-10-03 19:50:55.333552+0500",
+      "processID": 67627,
+      "eventMessage": "Service <private> status: 0"
+    },
+    {
+      "timestamp": "2026-10-03 19:50:55.362456+0500",
+      "processID": 67627,
+      "eventMessage": "Service <private> status: 0"
+    },
+    {
+      "timestamp": "2026-10-03 19:50:55.395626+0500",
+      "processID": 67629,
+      "eventMessage": "Service <private> status: 0"
+    },
+    {
+      "timestamp": "2026-10-03 19:50:55.400729+0500",
+      "processID": 538,
+      "eventMessage": "Job is not allowed to bootstrap: <private>"
+    },
+    {
+      "timestamp": "2026-10-03 19:50:55.400748+0500",
+      "processID": 67629,
+      "eventMessage": "Register (<private>) error: 1"
+    },
+    {
+      "timestamp": "2026-10-03 19:50:55.404656+0500",
+      "processID": 67629,
+      "eventMessage": "Service <private> status: 0"
+    }
+  ],
+  "operationAttribution": "PID 67627 reports unregister error=0 and status 2 to 0. BTM registerLaunchItem names PID 67629 and dev.ventilator.helper; smd denies bootstrap, PID 67629 reports register error=1 and post-state 0. The wrapper did reach register; unregister was successful.",
+  "timeBetweenUnregisterSuccessAndRegisterErrorMilliseconds": 72.401,
+  "btmPathUpdate": {
+    "timestamp": "2026-10-03 19:50:45.405773+0500",
+    "previous": "/Applications/Ventilator-before-registration-fix.app",
+    "current": "/Applications/Ventilator.app",
+    "meaning": "The previously stale parent URL was updated, but authorization did not become effective."
+  },
+  "scopedBTMReadOnlyRecords": [
+    {
+      "uid": -2,
+      "Name": "Ventilator",
+      "Team Identifier": "4659S5GD6X",
+      "Type": "app (0x2)",
+      "Disposition": "[disabled, disallowed, not notified] (pending authorization) (0x10)",
+      "Identifier": "2.dev.ventilator.macos",
+      "URL": "/Applications/Ventilator.app",
+      "Generation": "8",
+      "Bundle Identifier": "dev.ventilator.macos"
+    },
+    {
+      "uid": -2,
+      "Name": "VentilatorHelper",
+      "Team Identifier": "4659S5GD6X",
+      "Type": "daemon (0x10)",
+      "Disposition": "[disabled, allowed, not notified] (0x2)",
+      "Identifier": "16.dev.ventilator.helper",
+      "URL": "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist",
+      "Executable Path": "Contents/MacOS/VentilatorHelper",
+      "Generation": "902",
+      "Parent Identifier": "2.dev.ventilator.macos"
+    },
+    {
+      "uid": 0,
+      "Name": "Ventilator",
+      "Team Identifier": "4659S5GD6X",
+      "Type": "app (0x2)",
+      "Disposition": "[disabled, allowed, notified] (0xa)",
+      "Identifier": "2.dev.ventilator.macos",
+      "URL": "/Applications/Ventilator.app",
+      "Generation": "1",
+      "Bundle Identifier": "dev.ventilator.macos"
+    },
+    {
+      "uid": 501,
+      "Name": "Ventilator",
+      "Team Identifier": "4659S5GD6X",
+      "Type": "app (0x2)",
+      "Disposition": "[disabled, allowed, not notified] (pending authorization) (0x12)",
+      "Identifier": "2.dev.ventilator.macos",
+      "URL": "/Applications/Ventilator.app",
+      "Generation": "18",
+      "Bundle Identifier": "dev.ventilator.macos"
+    }
+  ],
+  "settingsReadOnlyObservation": {
+    "window": "Объекты входа",
+    "controlID": "background-switch-Ventilator",
+    "value": "on",
+    "description": "Работало в фоновом режиме сегодня",
+    "permissionChangedByDeveloper": false,
+    "administratorAuthorizationSheetObserved": false
+  },
+  "launchd": {
+    "target": "system/dev.ventilator.helper",
+    "found": false,
+    "exitCode": 113
+  },
+  "runtimeRoot": {
+    "path": "/Library/Application Support/Ventilator",
+    "lstatErrno": 2,
+    "exists": false
+  },
+  "sealedPackage": {
+    "path": ".build/owner-session",
+    "reviewSHA256": "b549b279444987f69d8218ac6c6ae38f38f3e1258f0f1a4c82a5661ba8a15e5f",
+    "preservedFileCount": 16,
+    "packageFilesSHA256": {
+      "PLAN.md": "54f5770d76adf13682fc41a606a86fbdc411590a78ac32ea553277f935f57072",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Ventilator.app/Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb",
+      "candidate.json": "611beae7cc61f2ab0b3a5892f33400fedeec11b73502610a59cefcc28d3c6243",
+      "install-completed.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "install-started.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "manifest.json": "1548dd31106aec8519e83860c8f2626dd55c8fc0c55bc181d4cb35c46e057587",
+      "qualification-started.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "registration-started.json": "70c417120d28b7ff99c32a6e7ed6924e49ed082c5512ef7b9abf4922b0ba712b",
+      "review.json": "86b3d2ddda3d66e7827600af1c66bb0eac3f641939d08cb466d0024f10444885",
+      "review.sha256": "848af3794382a9928c5e79cec041bbb48088b39c2659db7dec5eddce3027d8e9",
+      "sealed.json": "ce83ee9d947a79e9ba927d0de532a87ff8c09bb26a9a14cebf2dc5f764098001",
+      "session.py": "a72b062497c57e8d173d041653f7c72a8aaebb75e4c011c7264154603e98a5c6"
+    },
+    "changedByDeveloper": false,
+    "registrationCompletedMarkerPresent": false,
+    "hardwareApprovalOrResultMarkerPresent": false
+  },
+  "interpretation": {
+    "confirmed": "System registration/launch authorization failed despite valid installed bundle and an on Settings toggle. The automatic unregister discarded the pending registration before the denied register. The current notRegistered report is consistent with this transition.",
+    "notProven": "Why effective administrator authorization remains pending. Whether immediate re-registration caused this specific failure. Whether a notification/authentication request was shown and confirmed on this Mac.",
+    "codeChange": "Fresh register now preserves requiresApproval without unregister/register; notFound/notRegistered alone invoke one register. Native action names are included in wrapper errors. Stop markers and trust/runtime/job/hardware gates remain.",
+    "deployment": "Only repository wrapper and future plan template changed. The current sealed PR18 wrapper/PLAN, installed native files and all prior archives remain unchanged. The failed package is not resumed or silently reset."
+  },
+  "applePrimarySources": [
+    {
+      "url": "https://developer.apple.com/forums/thread/783539",
+      "evidence": "Apple DTS says re-registration after the unregister completion should work; reports of immediate re-registration error 1 are considered bugworthy, and a run-loop turn or delay is discussed as a workaround. This does not prove a cause on macOS 27."
+    },
+    {
+      "url": "https://developer.apple.com/forums/thread/802443",
+      "evidence": "Apple DTS example uses Background Items Added / Allow with authentication. The example was tested on macOS 15.6.1, not this Mac."
+    }
+  ],
+  "sdkObservation": "macOS 27 SMAppService.h synchronous unregister does not wait for process reaping; the completion variant documents when re-registration is safe. The current native command uses synchronous unregister. No running helper existed here, so relevance to this failure remains unproven.",
+  "verification": {
+    "model": "python3 scripts/owner-session-dry-run.py passed offline/non-root; pending/enabled invoke no lifecycle mutation, notFound/notRegistered invoke register once, register failure/unexpected status/post-register hash change retain marker and stop without retry; failed native action is named. Real model full review and canonical digest accepted by Swift gate.",
+    "docs": ".venv-docs/bin/python scripts/docs_check.py --on-main: 13 documents, 78 BDD scenarios, no errors",
+    "stoppedPackageHashAudit": "All 16 relative paths and SHA-256 values unchanged after repository edits and model run.",
+    "futurePlanUTF8Bytes": 12256,
+    "actualInstalledRootXPC": "not verified"
+  },
+  "nextOwnerInformation": "Whether the last enable/Allow action prompted for an administrator password or Touch ID, and whether it was confirmed. No additional registration/toggle cycle is prescribed until that fact is known.",
+  "developerActions": "Read-only native helper-status, launchctl print, lstat/file hashes, bounded scoped logs and BTM dump, Settings accessibility, Apple primary-source research, repository wrapper/model/docs edits. No sudo, private key, service mutation, resetbtm, manual bootstrap, permission toggle, local hardware approval, SMC writer or new qualification.",
+  "hardwareExperimentStarted": false,
+  "physicalAutoVerified": false
+}

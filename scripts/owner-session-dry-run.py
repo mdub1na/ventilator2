@@ -133,11 +133,11 @@ for mode in ["success", "copy-failed", "ownership-failed", "native-rejected", "r
             assert len(calls) == first_calls
 lines.append("Fresh install refused existing app/backup/stage/runtime, broken aliases, unreadable state and any job without cleanup; mocked copy/ownership/native failures retained one-shot marker and never repeated sudo, while replacement packages refused before copying.")
 
-for mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknown", "unregister-failed", "unregister-still-pending", "state-after-unregister", "register-failed", "runtime-state", "existing-job", "wrong-fingerprint"]:
+for mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknown", "register-failed", "register-unexpected", "register-wrong-fingerprint", "runtime-state", "existing-job", "wrong-fingerprint"]:
     with tempfile.TemporaryDirectory(prefix="ventilator-fresh-register-", dir=root / ".build") as tmp:
         directory = Path(tmp)
         fingerprint = {"applicationSHA256": "a" * 64, "helperSHA256": "b" * 64, "launchDaemonSHA256": "c" * 64}
-        initial = mode if mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknown"] else "requiresApproval"
+        initial = mode if mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknown"] else "notRegistered"
         base = {"fingerprint": fingerprint, "trustedBundle": True, "rootOwned": True, "installedLocation": True, "hardwareControlAvailable": False, "helperVerified": False, "error": "serviceNotEnabled"}
         state = directory / "runtime"
         if mode == "runtime-state":
@@ -148,12 +148,11 @@ for mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknow
             action = command[1]; calls.append(action)
             value = {**base, "registration": initial}
             if action == "--unregister-helper":
-                if mode == "unregister-failed": raise RuntimeError("unregister rejected")
-                value["registration"] = "requiresApproval" if mode == "unregister-still-pending" else "notRegistered"
-                if mode == "state-after-unregister": state.mkdir()
-            elif action == "--register-helper":
+                raise AssertionError("Fresh registration must preserve existing approval state")
+            if action == "--register-helper":
                 if mode == "register-failed": raise RuntimeError("register rejected")
-                value["registration"] = "requiresApproval"
+                value["registration"] = "notRegistered" if mode == "register-unexpected" else "requiresApproval"
+                if mode == "register-wrong-fingerprint": value["fingerprint"] = {}
             if mode == "wrong-fingerprint": value["fingerprint"] = {}
             return json.dumps(value)
         with patch.object(session, "SESSION", directory), patch.object(session, "HARDWARE_ROOT", state), \
@@ -166,13 +165,11 @@ for mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknow
             try:
                 session.register()
                 assert succeeds
-            except RuntimeError:
+            except RuntimeError as error:
                 assert not succeeds
+                if mode == "register-failed": assert "--register-helper" in str(error)
             external.assert_not_called()
-            if mode == "requiresApproval": assert calls == ["--helper-status", "--unregister-helper", "--register-helper"]
-            elif mode in ["notFound", "notRegistered"]: assert calls == ["--helper-status", "--register-helper"]
-            elif mode in ["unregister-failed", "unregister-still-pending", "state-after-unregister"]: assert calls == ["--helper-status", "--unregister-helper"]
-            elif mode == "register-failed": assert calls == ["--helper-status", "--unregister-helper", "--register-helper"]
+            if mode in ["notFound", "notRegistered", "register-failed", "register-unexpected", "register-wrong-fingerprint"]: assert calls == ["--helper-status", "--register-helper"]
             else: assert calls == ["--helper-status"]
             assert (directory / "registration-completed.json").exists() == (mode in ["notFound", "notRegistered", "requiresApproval"])
             if (directory / "registration-started.json").exists():
@@ -183,7 +180,7 @@ for mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknow
                 except RuntimeError:
                     pass
                 assert calls == first_calls
-lines.append("Fresh registration model used at most one guarded unregister and one register, skipped unregister for notFound/notRegistered, preserved enabled consent without mutation, rejected runtime/job/hash changes, and never retried errors or a still-pending unregister.")
+lines.append("Fresh registration model preserved requiresApproval and enabled without unregister/register mutations, called register at most once only for notFound/notRegistered, rejected runtime/job/hash changes and unexpected post-register states, named the failed native action, and retained one-shot markers without retry.")
 
 with tempfile.TemporaryDirectory(prefix="ventilator-fresh-arguments-", dir=root / ".build") as tmp:
     target = Path(tmp) / "target"
