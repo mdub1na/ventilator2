@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-03",
+  "ownerReport": "Ventilator background activity was enabled, but ready still returned requiresApproval/serviceNotEnabled and exit 78 for the current signed fingerprint",
+  "settingsReadOnlyObservation": {
+    "application": "com.apple.systempreferences",
+    "window": "Объекты входа",
+    "controlID": "background-switch-Ventilator",
+    "value": "on",
+    "description": "Работало в фоновом режиме сегодня",
+    "permissionChangedByDeveloper": false,
+    "limitation": "An attempted scroll subsequently returned noWindowsAvailable; no subsequent toggle or authorization sheet was observed"
+  },
+  "installedNativeStatus": {
+    "registration": "requiresApproval",
+    "trustedBundle": true,
+    "rootOwned": true,
+    "installedLocation": true,
+    "helperVerified": false,
+    "hardwareControlAvailable": false,
+    "error": "serviceNotEnabled",
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    }
+  },
+  "scopedBTMReadOnlyRecords": [
+    {
+      "uid": -2,
+      "name": "Ventilator",
+      "identifier": "2.dev.ventilator.macos",
+      "url": "/Applications/Ventilator.app",
+      "teamIdentifier": "4659S5GD6X",
+      "disposition": "disabled, disallowed, not notified; pending authorization",
+      "rawDisposition": "0x10",
+      "generation": 4,
+      "embeddedItemIdentifier": "16.dev.ventilator.helper"
+    },
+    {
+      "uid": -2,
+      "name": "VentilatorHelper",
+      "identifier": "16.dev.ventilator.helper",
+      "parentIdentifier": "2.dev.ventilator.macos",
+      "url": "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist",
+      "executablePath": "Contents/MacOS/VentilatorHelper",
+      "teamIdentifier": "4659S5GD6X",
+      "disposition": "enabled, allowed, not notified",
+      "rawDisposition": "0x3",
+      "generation": 895
+    },
+    {
+      "uid": 0,
+      "name": "Ventilator",
+      "identifier": "2.dev.ventilator.macos",
+      "url": "/Applications/Ventilator.app",
+      "teamIdentifier": "4659S5GD6X",
+      "disposition": "disabled, allowed, notified",
+      "rawDisposition": "0xa",
+      "generation": 1
+    },
+    {
+      "uid": 501,
+      "name": "Ventilator",
+      "identifier": "2.dev.ventilator.macos",
+      "url": "/Applications/Ventilator.app",
+      "teamIdentifier": "4659S5GD6X",
+      "disposition": "disabled, allowed, not notified; pending authorization",
+      "rawDisposition": "0x12",
+      "generation": 8
+    }
+  ],
+  "launchd": {
+    "target": "system/dev.ventilator.helper",
+    "found": false,
+    "scopedSystemLogCorroboration": "copyJobWithLabel for label dev.ventilator.helper failed with error 113: Could not find specified service"
+  },
+  "runtimeRoot": {
+    "path": "/Library/Application Support/Ventilator",
+    "lstatErrno": 2,
+    "exists": false
+  },
+  "ownerAccountHasAdminGroup": true,
+  "interpretation": "Settings on and the daemon record's allowed bit do not establish final effective authorization. The container app remains pending authorization, the actual SMAppService status is requiresApproval, and the job is absent. Why the UI and effective authorization diverged is not proven; a missed/incomplete administrator approval is a hypothesis, not a confirmed owner omission.",
+  "applePrimarySource": "https://developer.apple.com/forums/thread/802443",
+  "appleDocumentedAction": "Approve the app's Background Items Added notification using Allow and authenticate the configuration change. The Apple example was tested on macOS 15.6.1, not this Mac's macOS 27; the notification and authentication prompt on this machine have not been inspected.",
+  "pendingOwnerInformation": "Whether enabling the item prompted for administrator password or Touch ID and whether the owner confirmed it",
+  "developerActions": "Read-only Settings accessibility/screenshot, sfltool dumpbtm, scoped system log, launchctl print, lstat/hashes, one installed helper-status, and admin-group membership. No sudo, resetbtm, registration, manual bootstrap, signing, permission toggle, local hardware approval, or native writer.",
+  "sealedPackageChanged": false,
+  "reviewSHA256": "c124dbb0c8e5f959bdfe9be66986985259c32cee51ec170433c1e7f1bded93f6",
+  "rootXPCOfNewHelper": "not verified",
+  "hardwareExperimentStarted": false,
+  "physicalAutoVerified": false
+}
