@@ -133,7 +133,8 @@ for mode in ["success", "copy-failed", "ownership-failed", "native-rejected", "r
             assert len(calls) == first_calls
 lines.append("Fresh install refused existing app/backup/stage/runtime, broken aliases, unreadable state and any job without cleanup; mocked copy/ownership/native failures retained one-shot marker and never repeated sudo, while replacement packages refused before copying.")
 
-for mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknown", "register-failed", "register-unexpected", "register-wrong-fingerprint", "runtime-state", "existing-job", "wrong-fingerprint"]:
+registration_cases = ["notFound", "notRegistered", "requiresApproval", "enabled", "unknown", "register-failed", "register-unexpected", "register-wrong-fingerprint", "runtime-state", "existing-job", "wrong-fingerprint"]
+for package_kind, mode in [(kind, case) for kind in ["fresh", "installed"] for case in registration_cases]:
     with tempfile.TemporaryDirectory(prefix="ventilator-fresh-register-", dir=root / ".build") as tmp:
         directory = Path(tmp)
         fingerprint = {"applicationSHA256": "a" * 64, "helperSHA256": "b" * 64, "launchDaemonSHA256": "c" * 64}
@@ -156,7 +157,8 @@ for mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknow
             if mode == "wrong-fingerprint": value["fingerprint"] = {}
             return json.dumps(value)
         with patch.object(session, "SESSION", directory), patch.object(session, "HARDWARE_ROOT", state), \
-                patch.object(session, "owner_terminal"), patch.object(session, "check", return_value={"freshInstallation": True}), \
+                patch.object(session, "owner_terminal"), patch.object(session, "check", return_value=
+                    {"freshInstallation": True} if package_kind == "fresh" else {"installedContinuation": fingerprint}), \
                 patch.object(session, "installed_check", return_value={"fingerprint": fingerprint}), \
                 patch.object(session, "launchd_job_present", return_value=mode == "existing-job"), \
                 patch.object(session, "output", side_effect=registration_response), \
@@ -180,7 +182,79 @@ for mode in ["notFound", "notRegistered", "requiresApproval", "enabled", "unknow
                 except RuntimeError:
                     pass
                 assert calls == first_calls
-lines.append("Fresh registration model preserved requiresApproval and enabled without unregister/register mutations, called register at most once only for notFound/notRegistered, rejected runtime/job/hash changes and unexpected post-register states, named the failed native action, and retained one-shot markers without retry.")
+lines.append("Fresh and installed-continuation registration models preserved requiresApproval and enabled without unregister/register mutations, called register at most once only for notFound/notRegistered, rejected runtime/job/hash changes and unexpected post-register states, named the failed native action, and retained one-shot markers without retry.")
+
+for mode in ["enabled", "requiresApproval", "register-failed", "wrong-package"]:
+    with patch.object(session, "owner_terminal"), patch.object(session, "check", return_value=
+            {"installedContinuation": {"applicationSHA256": "a" * 64}} if mode != "wrong-package" else {}), \
+            patch.object(session, "register", side_effect=RuntimeError("register denied") if mode == "register-failed" else None,
+                         return_value={"registration": mode}) as registration, patch.object(session, "ready") as stage:
+        try:
+            session.setup()
+            assert mode in ["enabled", "requiresApproval"]
+        except RuntimeError:
+            assert mode in ["register-failed", "wrong-package"]
+        assert registration.call_count == (0 if mode == "wrong-package" else 1)
+        assert stage.call_count == (1 if mode == "enabled" else 0)
+lines.append("Setup model invoked root verification/review staging only after enabled registration; pending approval, a failed register and a non-continuation package invoked no ready stage. No approval or experiment start is part of setup.")
+
+with tempfile.TemporaryDirectory(prefix="ventilator-installed-admission-", dir=root / ".build") as tmp:
+    directory = Path(tmp); state = directory / "runtime"
+    expected = {"applicationSHA256": "a" * 64, "helperSHA256": "b" * 64, "launchDaemonSHA256": "c" * 64}
+    report = {"fingerprint": expected, "trustedBundle": True, "rootOwned": True, "installedLocation": True,
+              "registration": "notRegistered", "helperVerified": False, "hardwareControlAvailable": False, "error": "serviceNotEnabled"}
+    with patch.object(session, "HARDWARE_ROOT", state), patch.object(session, "fingerprints", return_value=expected), \
+            patch.object(session, "launchd_job_present", return_value=False), patch.object(session, "output", return_value=json.dumps(report)) as probe:
+        session.admit_installed_continuation(expected)
+        probe.reset_mock()
+        for mode in ["runtime", "alias", "job", "changed-hash", "unreadable-runtime"]:
+            if mode == "runtime": state.mkdir()
+            if mode == "alias": state.symlink_to(directory / "missing")
+            original_lstat = Path.lstat
+            def lstat(path):
+                if mode == "unreadable-runtime" and path == state: raise PermissionError("inaccessible state")
+                return original_lstat(path)
+            with patch.object(Path, "lstat", lstat), \
+                    patch.object(session, "launchd_job_present", return_value=mode == "job"), \
+                    patch.object(session, "fingerprints", return_value={} if mode == "changed-hash" else expected):
+                try:
+                    session.admit_installed_continuation(expected)
+                    raise AssertionError("Unsafe installed continuation admitted")
+                except (RuntimeError, OSError): pass
+                probe.assert_not_called()
+            if mode == "runtime": state.rmdir()
+            if mode == "alias": state.unlink()
+        for mode in ["enabled", "requiresApproval", "wrong-identity", "wrong-report-hash"]:
+            changed = {**report, "registration": mode if mode in ["enabled", "requiresApproval"] else "notRegistered"}
+            if mode == "wrong-identity": changed["rootOwned"] = False
+            if mode == "wrong-report-hash": changed["fingerprint"] = {}
+            with patch.object(session, "output", return_value=json.dumps(changed)):
+                try:
+                    session.admit_installed_continuation(expected)
+                    assert mode == "requiresApproval"
+                except RuntimeError:
+                    assert mode != "requiresApproval"
+lines.append("Installed continuation admission required exact signed-source hashes and disabled native identity; existing runtime, broken alias, unreadable state, any job or changed hash refused before invoking the installed app. Invalid report/ownership and enabled state were rejected on model data.")
+
+with tempfile.TemporaryDirectory(prefix="ventilator-installed-refusal-", dir=root / ".build") as tmp:
+    directory = Path(tmp); expected = {"applicationSHA256": "a" * 64}
+    with patch.object(session, "owner_terminal"), patch.object(session, "check", return_value={"installedContinuation": expected}), \
+            patch.object(session.subprocess, "run") as external:
+        for operation in [session.install, session.replace_installed]:
+            try:
+                operation()
+                raise AssertionError("Continuation modified installed files")
+            except RuntimeError: pass
+        external.assert_not_called()
+    with patch.object(session, "SESSION", directory / "new"), patch.object(session, "CONTINUE_INSTALLED", True):
+        for signed, previous_session, fresh in [(None, None, False), (directory, directory, False), (directory, None, True)]:
+            with patch.object(session, "SIGNED_SESSION", signed), patch.object(session, "PREVIOUS_SESSION", previous_session), patch.object(session, "FRESH_INSTALL", fresh):
+                try:
+                    session.prepare()
+                    raise AssertionError("Conflicting continuation mode admitted")
+                except RuntimeError: pass
+                assert not session.SESSION.exists()
+lines.append("Continuation packages refused install/replacement before external commands; missing signed source and fresh/replacement mode conflicts refused before destination creation.")
 
 with tempfile.TemporaryDirectory(prefix="ventilator-fresh-arguments-", dir=root / ".build") as tmp:
     target = Path(tmp) / "target"
@@ -305,7 +379,7 @@ def run(command, success=True):
 
 # Real package copying, with only the public certificate response mocked for success/error cases.
 # The fixture is ad hoc: model successes cannot qualify its certificate for installation.
-for mode in ["success", "fresh-success", "native-rejection", "revocation-failed", "timeout", "wrong-certificate", "changed-bundle", "changed-plan"]:
+for mode in ["success", "fresh-success", "installed-success", "native-rejection", "revocation-failed", "timeout", "wrong-certificate", "changed-bundle", "changed-plan"]:
     with tempfile.TemporaryDirectory(prefix="ventilator-sign-resume-", dir=root / ".build") as tmp:
         source = Path(tmp) / "source"
         resumed = Path(tmp) / "resumed"
@@ -317,7 +391,9 @@ for mode in ["success", "fresh-success", "native-rejection", "revocation-failed"
         (source / "manifest.json").write_text(json.dumps(source_manifest))
         source_state = {str(p.relative_to(source)): session.sha(p) for p in source.rglob("*") if p.is_file()}
         with patch.object(session, "SESSION", resumed), patch.object(session, "SIGNED_SESSION", source), \
-                patch.object(session, "FRESH_INSTALL", mode == "fresh-success"):
+                patch.object(session, "FRESH_INSTALL", mode == "fresh-success"), \
+                patch.object(session, "CONTINUE_INSTALLED", mode == "installed-success"), \
+                patch.object(session, "admit_installed_continuation") as admit:
             session.prepare()
             manifest = session.check()
             assert manifest["signatureReady"]
@@ -325,6 +401,13 @@ for mode in ["success", "fresh-success", "native-rejection", "revocation-failed"
                 assert manifest["freshInstallation"] and "installedReplacement" not in manifest
                 assert manifest["resumedFrom"]["installedReplacement"] == previous
                 assert session.package_status()["installationMode"] == "fresh"
+            elif mode == "installed-success":
+                assert manifest["installedContinuation"] == manifest["fingerprint"]
+                assert "installedReplacement" not in manifest and "freshInstallation" not in manifest
+                assert manifest["resumedFrom"]["installedReplacement"] == previous
+                assert session.package_status()["installationMode"] == "installed"
+                assert admit.call_count == 2
+                assert all(c.args == (manifest["fingerprint"],) for c in admit.call_args_list)
             else:
                 assert manifest["installedReplacement"] == previous
             assert manifest["fingerprint"] == session.fingerprints(source / "Ventilator.app")
@@ -360,7 +443,7 @@ for mode in ["success", "fresh-success", "native-rejection", "revocation-failed"
             if mode == "changed-plan":
                 (resumed / "PLAN.md").write_text("changed")
             with patch.object(session, "output", side_effect=public_response):
-                if mode in ["success", "fresh-success"]:
+                if mode in ["success", "fresh-success", "installed-success"]:
                     session.qualify()
                     session.check(sealed=True)
                     assert session.package_status()["signature"] == "complete"
@@ -384,7 +467,7 @@ for mode in ["success", "fresh-success", "native-rejection", "revocation-failed"
                 assert len(calls) == first_calls
                 assert all(c[1] in ["--qualify-owner-signature", "--candidate-plan"] for c in calls)
             assert source_state == {str(p.relative_to(source)): session.sha(p) for p in source.rglob("*") if p.is_file()}
-lines.append("Signed-source import preserved every source file and provenance: replacement kept the previous pin, explicit fresh import omitted only its operative pin and sealed a new full review without re-signing. Real ad hoc rejection, revocation failure, timeout, wrong leaf, changed bundle/plan produced no seal or retry; commands limited to certificate/candidate reads.")
+lines.append("Signed-source import preserved every source file and provenance: replacement kept the previous pin, fresh omitted its operative pin, installed continuation bound the exact existing source hashes after two admission checks and sealed a new full review without re-signing. Real ad hoc rejection, revocation failure, timeout, wrong leaf, changed bundle/plan produced no seal or retry; commands limited to certificate/candidate reads.")
 
 # Reject a changed source plan and a source with a partial seal before creating a destination.
 for mode in ["changed-plan", "partial-seal", "missing-marker"]:
@@ -413,7 +496,7 @@ try:
     run(["python3", package / "session.py", "check"])
     manifest = json.loads((package / "manifest.json").read_text())
     assert not manifest["signed"] and manifest["hardwareWritesExecuted"] == 0
-    for command in ["sign", "install", "replace-installed", "register", "ready", "run", "collect", "unregister"]:
+    for command in ["sign", "install", "replace-installed", "register", "setup", "ready", "run", "collect", "unregister"]:
         refusal = run(["python3", package / "session.py", command], success=False)
         assert "non-root Terminal" in refusal.stderr
     assert not (package / "sign-started.json").exists()
@@ -422,7 +505,7 @@ try:
     original = (package / "PLAN.md").read_text()
     (package / "PLAN.md").write_text(original + "modified")
     assert "Package changed" in run(["python3", package / "session.py", "check"], success=False).stderr
-    lines.append("Copied package fingerprints/check passed; changed plan rejected; eight owner actions rejected before mutation without Terminal.")
+    lines.append("Copied package fingerprints/check passed; changed plan rejected; nine owner actions rejected before mutation without Terminal.")
 finally:
     if package.exists():
         shutil.rmtree(package)

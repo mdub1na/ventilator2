@@ -18,6 +18,8 @@ SwiftPM собирает `VentilatorCore` с read-only C-транспортам�
 
 Root-owned signed bundle установлен в `/Applications/Ventilator.app`, но живой привилегированный помощник ещё не подтверждён: последняя регистрация отказала, actual status=notRegistered. Bundle содержит [прототип helper](ventilator-helper.md), не подключённый к обычному окну/значку; пути записи из GUI нет. App CLI содержит signed/installed диагностику и явные lifecycle команды; [проверки и ограничения](../features/feature-helper-installation.md). Fresh wrapper сохраняет requiresApproval без автоматического unregister/register и запрещает повтор остановленной попытки. Приложение не допускает root. Подготовленный writer находится в отдельных модулях, которые GUI не линкует; аппаратный старт helper закрыт. Вызовы `SMAppService.mainApp` присутствуют для будущего автозапуска, но переключатель пока отключён.
 
+Wrapper поддерживает installed continuation полного owner review для exact уже установленного unstarted bundle. Admission отказывает до app invocation при runtime/job/changed hash; файлы установки в этом mode не меняются. Owner-only setup выполняет bounded one-shot register, затем ready только после enabled. Root review import может потребовать owner sudo; одобрение/аппаратный start выполняются отдельно. Новый пакет подготовлен и qualified без новой подписи, положительный installed root XPC ещё ожидается. [Проверки и границы](../research/evidence/owner-installed-continuation.json).
+
 ## Code anchors
 
 | Компонент | Code |

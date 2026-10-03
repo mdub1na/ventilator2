@@ -66,6 +66,8 @@ PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https:/
 
 2026-10-03, после fresh установки: installed signed/root-owned gates прошли. System log подтверждает unregister error=0, затем через 70 мс register error=1/bootstrap denied/status=notRegistered. Settings сейчас on, BTM parent pending authorization, job/runtime отсутствуют. Fresh wrapper исправлен: requiresApproval сохраняется без unregister/register; ошибки называют action, запрет повторов остаётся. Model проверяет pending/no-mutation и post-register отказы. Остановленный sealed пакет сохранён, native файлы не менялись; требуется факт административного подтверждения от владельца, root XPC/SMC остаются непроверенными. [Диагноз](docs/research/evidence/owner-fresh-register-denied.json).
 
+2026-10-03, подтверждение admin prompt: владелец сообщил, что запрос был и подтверждён. Read-only status всё ещё notRegistered; exact signed installed files/job/runtime checks прошли. Подготовлен новый full-review installed continuation: setup выполняет один register без unregister и ready только после enabled; install/replacement исключены, runtime/job/hash changes запрещают admission до app invocation. Model/full Swift review gate, strict verify и одна public qualification прошли. Прежние 16 stopped/11 signed-source файлов сохранены, установленная app не менялась. Следующий owner шаг — одна команда setup по [полному плану](docs/owner-session.md); root XPC и аппаратный опыт остаются открытыми. [Факты](docs/research/evidence/owner-installed-continuation.json).
+
 ## M3 — управление и поставка
 
 - [ ] Подтвердить атрибуцию CPU/GPU и повторить температурные чтения после сна/пробуждения; текущие кандидаты не считать доказанными датчиками.

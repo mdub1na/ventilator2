@@ -1,17 +1,20 @@
-Owner session dry-run: 2026-10-03T20:13:08+05:00
+Owner session dry-run: 2026-10-03T20:57:11+05:00
 Non-root offline files and anonymous model only; no private key, signing, sudo, installation or native writes.
 Underlying qualification stderr is preserved in STOP diagnostics.
 Mocked signing completed after exactly two codesign + two strict verify calls, without public qualification; subsequent qualification failure retained signature=complete and repeated sign invoked no external command.
 Fresh install refused existing app/backup/stage/runtime, broken aliases, unreadable state and any job without cleanup; mocked copy/ownership/native failures retained one-shot marker and never repeated sudo, while replacement packages refused before copying.
-Fresh registration model preserved requiresApproval and enabled without unregister/register mutations, called register at most once only for notFound/notRegistered, rejected runtime/job/hash changes and unexpected post-register states, named the failed native action, and retained one-shot markers without retry.
+Fresh and installed-continuation registration models preserved requiresApproval and enabled without unregister/register mutations, called register at most once only for notFound/notRegistered, rejected runtime/job/hash changes and unexpected post-register states, named the failed native action, and retained one-shot markers without retry.
+Setup model invoked root verification/review staging only after enabled registration; pending approval, a failed register and a non-continuation package invoked no ready stage. No approval or experiment start is part of setup.
+Installed continuation admission required exact signed-source hashes and disabled native identity; existing runtime, broken alias, unreadable state, any job or changed hash refused before invoking the installed app. Invalid report/ownership and enabled state were rejected on model data.
+Continuation packages refused install/replacement before external commands; missing signed source and fresh/replacement mode conflicts refused before destination creation.
 Pinned replacement policy admits disabled requiresApproval only with an absent entire runtime root; rejects enabled/unknown service, changed hashes, invalid identity/ownership and any runtime state; pure inputs only.
 Launchd repair refused an active PID, foreign bundle and ambiguous errors; accepted only exact missing service or matching inactive job on mocked diagnostic data.
 Replacement orchestration preserved backup order and performed one exact bootout only for a disabled inactive job on mocked commands; changed installation or a reappearing job stopped both moves and retained the marker.
 Collector retained a failed read diagnostic and continued status/audit collection on mocked responses; no installed/native commands.
-Signed-source import preserved every source file and provenance: replacement kept the previous pin, explicit fresh import omitted only its operative pin and sealed a new full review without re-signing. Real ad hoc rejection, revocation failure, timeout, wrong leaf, changed bundle/plan produced no seal or retry; commands limited to certificate/candidate reads.
+Signed-source import preserved every source file and provenance: replacement kept the previous pin, fresh omitted its operative pin, installed continuation bound the exact existing source hashes after two admission checks and sealed a new full review without re-signing. Real ad hoc rejection, revocation failure, timeout, wrong leaf, changed bundle/plan produced no seal or retry; commands limited to certificate/candidate reads.
 Changed source instructions, partial seal and missing owner signing marker rejected before destination creation.
-Copied package fingerprints/check passed; changed plan rejected; eight owner actions rejected before mutation without Terminal.
-Full 14579-byte UTF-8 review imported through real model CLI; canonical digest matched Swift; no approval/ledger/device. Wrong digest and symlink refused.
+Copied package fingerprints/check passed; changed plan rejected; nine owner actions rejected before mutation without Terminal.
+Full 13952-byte UTF-8 review imported through real model CLI; canonical digest matched Swift; no approval/ledger/device. Wrong digest and symlink refused.
 Ad hoc owner start/status/certificate qualification and non-root hardware stage/audit refused before native authority.
 This offline suite does not sign or positively qualify Apple-issued code, install root service, run sudo stages or execute hardware experiment.
 SHA-256 of tested helper: 5e287756e358debbc4514797d2c4e13af26c700762c7683ea19c09110243d32a

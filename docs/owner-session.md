@@ -1,8 +1,8 @@
-# Единый сеанс владельца: чистая установка и опыт 2500 RPM
+# Единый сеанс владельца: установленный helper и опыт 2500 RPM
 
 **Шаги 1 → 6, переход после указанного успеха. При STOP сохраните вывод и сообщите разработчику; команду не повторять.**
 
-PR #18 остановлен на register. Sealed пакет сохранён. Продолжение — после [диагноза разработчика](research/evidence/owner-fresh-register-denied.json); этот шаблон относится к будущим пакетам.
+Прежний register отказал после успешного unregister. Владелец подтвердил запрос администратора; actual status=notRegistered, runtime/job отсутствуют. Новый пакет продолжает установленную копию. Старый sealed пакет сохранён целиком.
 
 Mac15,7, macOS 27.0.0 (26A428), два вентилятора; GUI read-only. Один Fixed и один Auto без повторов/сна/аварийных тестов. Сохраните работу, подключите питание, закройте нагрузки и Ventilator. Сеанс 15–25 минут; опыт до 25 с. Без перезагрузки.
 
@@ -10,9 +10,7 @@ Mac15,7, macOS 27.0.0 (26A428), два вентилятора; GUI read-only. О
 
 Root XPC этой сборки ещё не подтверждён; проверка в шаге 3.
 
-Перед fresh установкой владелец удалил app/backup; job/runtime root отсутствовали, BTM сохранил запись. Архив: `.build/owner-session-2026-10-03-after-owner-removal/`.
-
-Новый `.build/owner-session/` содержит те же signed файлы и новый полный review. Пересборка/подпись не нужны. Открывать только `/Applications/Ventilator.app`, не архивы из `.build/`. До START записей нет.
+`.build/owner-session/` содержит те же signed файлы и новый полный review. Установленная `/Applications/Ventilator.app` совпадает с ними. Новый wrapper не устанавливает/не заменяет файлы, не делает unregister. Открывать только эту app. До START записей нет.
 
 Новая **signed** сборка; **sign повторно не выполнять**:
 
@@ -32,45 +30,33 @@ cd /Users/mdub1na/IdeaProjects/ventilator2
 python3 .build/owner-session/session.py check
 ```
 
-Успех: packagePath заканчивается на `.build/owner-session`, installationMode=fresh, signature=complete, certificateQualification=complete, fullReview=sealed. Иначе STOP. Новый seal подготовлен разработчиком: public qualification без private key, одна попытка до 20 с. Подпись не повторять.
+Успех: packagePath заканчивается на `.build/owner-session`, installationMode=installed, signature=complete, certificateQualification=complete, fullReview=sealed. Иначе STOP. Новый seal подготовлен разработчиком: public qualification без private key, одна попытка до 20 с. Подпись не повторять.
 
-## Шаг 2. Установить одну копию
+## Шаг 2. Продолжить настройку одной командой
 
-Фоновая активность Ventilator остаётся выключенной. В A:
-
-```sh
-python3 .build/owner-session/session.py install
-```
-
-Успех: **Installed exact signed bundle at /Applications/Ventilator.app**. Пароль sudo только в Terminal, ввод не отображается. Install требует отсутствие целевого app, обоих прежних backup, stage, всего runtime root и job; один marker до копирования, после копирования signed/root-owned/installed gates. Частичная ошибка — сохранить файлы и STOP без удаления/повтора. Replace-installed не выполнять.
-
-Затем откройте точную установленную копию, чтобы macOS распознала её путь:
+Фоновое разрешение уже включено и подтверждено владельцем. В A, без sudo:
 
 ```sh
-open /Applications/Ventilator.app
+python3 .build/owner-session/session.py setup
 ```
 
-Откроется read-only окно/значок. Не включайте автозапуск приложения. Если Gatekeeper блокирует запуск, STOP без обхода.
+Wrapper проверяет exact signed/installed identity, runtime/job и сохраняет marker до одного register. NotFound/notRegistered → register; requiresApproval сохраняется, enabled не меняется. При enabled setup сам выполняет ready: проверка root XPC, затем sudo для импорта review. Пароль sudo только в Terminal, ввод не отображается. Import review не выдаёт approval и не пишет SMC.
 
-## Шаг 3. Проверить регистрацию и root helper
+Успех: **Ready for local review/approval** — переход к шагу 4. Install/replace-installed/sign/unregister не выполнять. После ошибки STOP, setup/register не повторять.
 
-В A:
+Если setup сообщает **Setup paused for system approval**, переход к шагу 3. Это ещё не успех. Любой другой отказ — STOP и сообщить полный вывод; пакет/службу сохранить.
 
-```sh
-python3 .build/owner-session/session.py register
-```
+Окно/значок остаются read-only, автозапуск приложения не включать. При блокировке Gatekeeper STOP без обхода.
 
-Wrapper проверяет identity; disabled путь требует отсутствие runtime root/job. NotFound/notRegistered допускают один register; requiresApproval сохраняет без unregister/register, enabled не меняет. Marker запрещает повтор. Успех: **requiresApproval** либо **enabled**; error 1 только с actual requiresApproval и registrationDiagnostic. Иначе STOP. Native команда до 10 с.
+## Шаг 3. Только если появилось новое системное разрешение
 
-Если macOS показала уведомление о добавлении фоновых объектов Ventilator: **Параметры/Options → Разрешить/Allow**, подтвердите системный пароль/Touch ID. Apple описывает административное одобрение daemon именно так; это разрешение запуска службы, не одобрение SMC-опыта.
-
-В «Системные настройки → Основные → Объекты входа и расширения» **включите** Ventilator, подтвердите запрос администратора, если появится. Отметьте, были ли notification/auth prompt. При enabled либо после разрешения в A:
+Если после setup macOS показала новое уведомление о фоновых объектах Ventilator: **Параметры/Options → Разрешить/Allow**, подтвердите пароль/Touch ID. Это разрешение службы, не одобрение SMC-опыта. После подтверждения в A ровно один раз:
 
 ```sh
 python3 .build/owner-session/session.py ready
 ```
 
-Успех: **Ready for local review/approval**, проверены root peer/review; receipt/записей нет. Отказ, в том числе on + requiresApproval — STOP; run запрещён, без циклов register/переключателя, resetbtm/ручного bootstrap.
+Успех: **Ready for local review/approval** — шаг 4. Если нового уведомления/auth prompt нет, либо ready опять отказал — STOP и сообщить вывод. Не переключать off/on и не повторять register/ready. Включённый переключатель уже наблюдался без effective approval. Resetbtm/manual bootstrap не выполнять.
 
 ## Шаг 4. Локально одобрить точный опыт
 
@@ -106,15 +92,9 @@ python3 .build/owner-session/session.py collect
 
 ## Команды script и сроки
 
-Script сам выполняет команды ниже; отдельно не вводить. Marker предшествует sudo, job/runtime state запрещают установку. Backup/staging не создаются.
+Script выполняет только перечисленное, отдельно команды не вводить. Setup/register требуют non-root Terminal, native команда до 10 с; один register без unregister. Exact installed/source hashes проверены при подготовке до/после копирования локального пакета; runtime/job запрещают продолжение. Install/replacement в этом режиме запрещены.
 
-```sh
-sudo /usr/bin/ditto /Users/mdub1na/IdeaProjects/ventilator2/.build/owner-session/Ventilator.app /Applications/Ventilator.app
-sudo /usr/sbin/chown -R root:wheel /Applications/Ventilator.app
-sudo /bin/chmod -R go-w /Applications/Ventilator.app
-```
-
-Register/unregister: signed app CLI после native gates, без SMC. Ready: `--verify-installed-helper` проверяет enabled/root audit UID/PID/XPC nonce/CDHash/fingerprint, затем:
+Ready: `--verify-installed-helper` проверяет enabled/root audit UID/PID/XPC nonce/CDHash/fingerprint, затем:
 
 ```text
 sudo /Applications/Ventilator.app/Contents/MacOS/VentilatorHelper --stage-local-hardware-review /Users/mdub1na/IdeaProjects/ventilator2/.build/owner-session/review.json REVIEW_SHA256
