@@ -23,6 +23,10 @@ PREVIOUS_SESSION = None
 SIGNED_SESSION = None
 FRESH_INSTALL = False
 CONTINUE_INSTALLED = False
+READ_ONLY_UPDATE = False
+READ_ONLY_STAGE = Path("/Applications/Ventilator-profile-staging.app")
+READ_ONLY_BACKUP = Path("/Applications/Ventilator-before-profile-fix.bundle-backup")
+READ_ONLY_MACHINE = {"model": "Mac15,7", "version": "27.0.1", "build": "26A434"}
 
 
 def sha(path):
@@ -70,6 +74,12 @@ def candidate(bundle):
     return result
 
 
+def current_machine():
+    return {"model": output(["/usr/sbin/sysctl", "-n", "hw.model"]).strip(),
+            "version": output(["/usr/bin/sw_vers", "-productVersion"]).strip(),
+            "build": output(["/usr/bin/sw_vers", "-buildVersion"]).strip()}
+
+
 def package_files(directory, manifest):
     for name, digest in manifest["packageFiles"].items():
         if name not in ["session.py", "PLAN.md"] or sha(directory / name) != digest:
@@ -81,6 +91,10 @@ def package_files(directory, manifest):
 def check(sealed=False):
     manifest = json.loads((SESSION / "manifest.json").read_text())
     package_files(SESSION, manifest)
+    if manifest.get("readOnlyUpdate") and (manifest.get("installedReplacement") is None or manifest.get("installedContinuation") or manifest.get("freshInstallation")):
+        raise RuntimeError("Invalid read-only replacement binding")
+    if manifest.get("readOnlyUpdate") and manifest.get("readOnlyMachine") != READ_ONLY_MACHINE:
+        raise RuntimeError("Read-only machine binding changed")
     if manifest.get("installedContinuation") is not None and (
             manifest["installedContinuation"] != manifest["fingerprint"] or
             manifest.get("installedReplacement") is not None or manifest.get("freshInstallation")):
@@ -95,6 +109,10 @@ def check(sealed=False):
             raise RuntimeError("Signing started but completion is unverified. Preserve files; do not sign or install again")
         raise RuntimeError("Bundle changed")
     if sealed:
+        if manifest.get("readOnlyUpdate"):
+            if manifest.get("installedReplacement") is None or any(os.path.lexists(SESSION / n) for n in ["candidate.json", "review.json", "review.sha256"]):
+                raise RuntimeError("Read-only update cannot contain hardware review/authority")
+            return manifest
         review = json.loads((SESSION / "review.json").read_text())
         canonical = json.dumps(review, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
         if hashlib.sha256(canonical).hexdigest() != (SESSION / "review.sha256").read_text().strip():
@@ -113,7 +131,9 @@ def package_status():
     signing_stopped = not signed and (SESSION / "sign-started.json").exists()
     qualification_stopped = not sealed and (SESSION / "qualification-started.json").exists()
     if sealed:
-        if os.path.lexists(SESSION / "registration-started.json"):
+        if manifest.get("readOnlyUpdate"):
+            next_step = "Preserve state; do not repeat update" if os.path.lexists(SESSION / "update-started.json") else "update-read-only once in owner Terminal"
+        elif os.path.lexists(SESSION / "registration-started.json"):
             next_step = "Registration already attempted; preserve state and follow PLAN.md, do not repeat setup/register"
         elif manifest.get("installedContinuation"):
             next_step = "setup once in owner Terminal; exact signed copy is already installed"
@@ -125,14 +145,16 @@ def package_status():
         next_step = "qualify (public certificate only); do not sign again"
     else:
         next_step = "sign once in owner Terminal, then qualify"
+    if manifest.get("readOnlyUpdate"):
+        next_step = "Preserve state; do not repeat update/sign/qualify" if signing_stopped or qualification_stopped or os.path.lexists(SESSION / "update-started.json") else "update-read-only once in owner Terminal; signing and qualification precede system changes"
     return {
         "packagePath": str(SESSION),
-        "installationMode": "installed" if manifest.get("installedContinuation") else
+        "installationMode": "readOnlyReplacement" if manifest.get("readOnlyUpdate") else "installed" if manifest.get("installedContinuation") else
             "replacement" if manifest.get("installedReplacement") else "fresh",
         "signature": "complete" if signed else "stopped" if signing_stopped else "notStarted",
         "certificateQualification": "complete" if sealed else
             "stopped" if qualification_stopped else "notStarted",
-        "fullReview": "sealed" if sealed else "notSealed",
+        "fullReview": "notApplicable" if manifest.get("readOnlyUpdate") else "sealed" if sealed else "notSealed",
         "fingerprint": fingerprints(SESSION / "Ventilator.app"),
         "nextStep": next_step,
     }
@@ -177,9 +199,13 @@ def prepare():
         raise RuntimeError("Fresh install requires a signed source and no previous installation")
     if CONTINUE_INSTALLED and (SIGNED_SESSION is None or PREVIOUS_SESSION is not None or FRESH_INSTALL):
         raise RuntimeError("Installed continuation requires signed source without fresh/replacement mode")
+    if READ_ONLY_UPDATE and (PREVIOUS_SESSION is None or SIGNED_SESSION is not None or FRESH_INSTALL or CONTINUE_INSTALLED):
+        raise RuntimeError("Read-only update requires one pinned previous installation without other modes")
+    if READ_ONLY_UPDATE and current_machine() != READ_ONLY_MACHINE:
+        raise RuntimeError("Read-only update machine changed")
     if SESSION.exists():
         raise RuntimeError("Package already exists; preserve it, use a new output for a revised package")
-    instructions = (ROOT / "docs/owner-session.md").read_text()
+    instructions = (ROOT / ("docs/owner-helper-update.md" if READ_ONLY_UPDATE else "docs/owner-session.md")).read_text()
     if len(instructions.encode()) > 12288:
         raise RuntimeError("Owner instructions exceed review budget")
     bundle = ROOT / ".build/Ventilator.app"
@@ -188,15 +214,20 @@ def prepare():
         bundle, signed_hashes, imported = signed_source()
     if CONTINUE_INSTALLED:
         admit_installed_continuation(signed_hashes)
-    plan = candidate(bundle)
+    plan = None if READ_ONLY_UPDATE else candidate(bundle)
     SESSION.mkdir(mode=0o700, parents=True)
     shutil.copytree(bundle, SESSION / "Ventilator.app", symlinks=False)
     shutil.copyfile(__file__, SESSION / "session.py")
     (SESSION / "PLAN.md").write_text(instructions)
     manifest = {"schema": 1, "certificateSHA1": CERTIFICATE, "teamIdentifier": TEAM,
-        "fingerprint": fingerprints(SESSION / "Ventilator.app"), "candidatePlanSHA256": plan["planSHA256"],
+        "fingerprint": fingerprints(SESSION / "Ventilator.app"),
         "packageFiles": {n: sha(SESSION / n) for n in ["session.py", "PLAN.md"]},
         "hardwareWritesExecuted": 0, "signed": False}
+    if plan is not None:
+        manifest["candidatePlanSHA256"] = plan["planSHA256"]
+    if READ_ONLY_UPDATE:
+        manifest["readOnlyUpdate"] = True
+        manifest["readOnlyMachine"] = READ_ONLY_MACHINE
     if imported:
         if fingerprints(bundle) != signed_hashes or manifest["fingerprint"] != signed_hashes:
             raise RuntimeError("Signed source changed while copying")
@@ -262,6 +293,12 @@ def qualify():
         raise RuntimeError("Certificate qualification failed")
     if qualification["fingerprint"] != before or fingerprints(bundle) != before:
         raise RuntimeError("Qualification fingerprint mismatch")
+    if manifest.get("readOnlyUpdate"):
+        check()
+        save("sealed.json", qualification)
+        check(sealed=True)
+        print("Read-only update signed and certificate qualified; no hardware review, approval or SMC writes.")
+        return
     plan = candidate(bundle)
     review = {"domain": "hardware", "candidate": plan["plan"], "ownerInstructions": (SESSION / "PLAN.md").read_text()}
     canonical = json.dumps(review, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
@@ -370,6 +407,8 @@ def replace_installed():
     previous = manifest.get("installedReplacement")
     if previous is None:
         raise RuntimeError("This package has no pinned previous installation")
+    staging = READ_ONLY_STAGE if manifest.get("readOnlyUpdate") else REPLACEMENT_STAGE
+    backup = READ_ONLY_BACKUP if manifest.get("readOnlyUpdate") else REPLACEMENT_BACKUP
 
     def verify_previous():
         # lstat fails closed on permission errors; any directory, file or symlink blocks replacement.
@@ -382,7 +421,7 @@ def replace_installed():
         admit_replacement(report, fingerprints(INSTALLED), previous, hardware_exists)
 
     verify_previous()
-    if os.path.lexists(REPLACEMENT_STAGE) or os.path.lexists(REPLACEMENT_BACKUP):
+    if os.path.lexists(staging) or os.path.lexists(backup):
         raise RuntimeError("Replacement staging/backup already exists; preserve it and stop")
     save("replacement-started.json", {"previous": previous, "hardwareWritesExecuted": 0})
     # Owner first disables background permission. The state-root gate proves no initialized
@@ -392,22 +431,22 @@ def replace_installed():
         subprocess.run(["sudo", "/bin/launchctl", "bootout", "system/dev.ventilator.helper"], check=True)
     if launchd_job_present():
         raise RuntimeError("Launchd job remains; preserve state and stop")
-    for command in [["sudo", "/usr/bin/ditto", str(SESSION / "Ventilator.app"), str(REPLACEMENT_STAGE)],
-                    ["sudo", "/usr/sbin/chown", "-R", "root:wheel", str(REPLACEMENT_STAGE)],
-                    ["sudo", "/bin/chmod", "-R", "go-w", str(REPLACEMENT_STAGE)]]:
+    for command in [["sudo", "/usr/bin/ditto", str(SESSION / "Ventilator.app"), str(staging)],
+                    ["sudo", "/usr/sbin/chown", "-R", "root:wheel", str(staging)],
+                    ["sudo", "/bin/chmod", "-R", "go-w", str(staging)]]:
         subprocess.run(command, check=True)
-    staged = json.loads(output([files(REPLACEMENT_STAGE)["applicationSHA256"], "--helper-status"]))
+    staged = json.loads(output([files(staging)["applicationSHA256"], "--helper-status"]))
     seal = json.loads((SESSION / "sealed.json").read_text())
     if staged.get("trustedBundle") is not True or staged.get("rootOwned") is not True or staged.get("fingerprint") != seal["fingerprint"]:
         raise RuntimeError("Staged signed/root-owned bundle not verified")
     verify_previous()
     if launchd_job_present():
         raise RuntimeError("Launchd job appeared during staging; do not move bundles")
-    subprocess.run(["sudo", "/bin/mv", str(INSTALLED), str(REPLACEMENT_BACKUP)], check=True)
-    subprocess.run(["sudo", "/bin/mv", str(REPLACEMENT_STAGE), str(INSTALLED)], check=True)
+    subprocess.run(["sudo", "/bin/mv", str(INSTALLED), str(backup)], check=True)
+    subprocess.run(["sudo", "/bin/mv", str(staging), str(INSTALLED)], check=True)
     installed_check()
     save("replacement-completed.json", {"previous": previous, "fingerprint": seal["fingerprint"], "hardwareWritesExecuted": 0})
-    print("Replaced exact disabled unstarted bundle; old signed app preserved at", REPLACEMENT_BACKUP)
+    print("Replaced exact disabled unstarted bundle; old signed app preserved at", backup)
 
 
 def service(command):
@@ -467,6 +506,79 @@ def register():
     return status
 
 
+def update_read_only():
+    owner_terminal()
+    manifest = check()
+    if not manifest.get("readOnlyUpdate"):
+        raise RuntimeError("Read-only update package required")
+    if current_machine() != manifest["readOnlyMachine"]:
+        raise RuntimeError("Machine changed; stop before signing/system changes")
+    if fingerprints(INSTALLED) != manifest["installedReplacement"]:
+        raise RuntimeError("Previous installed fingerprint changed")
+    try:
+        HARDWARE_ROOT.lstat()
+    except FileNotFoundError:
+        pass
+    else:
+        raise RuntimeError("Runtime exists; preserve it and stop before signing or system changes")
+    if any(os.path.lexists(p) for p in [READ_ONLY_STAGE, READ_ONLY_BACKUP]):
+        raise RuntimeError("Read-only staging/backup already exists")
+    save("update-started.json", {"hardwareWritesExecuted": 0, "previous": manifest["installedReplacement"]})
+    print((SESSION / "PLAN.md").read_text(), flush=True)
+    if not (SESSION / "sealed.json").exists():
+        if not (SESSION / "signature-ready.json").exists():
+            sign()
+        qualify()
+    check(sealed=True)
+    print("Exact signed read-only fingerprint:", json.dumps(json.loads((SESSION / "sealed.json").read_text())["fingerprint"], indent=2), flush=True)
+    if input("Close Ventilator, switch OFF only Ventilator in System Settings; then type OFF: ") != "OFF":
+        raise RuntimeError("Disabled state not reported; no removal or replacement requested")
+    previous = manifest["installedReplacement"]
+    try:
+        HARDWARE_ROOT.lstat()
+    except FileNotFoundError:
+        pass
+    else:
+        raise RuntimeError("Runtime appeared; removal/replacement forbidden")
+    report = json.loads(output([files(INSTALLED)["applicationSHA256"], "--helper-status"], timeout=10))
+    admit_replacement(report, fingerprints(INSTALLED), previous, False)
+    save("removal-started.json", {"previous": previous, "hardwareWritesExecuted": 0})
+    removed = json.loads(output([files(INSTALLED)["applicationSHA256"], "--unregister-helper"], timeout=10))
+    admit_replacement(removed, fingerprints(INSTALLED), previous, False)
+    if removed["registration"] != "notRegistered":
+        raise RuntimeError("Unregistration incomplete; preserve state, no replacement/register")
+    save("removal-completed.json", removed)
+    replace_installed()
+    seal = installed_check()
+    save("registration-started.json", {"fingerprint": seal["fingerprint"], "hardwareWritesExecuted": 0})
+    registered = json.loads(output([files(INSTALLED)["applicationSHA256"], "--register-helper"], timeout=10))
+    def identity(value):
+        if not all(value.get(k) is True for k in ["trustedBundle", "rootOwned", "installedLocation"]) or \
+                value.get("fingerprint") != seal["fingerprint"] or value.get("hardwareControlAvailable") is not False:
+            raise RuntimeError("Installed read-only identity mismatch")
+    identity(registered)
+    save("registration-completed.json", registered)
+    if registered["registration"] == "requiresApproval":
+        if input("Switch ON only Ventilator once; authenticate if prompted, then type ON: ") != "ON":
+            raise RuntimeError("System enable action not reported; no verification requested")
+        verified = json.loads(output([files(INSTALLED)["applicationSHA256"], "--verify-installed-helper"], timeout=10))
+    elif registered["registration"] == "enabled":
+        verified = registered
+    else:
+        raise RuntimeError("Unexpected registration state; no retry")
+    identity(verified)
+    if verified.get("helperVerified") is not True or verified.get("error") is not None:
+        raise RuntimeError("Read-only root peer not verified; no retry")
+    hardware = json.loads(output([files(INSTALLED)["applicationSHA256"], "--owner-experiment-status"], timeout=10))
+    if hardware.get("hardwareControlAvailable") is not False or hardware.get("hardwareExperiment") is not None or \
+            "unsupportedMachine" not in hardware.get("errorCode", ""):
+        raise RuntimeError("Expected unsupported-profile hardware denial not confirmed")
+    installed_check()
+    save("result.json", {"verification": verified, "hardwareStatus": hardware,
+                         "hardwareWritesExecuted": 0, "physicalAutoVerified": False})
+    print(f"Read-only helper verified; snapshot saved at {SESSION / 'result.json'}. Stop here; no hardware experiment.")
+
+
 def setup():
     owner_terminal()
     if not check(sealed=True).get("installedContinuation"):
@@ -514,14 +626,15 @@ def collect():
 
 
 def main():
-    global SESSION, PREVIOUS_SESSION, SIGNED_SESSION, FRESH_INSTALL, CONTINUE_INSTALLED
+    global SESSION, PREVIOUS_SESSION, SIGNED_SESSION, FRESH_INSTALL, CONTINUE_INSTALLED, READ_ONLY_UPDATE
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["prepare", "check", "sign", "qualify", "install", "replace-installed", "register", "setup", "ready", "run", "collect", "unregister"])
+    parser.add_argument("command", choices=["prepare", "check", "sign", "qualify", "install", "replace-installed", "register", "setup", "ready", "run", "collect", "unregister", "update-read-only"])
     parser.add_argument("--output", type=Path, help="Repository-only prepare/check output under .build")
     parser.add_argument("--previous-session", type=Path, help="Prepare a pinned replacement from a preserved signed package under .build")
     parser.add_argument("--signed-session", type=Path, help="Prepare from a preserved failed signing package under .build without signing again")
     parser.add_argument("--fresh-install", action="store_true", help="Prepare a new full review from signed source without inheriting its previous-installation pin")
     parser.add_argument("--continue-installed", action="store_true", help="Prepare a new full review for the exact already-installed unstarted signed copy, without installing files")
+    parser.add_argument("--read-only-update", action="store_true", help="Prepare a pinned diagnostic update without hardware review or commands")
     args = parser.parse_args()
     if args.fresh_install and (args.command != "prepare" or not args.signed_session or args.previous_session):
         raise RuntimeError("Fresh install allowed only for prepare with signed source and no previous installation")
@@ -529,6 +642,9 @@ def main():
         raise RuntimeError("Installed continuation allowed only for prepare with signed source and no fresh/replacement mode")
     FRESH_INSTALL = args.fresh_install
     CONTINUE_INSTALLED = args.continue_installed
+    if args.read_only_update and (args.command != "prepare" or not args.previous_session or args.signed_session or args.fresh_install or args.continue_installed):
+        raise RuntimeError("Read-only update allowed only for prepare with one previous installation")
+    READ_ONLY_UPDATE = args.read_only_update
     if args.output:
         if ROOT is None or args.command not in ["prepare", "check"] or not args.output.resolve().is_relative_to(ROOT / ".build"):
             raise RuntimeError("Custom output allowed only for offline prepare/check under .build")
@@ -543,9 +659,11 @@ def main():
         SIGNED_SESSION = args.signed_session.resolve()
     if os.geteuid() == 0:
         raise RuntimeError("Run without root; only listed child commands may use owner sudo")
+    if args.command != "prepare" and check().get("readOnlyUpdate") and args.command not in ["check", "sign", "qualify", "update-read-only"]:
+        raise RuntimeError("Read-only package permits check/sign/qualify/update-read-only only; hardware and separate lifecycle commands are closed")
     actions = {"prepare": prepare, "check": lambda: print(json.dumps(package_status(), indent=2)),
         "sign": sign, "qualify": qualify, "install": install, "replace-installed": replace_installed, "register": register, "setup": setup, "ready": ready,
-        "run": run, "collect": collect, "unregister": lambda: service("--unregister-helper")}
+        "run": run, "collect": collect, "unregister": lambda: service("--unregister-helper"), "update-read-only": update_read_only}
     actions[args.command]()
 
 

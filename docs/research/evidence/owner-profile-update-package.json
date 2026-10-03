@@ -1,0 +1,132 @@
+{
+  "preparedAt": "2026-10-04T00:41:19+05:00",
+  "purpose": "Read-only diagnostic helper replacement; no hardware review or authority",
+  "packagePath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/owner-profile-update",
+  "manifest": {
+    "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+    "fingerprint": {
+      "applicationSHA256": "0b6055bcd6b34b42df8ac08cad97486269c008d35c548c407576bfe5e5c65f71",
+      "helperSHA256": "e144c5e41ee2e752a71b0b2482bcf5c3f92a4b0b686babf216bb303e0e13af9d",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareWritesExecuted": 0,
+    "installedReplacement": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "packageFiles": {
+      "PLAN.md": "a16c8d6848139a641a0901048f89721c0858ef3cc54521531ccc62a12b682c41",
+      "session.py": "65bef82f5bc6c45f05484284db6de93a6d337c710ce1d59088eef25ce542793f"
+    },
+    "readOnlyMachine": {
+      "build": "26A434",
+      "model": "Mac15,7",
+      "version": "27.0.1"
+    },
+    "readOnlyUpdate": true,
+    "schema": 1,
+    "signed": false,
+    "teamIdentifier": "4659S5GD6X"
+  },
+  "newHashesAreAdHocOnly": true,
+  "signedFingerprintsAvailableAfterOwnerSignAndQualification": true,
+  "candidateUnchanged": {
+    "model": "Mac15,7",
+    "version": "27.0.0",
+    "build": "26A428"
+  },
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "packageFilesSHA256": {
+    "PLAN.md": "a16c8d6848139a641a0901048f89721c0858ef3cc54521531ccc62a12b682c41",
+    "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+    "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+    "Ventilator.app/Contents/MacOS/Ventilator": "0b6055bcd6b34b42df8ac08cad97486269c008d35c548c407576bfe5e5c65f71",
+    "Ventilator.app/Contents/MacOS/VentilatorHelper": "e144c5e41ee2e752a71b0b2482bcf5c3f92a4b0b686babf216bb303e0e13af9d",
+    "Ventilator.app/Contents/_CodeSignature/CodeResources": "98678ec90a7cf5989a9a29180b8b6bf18be76d59bb2d517982288a372da1604a",
+    "manifest.json": "5f2489819f5d29ee84336b2785d485bf1e81203b0ffa45d0526265dba4295481",
+    "session.py": "65bef82f5bc6c45f05484284db6de93a6d337c710ce1d59088eef25ce542793f"
+  },
+  "preservation": {
+    "ownerFilesSHA256": {
+      "PLAN.md": "80217afe0faa01f7e8ea1765117ae1c53a05cd6a61a3bbb9f79c48d7dae225a7",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Ventilator.app/Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb",
+      "candidate.json": "611beae7cc61f2ab0b3a5892f33400fedeec11b73502610a59cefcc28d3c6243",
+      "manifest.json": "47c12ec7064781a0153ffcb04b9ab2178ad2e8dd7793a52b3428cd45ed49073a",
+      "qualification-started.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "registration-completed.json": "917c6151abd8cf09cddc4a72d69410e6665cc50b731279f52f81fc91e111e2e6",
+      "registration-started.json": "37263e896658b2a756d1541d9a593e6eddd2702a10162bba19824652667693f0",
+      "review.json": "6cb96a66cdbcd7b391a9f150e278e2cdaa885a951359ef3110d7c72cb911cf49",
+      "review.sha256": "d563760ece4ff61363aa45a9e3138cb85112f5df7e9b7dea9aa9f126cf0383ae",
+      "sealed.json": "ce83ee9d947a79e9ba927d0de532a87ff8c09bb26a9a14cebf2dc5f764098001",
+      "session.py": "f475e8413456043d99f165cccddd7438487ac3a81da1e37c7ae1b800cc48ae90"
+    },
+    "previousDiagnosticFilesSHA256": {
+      "snapshot.py": "dc6950f39a93c0063df9737a72f274a31cc3b3afe510b8ce5b9fefe8a8df525e",
+      "PLAN.md": "083cbefab229df1217cf23a2d710baa8e0a9a1766ffda0213f389f2a7784f698",
+      "manifest.json": "a0b81a1dc6a1a04252ca24a82ce1a2f0e4ded9e580e7206e7699eac5d6af6f32",
+      "started.json": "ba522141b37943d527cf33cddfd6e9e26c3f57856d08a1eda45e45a7db6ac7ff",
+      "launchd.json": "0c30d793b60848124d98be32a1a8d1fc835e7ec45c95108877cded9aef0d0e67",
+      "btm.json": "3cc284394e2a37859786bad898dbcf2c26fb9d4cf02d6de7d0f93a0e7f09e511",
+      "result.json": "e95d61ff25d5d16d74c8fd3e6a63a263d9ff1592c8c41ad0714eb13e0eb969c9"
+    },
+    "systemCycleFilesSHA256": {
+      "PLAN.md": "e704614d89bf989f9bfa54424c4a08c222dccaa1657d60e501323dc47d75fda0",
+      "btm.json": "0499662a74ce690114f766741ca175ab0d4e6e769e867af3fda71e6ef8e28aec",
+      "launchd.json": "5214909b75b8a0aa941d8cf47991cb972a14909343968b844afb117eecb6a6c4",
+      "manifest.json": "2a8f2656e4a23cd4b011523dd2931ae7369ca1f6ad71459287e4d49f8e7ae6e4",
+      "owner-action.json": "792fe00a976d09e38a981301906a11ea44ebee580b8f0278845a251526d16bac",
+      "result.json": "189b2ff23ae9c0feb72e83529bccf68726aa1aa8af6fb19ac23c7113bcec95d1",
+      "snapshot.py": "dfa54b2b869bec26bc01e148d2306fe936d8d2ad562ff777110ba188e706facc",
+      "started.json": "7c0c29ba40dca8b4c07d5adca6380d5e838d661e1447e9c6d04614564386fcdc"
+    },
+    "installedFingerprintUnchanged": true,
+    "runtimeAbsent": true
+  },
+  "verification": {
+    "swiftTests": {
+      "passed": 104,
+      "failed": 0
+    },
+    "sessionRuntime": {
+      "unsupportedProfiles": 3,
+      "previousModelPaths": 4,
+      "result": "passed",
+      "output": "docs/research/evidence/session-runtime-dry-run.txt"
+    },
+    "ownerPackageRegression": {
+      "result": "passed",
+      "output": "docs/research/evidence/owner-session-dry-run.txt"
+    },
+    "readOnlyUpdate": {
+      "successPaths": 3,
+      "failurePaths": 12,
+      "result": "passed",
+      "output": "docs/research/evidence/read-only-update-dry-run.txt"
+    },
+    "preparedPackageNoTTY": {
+      "exitCode": 78,
+      "stderr": "STOP: This explicit owner action requires a non-root Terminal; do not run through the agent. No automatic retry; follow PLAN.md.",
+      "markerCreated": false,
+      "actualSigningOrPrivilegedCommands": false
+    },
+    "docsCheck": {
+      "documents": 13,
+      "bddScenarios": 89,
+      "errors": 0
+    },
+    "gitDiffCheckPassed": true
+  },
+  "ownerCommand": "python3 /Users/mdub1na/IdeaProjects/ventilator2/.build/owner-profile-update/session.py update-read-only",
+  "fullPlan": "docs/owner-helper-update.md",
+  "actualNewSignature": false,
+  "actualNewInstallation": false,
+  "actualNewRootPeerVerified": false,
+  "currentOSReadOnlyProbe": "docs/research/evidence/macos-26A434-read-only.txt",
+  "limitations": "Only the immutable old profile can create hardware runtime. The new read-only package cannot run hardware commands, does not save a candidate/review/receipt, and requires owner Terminal/keychain/Settings/sudo to prove its installed root peer. A failed owner step stops without retry."
+}

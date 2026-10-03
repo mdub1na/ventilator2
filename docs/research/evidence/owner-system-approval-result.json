@@ -1,0 +1,184 @@
+{
+  "verifiedAt": "2026-10-04T00:14:23+05:00",
+  "ownerMessageMeaning": "System permission snapshot collected",
+  "snapshot": {
+    "startedAt": "2026-10-04T00:11:32+05:00",
+    "installedFingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "scriptSHA256": "dfa54b2b869bec26bc01e148d2306fe936d8d2ad562ff777110ba188e706facc",
+    "planSHA256": "e704614d89bf989f9bfa54424c4a08c222dccaa1657d60e501323dc47d75fda0",
+    "runtimeBefore": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    },
+    "hardwareWritesExecuted": 0,
+    "steps": {
+      "launchd": {
+        "exitCode": 0,
+        "completedAt": "2026-10-04T00:11:55+05:00",
+        "alarmExpired": false,
+        "stdout": "system/dev.ventilator.helper = {\n\tactive count = 0\n\tpath = (submitted by smd.538)\n\ttype = Submitted\n\tmanaged_by = com.apple.xpc.ServiceManagement\n\tstate = not running\n\n\tprogram identifier = Contents/MacOS/VentilatorHelper (mode: 2)\n\tparent bundle identifier = dev.ventilator.macos\n\tparent bundle version = 1\n\tBTM uuid = 7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F\n\tdefault environment = {\n\t\tPATH => /usr/bin:/bin:/usr/sbin:/sbin\n\t}\n\n\tenvironment = {\n\t\tOSLogRateLimit => 64\n\t\tXPC_SERVICE_NAME => dev.ventilator.helper\n\t}\n\n\tLWCR = {\n\t\t\"reqs\" => {\n\t\t\t\"signing-identifier\" => \"dev.ventilator.helper\"\n\t\t\t\"validation-category\" => 3\n\t\t\t\"team-identifier\" => \"4659S5GD6X\"\n\t\t}\n\t\t\"vers\" => 1\n\t\t\"comp\" => 1\n\t\t\"ccat\" => 0\n\t}\n\n\tdomain = system\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 0\n\tlast exit code = (never exited)\n\n\tendpoints = {\n\t\t\"dev.ventilator.helper\" = {\n\t\t\tport = 0x0\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 1\n\t\t}\n\t}\n\n\tspawn type = daemon (3)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tsubmitted job. ignore execute allowed\n\tjetsam thread limit = 32\n\tcpumon = default\n\tjob state = uninitialized\n\tsanitizer flags = 0x0\n\n\tproperties = partial import | resolve program | has LWCR\n}\n"
+      },
+      "btm": {
+        "exitCode": 0,
+        "completedAt": "2026-10-04T00:11:55+05:00",
+        "alarmExpired": false,
+        "records": [
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, not notified] (pending authorization) (0x12)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "16",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F",
+              "Name": "VentilatorHelper",
+              "Developer Name": "(null)",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "daemon (0x10)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[enabled, allowed, not notified] (0x3)",
+              "Identifier": "16.dev.ventilator.helper",
+              "URL": "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist",
+              "Executable Path": "Contents/MacOS/VentilatorHelper",
+              "Generation": "905",
+              "Last Use": "2026-10-03 15:33:22+05:00",
+              "Parent Identifier": "2.dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 0,
+            "fields": {
+              "UUID": "BACD812D-ACFD-4C47-9C6A-D6161F076D49",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, notified] (0xa)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "1",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 501,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, not notified] (pending authorization) (0x12)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "20",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          }
+        ],
+        "rawOtherApplicationsSaved": false,
+        "complete": true,
+        "formatRecognized": true
+      }
+    },
+    "ownerActionReported": "One off/on cycle of Ventilator; authentication if prompted",
+    "runtimeAfter": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    }
+  },
+  "snapshotFilesSHA256": {
+    "PLAN.md": "e704614d89bf989f9bfa54424c4a08c222dccaa1657d60e501323dc47d75fda0",
+    "btm.json": "0499662a74ce690114f766741ca175ab0d4e6e769e867af3fda71e6ef8e28aec",
+    "launchd.json": "5214909b75b8a0aa941d8cf47991cb972a14909343968b844afb117eecb6a6c4",
+    "manifest.json": "2a8f2656e4a23cd4b011523dd2931ae7369ca1f6ad71459287e4d49f8e7ae6e4",
+    "owner-action.json": "792fe00a976d09e38a981301906a11ea44ebee580b8f0278845a251526d16bac",
+    "result.json": "189b2ff23ae9c0feb72e83529bccf68726aa1aa8af6fb19ac23c7113bcec95d1",
+    "snapshot.py": "dfa54b2b869bec26bc01e148d2306fe936d8d2ad562ff777110ba188e706facc",
+    "started.json": "7c0c29ba40dca8b4c07d5adca6380d5e838d661e1447e9c6d04614564386fcdc"
+  },
+  "installedReadOnlyVerification": {
+    "command": [
+      "/Applications/Ventilator.app/Contents/MacOS/Ventilator",
+      "--verify-installed-helper"
+    ],
+    "exitCode": 78,
+    "seconds": 2.0945895,
+    "report": {
+      "error": "deadline",
+      "fingerprint": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareControlAvailable": false,
+      "helperVerified": false,
+      "installedLocation": true,
+      "registration": "enabled",
+      "rootOwned": true,
+      "trustedBundle": true
+    },
+    "stderr": "",
+    "runtimeBefore": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    },
+    "runtimeAfter": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    }
+  },
+  "preservation": {
+    "ownerFilesCount": 15,
+    "oldDiagnosticFilesCount": 7,
+    "installedFingerprintUnchanged": true
+  },
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "limitations": "Loaded launchd job is separate from a live verified root peer. Parent BTM pending text alone is not a success criterion. No hardware review staging, receipt or start performed.",
+  "machine": {
+    "model": "Mac15,7",
+    "swVers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
+    "candidate": {
+      "model": "Mac15,7",
+      "version": "27.0.0",
+      "build": "26A428"
+    },
+    "matchesCandidate": false
+  },
+  "postHandshakeLaunchd": {
+    "exitCode": 0,
+    "stdout": "system/dev.ventilator.helper = {\n\tactive count = 0\n\tpath = (submitted by smd.538)\n\ttype = Submitted\n\tmanaged_by = com.apple.xpc.ServiceManagement\n\tstate = spawn scheduled\n\n\tprogram identifier = Contents/MacOS/VentilatorHelper (mode: 2)\n\tparent bundle identifier = dev.ventilator.macos\n\tparent bundle version = 1\n\tBTM uuid = 7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F\n\tdefault environment = {\n\t\tPATH => /usr/bin:/bin:/usr/sbin:/sbin\n\t}\n\n\tenvironment = {\n\t\tOSLogRateLimit => 64\n\t\tXPC_SERVICE_NAME => dev.ventilator.helper\n\t}\n\n\tLWCR = {\n\t\t\"reqs\" => {\n\t\t\t\"signing-identifier\" => \"dev.ventilator.helper\"\n\t\t\t\"validation-category\" => 3\n\t\t\t\"team-identifier\" => \"4659S5GD6X\"\n\t\t}\n\t\t\"vers\" => 1\n\t\t\"comp\" => 1\n\t\t\"ccat\" => 0\n\t}\n\n\tdomain = system\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 19\n\tlast exit code = 78: EX_CONFIG\n\n\tendpoints = {\n\t\t\"dev.ventilator.helper\" = {\n\t\t\tport = 0x12cffb\n\t\t\tactive = 0\n\t\t\tmanaged = 1\n\t\t\treset = 0\n\t\t\thide = 0\n\t\t\twatching = 0\n\t\t}\n\t}\n\n\tresource coalition = {\n\t\tID = 9465\n\t\ttype = resource\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = dev.ventilator.helper\n\t}\n\n\tjetsam coalition = {\n\t\tID = 9466\n\t\ttype = jetsam\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = dev.ventilator.helper\n\t}\n\n\tspawn type = daemon (3)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tsubmitted job. ignore execute allowed\n\tjetsam thread limit = 32\n\tcpumon = default\n\tjob state = exited\n\tsanitizer flags = 0x0\n\n\tproperties = partial import | resolve program | has LWCR\n}\n",
+    "stderr": ""
+  },
+  "startupLog": {
+    "predicate": "Ventilator startup and scoped launchd/smd events",
+    "exitCode": 0,
+    "stdout": "Timestamp               Ty Process[PID:TID]\n2026-10-04 00:11:44.948 E  launchd[1:1345bc] [system:] Could not find job with label dev.ventilator.helper\n2026-10-04 00:11:44.948 Df smd[538:fd2be] [com.apple.libxpc.OSLaunchdJob:all] copyJobWithLabel for label dev.ventilator.helper failed with error 113: Could not find specified service\n2026-10-04 00:11:45.480 E  launchd[1:133b9b] [system:] Could not find job with label dev.ventilator.helper\n2026-10-04 00:11:45.946 E  launchd[1:133b9b] [system:] Could not find job with label dev.ventilator.helper\n2026-10-04 00:11:45.978 E  launchd[1:133b9b] [system:] Could not find job with label dev.ventilator.helper\n2026-10-04 00:11:46.452 E  launchd[1:1345bc] [system:] Could not find job with label dev.ventilator.helper\n2026-10-04 00:11:46.576 Df smd[538:134ea2] [com.apple.libxpc.OSLaunchdJob:all] copyJobWithLabel for label dev.ventilator.helper failed with error 113: Could not find specified service\n2026-10-04 00:11:46.577 Df launchd[1:134a33] [system:] Setting service dev.ventilator.helper to enabled (initiated by smd[538])\n2026-10-04 00:11:46.577 E  launchd[1:134a33] [dev.ventilator.helper:] Unknown key for plist importer (key: _Quarantined type: bool)\n2026-10-04 00:11:46.577 E  launchd[1:134a33] [dev.ventilator.helper:] Unknown key for plist importer (key: SHA256 type: data)\n2026-10-04 00:11:46.577 Df launchd[1:134a33] [system:] Submit job succeeded: service = dev.ventilator.helper\n2026-10-04 00:14:21.386 Df VentilatorHelper[9322:135a11] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:14:21.422 E  VentilatorHelper[9322:135a11] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:14:21.423 Df launchd[1:13574c] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:14:31.465 Df VentilatorHelper[9353:135a8f] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:14:31.505 E  VentilatorHelper[9353:135a8f] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:14:31.506 Df launchd[1:13574c] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:14:41.544 Df VentilatorHelper[9387:135b97] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:14:41.574 E  VentilatorHelper[9387:135b97] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:14:41.575 Df launchd[1:134f8e] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:14:51.619 Df VentilatorHelper[9421:135c89] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:14:51.656 E  VentilatorHelper[9421:135c89] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:14:51.658 Df launchd[1:13574c] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:15:01.699 Df VentilatorHelper[9448:135d2b] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:15:01.739 E  VentilatorHelper[9448:135d2b] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:15:01.741 Df launchd[1:133b9b] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:15:11.781 Df VentilatorHelper[9484:135e22] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:15:11.825 E  VentilatorHelper[9484:135e22] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:15:11.827 Df launchd[1:13574c] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:15:21.866 Df VentilatorHelper[9512:135efd] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:15:21.908 E  VentilatorHelper[9512:135efd] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:15:21.909 Df launchd[1:13574c] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:15:31.954 Df VentilatorHelper[9533:135f5b] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:15:31.991 E  VentilatorHelper[9533:135f5b] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:15:31.993 Df launchd[1:134f8e] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:15:42.034 Df VentilatorHelper[9566:136006] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:15:42.073 E  VentilatorHelper[9566:136006] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:15:42.074 Df launchd[1:135d24] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:15:52.122 Df VentilatorHelper[9602:1360e7] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:15:52.159 E  VentilatorHelper[9602:1360e7] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:15:52.160 Df launchd[1:135d24] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:16:02.201 Df VentilatorHelper[9625:13618d] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:16:02.241 E  VentilatorHelper[9625:13618d] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:16:02.242 Df launchd[1:13574c] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:16:12.280 Df VentilatorHelper[9660:136224] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:16:12.322 E  VentilatorHelper[9660:136224] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:16:12.323 Df launchd[1:134f8e] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:16:22.365 Df VentilatorHelper[9710:13628c] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:16:22.404 E  VentilatorHelper[9710:13628c] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:16:22.406 Df launchd[1:13574c] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:16:32.448 Df VentilatorHelper[9766:136339] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:16:32.486 E  VentilatorHelper[9766:136339] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:16:32.487 Df launchd[1:13574c] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:16:42.534 Df VentilatorHelper[9801:1363f9] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:16:42.571 E  VentilatorHelper[9801:1363f9] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:16:42.572 Df launchd[1:135d24] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:16:52.616 Df VentilatorHelper[9864:1364d0] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:16:52.653 E  VentilatorHelper[9864:1364d0] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:16:52.655 Df launchd[1:135d24] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:17:02.701 Df VentilatorHelper[9900:1365f1] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:17:02.742 E  VentilatorHelper[9900:1365f1] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:17:02.743 Df launchd[1:134f8e] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:17:12.780 Df VentilatorHelper[9929:13667a] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:17:12.823 E  VentilatorHelper[9929:13667a] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:17:12.825 Df launchd[1:135f55] [system:] service inactive: dev.ventilator.helper\n2026-10-04 00:17:22.864 Df VentilatorHelper[9952:1366fb] [dev.ventilator.helper:startup] Daemon validating identity\n2026-10-04 00:17:22.904 E  VentilatorHelper[9952:1366fb] [dev.ventilator.helper:startup] Daemon refused: stage=runtime, error=untrustedSignature\n2026-10-04 00:17:22.906 Df launchd[1:134f8e] [system:] service inactive: dev.ventilator.helper\n",
+    "stderr": ""
+  },
+  "diagnosis": "System cycle submitted the job successfully at 00:11:46. Single diagnostic XPC request triggered on-demand launchd starts; helper exits 78 at runtime with untrustedSignature. Current OS 27.0.1/26A434 differs from the immutable 27.0.0/26A428 candidate. HardwareRecoveryIdentity.currentBoot conflates the unsupported profile with signature rejection. SignedBundleInspector passed the identity stage. Launchd retries are observed, not additional agent XPC requests.",
+  "nextStep": "Fix diagnostic daemon startup on unsupported hardware profiles and identify the unsupported profile explicitly. Preserve all hardware admission gates; prepare a complete read-only owner update session with new binary hashes. Old physical experiment plan is inapplicable to the new OS."
+}

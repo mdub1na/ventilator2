@@ -14,6 +14,7 @@ result = subprocess.run([str(helper), "--session-runtime-check"], capture_output
 assert result.returncode == 0, result.stderr
 assert result.stdout.count("Runtime XPC model:") == 2, result.stdout
 assert result.stdout.count("Runtime startup model:") == 2, result.stdout
+assert result.stdout.count("Unsupported hardware XPC model:") == 3, result.stdout
 lines = [f"Session runtime verification: {datetime.datetime.now().astimezone().isoformat(timespec='seconds')}",
          f"UID={os.geteuid()}; anonymous XPC and file simulation only, no native open/write, registration or root.",
          result.stdout.strip()]

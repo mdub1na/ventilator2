@@ -1,0 +1,8 @@
+Model: Mac15,7, macOS 27.0.1 (26A434)
+SMC available: true, fans: 2
+Fan 1: actual=0.0 target=0.0 min=1350.0 max=5349.0 mode=3
+Fan 2: actual=0.0 target=0.0 min=1458.0 max=5777.0 mode=3
+CPU: n/a (Источник не подтверждён)
+GPU: n/a (Источник не подтверждён)
+SSD (NAND CH0): n/a (Источник не подтверждён для этой модели/macOS)
+Неразмеченный датчик: 48.1 (SMC Tf26)

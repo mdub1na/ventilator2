@@ -12,9 +12,13 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. Signed/root-owned установка подтверждена. После owner setup requiresApproval последующий native status стал enabled/remoteFailure. **Административный снимок подтвердил отсутствующий system job (113), enabled/allowed helper record и pending authorization у parent app для UID -2 и 501**; runtime root отсутствует. Точная причина расхождения не установлена, живой root XPC ещё не подтверждён. [Последние факты](../research/evidence/owner-registration-administrative-snapshot.json). GUI-кнопки RPM отключены.
+Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. После одного owner off/on **system job загружен**, хотя parent BTM всё ещё содержит pending authorization. Один installed XPC verify получил enabled/deadline: helper завершается на runtime с untrustedSignature. Read-only проверка обнаружила смену ОС на **27.0.1 (26A434)** при candidate **27.0.0 (26A428)**; профиль ошибочно объединялся с signature guard. Root XPC ещё не подтверждён; GUI-кнопки RPM отключены. [Последние факты](../research/evidence/owner-system-approval-result.json).
 
-Подготовлен отдельный [полный системный сеанс](../helper-registration-approval.md): владелец один раз выключает/включает только Ventilator, после DONE wrapper собирает два bounded административных чтения. Admission требует текущие owner/installed hashes, exact предыдущий административный снимок, исходный owner UID и отсутствие runtime/job перед действием. Exclusive marker запрещает повтор UI prompt и sudo; отмена до DONE исключает sudo. Wrapper не вызывает app/helper или lifecycle команды и не создаёт hardware approval. Фактический успех системного действия на macOS 27 остаётся непроверенным. [Подготовка и проверки](../research/evidence/owner-system-approval-session.json).
+Исправленный daemon на неподтверждённом профиле проходит прежний signed/root-owned identity gate и сохраняет диагностический XPC, не создавая аппаратный runtime/authority и не вызывая startup hardware recovery. Preparation/start явно отказывают с unsupportedMachine; старый аппаратный candidate не расширен. Installation status по-прежнему читает существующий pending journal и не очищает его. Actual signed root positive новой сборки требует обновления владельцем.
+
+`--read-only-update` готовит отдельный pinned пакет из новой ad hoc сборки и exact прежней установки. Один owner `update-read-only` связывает sign → public qualification → OFF → guarded unregister → проверенную замену с backup → один register → при необходимости ON → один root verify/status. Marker исключает повтор, неизвестный runtime/job/hash и любые отказы останавливают последующие действия. Seal содержит signed fingerprints; hardware candidate/review/receipt не сохраняются. Пакет запрещает ready/run/collect/setup и отдельные lifecycle команды. Полная последовательность и argv заданы в [плане read-only обновления](../owner-helper-update.md); подготовка и модели — [в свидетельстве](../research/evidence/owner-profile-update-package.json).
+
+Прежний [системный сеанс](../helper-registration-approval.md) завершён: owner off/on загрузил job. Его frozen script/plan и снимок сохраняются, повтор не разрешён. Parent pending text сохранился при загруженном job, поэтому не является самостоятельным критерием успеха. [Подготовка](../research/evidence/owner-system-approval-session.json), [фактический результат](../research/evidence/owner-system-approval-result.json).
 
 ## Проверки и границы
 
@@ -85,6 +89,7 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 | Native gate | `Sources/VentilatorExperiment/NativeExperimentDevice.swift` |
 | Signing gate | `tools/sign_without_ui.swift`, `scripts/sign-app-without-ui.py` |
 | Owner seal и online public certificate qualification | `scripts/owner-session.py`, `Sources/VentilatorInstallation/CertificateQualification.swift` |
+| Диагностическое обновление неподтверждённого профиля | `scripts/read-only-update-dry-run.py`, `Sources/VentilatorHelper/SessionRuntimeCheck.swift` |
 | Снимок system job / BTM и один owner цикл системного разрешения | `scripts/helper-registration-diagnostics.py`, `scripts/helper-registration-diagnostics-dry-run.py` |
 | Проверки | `Tests/VentilatorInstallationTests/InstallationTests.swift`, `scripts/installation-dry-run.py` |
 
@@ -199,6 +204,22 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** отмена исключает sudo; DONE выполняет только два фиксированных system read, сохраняет owner report без hardware approval. Повтор не показывает UI prompt и не вызывает sudo. DONE само по себе не подтверждает системное разрешение или root peer.
 
 **Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
+
+### Scenario: Read-only update завершает ограниченную замену
+
+**Дано:** отдельный pinned read-only пакет без аппаратного review, runtime отсутствует.
+**Когда:** владелец выполняет один update-read-only с OFF и при необходимости ON.
+**Тогда:** подпись/public qualification завершаются до мутаций, old identity/notRegistered подтверждаются до замены, backup сохраняется до установки, один register и root verify/status собирают результат с аппаратным отказом unsupportedMachine. При уже проверенном enabled повтор verify/ON не выполняется.
+
+**Automated:** `scripts/read-only-update-dry-run.py`
+
+### Scenario: Read-only update останавливает отказы и повтор
+
+**Дано:** неподписанный либо sealed read-only пакет с exact прежним pin.
+**Когда:** signing/qualification, OFF/ON, runtime/hash, removal, register, root peer или hardware denial не подтверждены; либо команда повторяется.
+**Тогда:** последующие действия не выполняются, markers/partial files сохраняются, sign/qualification/lifecycle/UI не повторяются. Hardware review и восемь отдельных запрещённых CLI-команд отвергаются; без owner TTY update не начинается.
+
+**Automated:** `scripts/read-only-update-dry-run.py`
 
 ### Scenario: Installed continuation связывает установленную копию без замены
 

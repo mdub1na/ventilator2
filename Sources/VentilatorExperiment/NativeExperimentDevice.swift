@@ -8,7 +8,7 @@ import VentilatorInstallation
 
 public enum NativeExperimentError: Error, Equatable {
     case simulationCannotOpenHardware, rootRequired, untrustedSignature, wrongBinary, invalidScope, openFailed
-    case recoveryNotArmed, wrongBootSession
+    case recoveryNotArmed, wrongBootSession, unsupportedMachine
     case writeRejected(step: ExperimentStep, status: Int32, kernel: Int32, smcResult: UInt8, smcStatus: UInt8)
 }
 
@@ -120,9 +120,9 @@ internal func currentBootSession() -> UUID? {
 public enum HardwareRecoveryIdentity {
     /// Read-only identity validation. Restart recovery never accepts a boot UUID from IPC or a saved PID.
     public static func currentBoot() throws -> UUID {
-        guard geteuid() == 0, ExperimentMachine.current() == .candidate, trustedHelperAndApplication() else {
-            throw NativeExperimentError.untrustedSignature
-        }
+        guard geteuid() == 0 else { throw NativeExperimentError.rootRequired }
+        guard ExperimentMachine.current() == .candidate else { throw NativeExperimentError.unsupportedMachine }
+        guard trustedHelperAndApplication() else { throw NativeExperimentError.untrustedSignature }
         guard let boot = currentBootSession() else { throw NativeExperimentError.wrongBootSession }
         return boot
     }

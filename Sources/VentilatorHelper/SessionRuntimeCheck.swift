@@ -4,6 +4,38 @@ import VentilatorExperiment
 
 /// Real anonymous XPC routes into the same session proxy, with immutable simulation authority.
 func sessionRuntimeCheck() throws {
+    for machine in [ExperimentMachine(model: "Mac15,7", version: "27.0.1", build: "26A434"),
+                    ExperimentMachine(model: "Mac15,7", version: "27.0.0", build: "other"),
+                    ExperimentMachine(model: "unknown", version: "27.0.0", build: "26A428")] {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ventilator-unsupported-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let server = try HelperServer(acceptance: .anonymousUnsupportedMachineModel(machine: machine), directory: directory)
+        let listener = NSXPCListener.anonymous(); listener.delegate = server; listener.resume()
+        defer { listener.invalidate() }
+        let client = NSXPCConnection(listenerEndpoint: listener.endpoint)
+        client.remoteObjectInterface = NSXPCInterface(with: VentilatorHelperProtocol.self); client.resume()
+        defer { client.invalidate() }
+        let status = try rpc(client) { $0.status(reply: $1) }
+        guard status.errorCode == nil, status.control.phase == .idle, !status.hardwareControlAvailable else {
+            throw CheckError.failed("Unsupported profile lost diagnostic XPC")
+        }
+        let preparation = try rpc(client) { $0.prepareHardwareExperiment(reply: $1) }
+        guard preparation.errorCode == "unsupportedMachine", let prepared = preparation.preparation,
+              !prepared.runtimePrepared, !prepared.readyForOwnerApproval, prepared.blockers.contains("unsupportedMachine") else {
+            throw CheckError.failed("Unsupported profile prepared hardware")
+        }
+        let start = try rpc(client) { $0.startApprovedHardwareExperiment(UUID().uuidString, planSHA256: prepared.planSHA256, reply: $1) }
+        let journal = try FileSessionJournal(directory: directory)
+        guard start.errorCode?.contains("unsupportedMachine") == true,
+              !FileManager.default.fileExists(atPath: directory.appendingPathComponent("authority-hardware.json").path),
+              try journal.loadAuthorityState(domain: .simulation) == nil else {
+            throw CheckError.failed("Unsupported start initialized authority")
+        }
+        let installation = try rpcData(client) { $0.installationStatus(UUID().uuidString, reply: $1) }
+        guard installation.isEmpty else { throw CheckError.failed("Anonymous non-root model claimed installation proof") }
+        print("Unsupported hardware XPC model: \(machine.model)/\(machine.version)/\(machine.build); diagnostic idle, explicit blocker and start denial; no authority or device.")
+        withExtendedLifetime(server) {}
+    }
     for disconnect in [false, true] {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ventilator-runtime-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }

@@ -21,6 +21,11 @@ final class ExperimentSessionRuntime {
         _ = try hardwareIdentity()
         return try .init(directory: hardwareExperimentDirectory, domain: .hardware, identity: hardwareIdentity)
     }
+    /// Unsupported profiles keep diagnostic XPC available without initializing hardware authority or recovery.
+    static func hardwareIfSupported(machine: ExperimentMachine = .current()) throws -> ExperimentSessionRuntime? {
+        guard machine == .candidate else { return nil }
+        return try hardware()
+    }
     private static func hardwareIdentity() throws -> UUID {
         let boot = try HardwareRecoveryIdentity.currentBoot()
         guard SMAppService.daemon(plistName: "dev.ventilator.helper.plist").status == .enabled else {

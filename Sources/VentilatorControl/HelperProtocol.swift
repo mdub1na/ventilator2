@@ -65,11 +65,12 @@ public struct HardwarePreparation: Codable {
     public let blockers: [String]
     public let connectionOwner: UUID?
     public let runtimePrepared: Bool
-    public init(planSHA256: String, connectionOwner: UUID? = nil, runtimePrepared: Bool = true) {
+    public init(planSHA256: String, connectionOwner: UUID? = nil, runtimePrepared: Bool = true, machineSupported: Bool = true) {
         self.planSHA256 = planSHA256
         self.readyForOwnerApproval = false
         self.connectionOwner = connectionOwner; self.runtimePrepared = runtimePrepared
-        self.blockers = (runtimePrepared ? [] : ["hardwareRecoveryBrokerNotConnected"]) + ["localApprovalIssuerHardwarePathUnverified",
+        self.blockers = (machineSupported ? [] : ["unsupportedMachine"]) +
+            (runtimePrepared ? [] : ["hardwareRecoveryBrokerNotConnected"]) + ["localApprovalIssuerHardwarePathUnverified",
                          "installedSignedHelperUnverified", "ownerSessionExecutionPending"]
     }
 }
