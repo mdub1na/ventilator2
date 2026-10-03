@@ -84,8 +84,8 @@ def check(sealed=False):
     if sealed:
         reference = json.loads((SESSION / "sealed.json").read_text())["fingerprint"]
     if fingerprints(SESSION / "Ventilator.app") != reference:
-        if not sealed and (SESSION / "sign-started.json").exists():
-            raise RuntimeError("Signing began but qualification/seal did not complete. Do not repeat sign or install; send the STOP output to the developer")
+        if not sealed and not manifest.get("signatureReady") and not (SESSION / "signature-ready.json").exists() and (SESSION / "sign-started.json").exists():
+            raise RuntimeError("Signing started but completion is unverified. Preserve files; do not sign or install again")
         raise RuntimeError("Bundle changed")
     if sealed:
         review = json.loads((SESSION / "review.json").read_text())
@@ -97,6 +97,30 @@ def check(sealed=False):
         if review["candidate"] != candidate(SESSION / "Ventilator.app")["plan"]:
             raise RuntimeError("Signed candidate changed")
     return manifest
+
+
+def package_status():
+    sealed = (SESSION / "sealed.json").exists()
+    manifest = check(sealed=sealed)
+    signed = manifest.get("signatureReady") is True or (SESSION / "signature-ready.json").exists()
+    signing_stopped = not signed and (SESSION / "sign-started.json").exists()
+    qualification_stopped = not sealed and (SESSION / "qualification-started.json").exists()
+    if sealed:
+        next_step = "Follow PLAN.md for installation; root helper is not yet verified"
+    elif signing_stopped or qualification_stopped:
+        next_step = "Preserve package for developer diagnosis; do not sign or qualify again"
+    elif signed:
+        next_step = "qualify (public certificate only); do not sign again"
+    else:
+        next_step = "sign once in owner Terminal, then qualify"
+    return {
+        "signature": "complete" if signed else "stopped" if signing_stopped else "notStarted",
+        "certificateQualification": "complete" if sealed else
+            "stopped" if qualification_stopped else "notStarted",
+        "fullReview": "sealed" if sealed else "notSealed",
+        "fingerprint": fingerprints(SESSION / "Ventilator.app"),
+        "nextStep": next_step,
+    }
 
 
 def signed_source():
@@ -181,7 +205,8 @@ def sign():
     manifest = check()
     if manifest.get("signatureReady") or os.path.lexists(SESSION / "signature-ready.json"):
         raise RuntimeError("Package is already signed; do not sign again")
-    # A failed signing/qualification is preserved for diagnosis, never retried by this command.
+    # Signing and public certificate qualification have separate completion markers.
+    # A network/trust failure must never be reported as a request to sign the same code again.
     save("sign-started.json", {"certificateSHA1": CERTIFICATE, "hardwareWritesExecuted": 0})
     bundle = SESSION / "Ventilator.app"
     for path, identifier in [(files(bundle)["helperSHA256"], "dev.ventilator.helper"), (bundle, "dev.ventilator.macos")]:
@@ -189,7 +214,8 @@ def sign():
                         "--identifier", identifier, "--timestamp=none", str(path)], check=True)
         subprocess.run(["/usr/bin/codesign", "--verify", "--strict", str(path)], check=True)
     save("signature-ready.json", {"fingerprint": fingerprints(bundle), "hardwareWritesExecuted": 0})
-    qualify()
+    print("Signing complete for app and helper. No install or SMC writes.")
+    print("Next: qualify (public certificate only, no private key). Do not sign again.")
 
 
 def qualify():
@@ -375,7 +401,7 @@ def main():
         SIGNED_SESSION = args.signed_session.resolve()
     if os.geteuid() == 0:
         raise RuntimeError("Run without root; only listed child commands may use owner sudo")
-    actions = {"prepare": prepare, "check": lambda: print(json.dumps(check(sealed=(SESSION / "sealed.json").exists()), indent=2)),
+    actions = {"prepare": prepare, "check": lambda: print(json.dumps(package_status(), indent=2)),
         "sign": sign, "qualify": qualify, "install": install, "replace-installed": replace_installed, "register": lambda: service("--register-helper"), "ready": ready,
         "run": run, "collect": collect, "unregister": lambda: service("--unregister-helper")}
     actions[args.command]()

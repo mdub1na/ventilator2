@@ -8,13 +8,13 @@ Mac15,7, macOS 27.0.0 (26A428), два вентилятора; GUI read-only. О
 
 Ошибка пути argv[0] исправлена, добавлен startup log. Причина root exit 78 не доказана; новый XPC проверяется в шаге 3.
 
-Прежний пакет: `.build/owner-session-2026-10-03-deadline-failed/`. Новый код в `.build/owner-session/`: **нужна новая подпись**. Manifest связывает файлы/PLAN/script/прежнюю установку; seal/review — весь план и signed хеши. TTY покажет их до APPROVE. До START записей нет.
+Подпись завершена владельцем; online qualification остановился на проверке отзыва. Отдельная public проверка тех же файлов затем прошла; причина отказа неизвестна. Failed пакет сохранён в `.build/owner-session-2026-10-03-path-sign-revocation-failed/`. Новый `.build/owner-session/` использует те же signed файлы, без пересборки/ключа. Manifest связывает source hashes, PLAN/script и прежнюю установку; seal/review — весь план и signed хеши. До START записей нет.
 
-Проверенная новая **ad hoc** сборка (после подписи хеши изменятся):
+Новая **signed** сборка; **sign повторно не выполнять**:
 
 ```text
-Ventilator:       79d0bc12992a1dfed748155b77bcea64d74879a008442ee53d77873c687fd35f
-VentilatorHelper: 5e287756e358debbc4514797d2c4e13af26c700762c7683ea19c09110243d32a
+Ventilator:       342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa
+VentilatorHelper: 24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430
 ```
 
 Точная прежняя **signed** установка:
@@ -26,17 +26,16 @@ VentilatorHelper: 9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03f
 
 Identity `4895C06FF7407EAF5F350E78CF23D0B41AD466C9`, Team `4659S5GD6X`. Local Development без notarization; Gatekeeper не обходить. ACL/ключи не менять. Старый backup `/Applications/Ventilator-before-registration-fix.app` сохраняется.
 
-## Шаг 1. Проверить и подписать новый пакет
+## Шаг 1. Проверить подготовленный пакет
 
 В обычном **Terminal A**, script без sudo; команды по одной:
 
 ```sh
 cd /Users/mdub1na/IdeaProjects/ventilator2
 python3 .build/owner-session/session.py check
-python3 .build/owner-session/session.py sign
 ```
 
-Успех check: manifest без STOP; sign: **Signed and public certificate qualified**, sealed.json и review.sha256. Возможны два запроса codesign/login keychain: пароль/Touch ID в системном окне, разрешить разовый доступ. Обязательны runtime/strict подписи и positive revocation, одна online попытка до 20 с. При отказе sign/qualify не повторять.
+Успех: signature=complete, certificateQualification=complete, fullReview=sealed. Sealed.json и review.sha256 уже подготовлены разработчиком. Иначе STOP. Разделённые sign/qualify сохраняют отдельные результаты; public qualification не требует private key, одна попытка до 20 с. Повтор подписи не нужен.
 
 ## Шаг 2. Отключить старую службу и заменить app
 
@@ -114,7 +113,7 @@ sudo /bin/mv /Applications/Ventilator.app /Applications/Ventilator-before-helper
 sudo /bin/mv /Applications/Ventilator-helper-path-staging.app /Applications/Ventilator.app
 ```
 
-Sign: два `/usr/bin/codesign --force --sign IDENTITY --options runtime --identifier IDENTIFIER --timestamp=none PATH`, helper, затем app; после каждого strict verify. Register/unregister: signed app CLI после native gates, без SMC. Ready: `--verify-installed-helper` проверяет enabled/root audit UID/PID/XPC nonce/CDHash/fingerprint, затем:
+Register/unregister: signed app CLI после native gates, без SMC. Ready: `--verify-installed-helper` проверяет enabled/root audit UID/PID/XPC nonce/CDHash/fingerprint, затем:
 
 ```text
 sudo /Applications/Ventilator.app/Contents/MacOS/VentilatorHelper --stage-local-hardware-review /Users/mdub1na/IdeaProjects/ventilator2/.build/owner-session/review.json REVIEW_SHA256

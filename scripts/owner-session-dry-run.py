@@ -29,6 +29,33 @@ except RuntimeError as error:
     assert "qualification detail" in str(error) and "78" in str(error)
 lines.append("Underlying qualification stderr is preserved in STOP diagnostics.")
 
+with tempfile.TemporaryDirectory(prefix="ventilator-sign-stage-", dir=root / ".build") as tmp:
+    directory = Path(tmp)
+    manifest = {"signatureReady": False}
+    fingerprint = {"applicationSHA256": "a" * 64, "helperSHA256": "b" * 64, "launchDaemonSHA256": "c" * 64}
+    with patch.object(session, "SESSION", directory), patch.object(session, "owner_terminal"), \
+            patch.object(session, "check", return_value=manifest), patch.object(session, "fingerprints", return_value=fingerprint), \
+            patch.object(session.subprocess, "run") as external, patch.object(session, "qualify") as qualification:
+        session.sign()
+        assert (directory / "signature-ready.json").exists()
+        assert len(external.call_args_list) == 4
+        assert all(c.args[0][0] == "/usr/bin/codesign" for c in external.call_args_list)
+        qualification.assert_not_called()
+        state = session.package_status()
+        assert state["signature"] == "complete" and state["certificateQualification"] == "notStarted"
+        session.save("qualification-started.json", {"fingerprint": fingerprint})
+        state = session.package_status()
+        assert state["signature"] == "complete" and state["certificateQualification"] == "stopped"
+        assert "do not sign or qualify again" in state["nextStep"]
+        first_calls = len(external.call_args_list)
+        try:
+            session.sign()
+            raise AssertionError("Completed signing repeated")
+        except RuntimeError:
+            pass
+        assert len(external.call_args_list) == first_calls
+lines.append("Mocked signing completed after exactly two codesign + two strict verify calls, without public qualification; subsequent qualification failure retained signature=complete and repeated sign invoked no external command.")
+
 previous = {"applicationSHA256": "a" * 64, "helperSHA256": "b" * 64, "launchDaemonSHA256": "c" * 64}
 inactive = {"fingerprint": previous, "trustedBundle": True, "rootOwned": True, "installedLocation": True,
             "registration": "notFound", "error": "serviceNotEnabled", "helperVerified": False, "hardwareControlAvailable": False}
@@ -191,6 +218,8 @@ for mode in ["success", "native-rejection", "revocation-failed", "timeout", "wro
                 if mode == "success":
                     session.qualify()
                     session.check(sealed=True)
+                    assert session.package_status()["signature"] == "complete"
+                    assert session.package_status()["certificateQualification"] == "complete"
                     assert json.loads((resumed / "sealed.json").read_text()) == proof
                     review = json.loads((resumed / "review.json").read_text())
                     assert review["ownerInstructions"] == (root / "docs/owner-session.md").read_text()
