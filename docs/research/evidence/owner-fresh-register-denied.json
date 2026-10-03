@@ -155,7 +155,7 @@
     "exists": false
   },
   "sealedPackage": {
-    "path": ".build/owner-session",
+    "path": ".build/owner-session-2026-10-03-register-denied",
     "reviewSHA256": "b549b279444987f69d8218ac6c6ae38f38f3e1258f0f1a4c82a5661ba8a15e5f",
     "preservedFileCount": 16,
     "packageFilesSHA256": {
@@ -178,7 +178,8 @@
     },
     "changedByDeveloper": false,
     "registrationCompletedMarkerPresent": false,
-    "hardwareApprovalOrResultMarkerPresent": false
+    "hardwareApprovalOrResultMarkerPresent": false,
+    "recordedOriginalPath": ".build/owner-session"
   },
   "interpretation": {
     "confirmed": "System registration/launch authorization failed despite valid installed bundle and an on Settings toggle. The automatic unregister discarded the pending registration before the denied register. The current notRegistered report is consistent with this transition.",
@@ -204,8 +205,13 @@
     "futurePlanUTF8Bytes": 12256,
     "actualInstalledRootXPC": "not verified"
   },
-  "nextOwnerInformation": "Whether the last enable/Allow action prompted for an administrator password or Touch ID, and whether it was confirmed. No additional registration/toggle cycle is prescribed until that fact is known.",
+  "nextOwnerInformation": "Resolved: owner answered yes. Post-confirmation status remains notRegistered; a separately sealed installed continuation is documented in owner-installed-continuation.json. The original failed package is preserved without resetting its attempt marker.",
   "developerActions": "Read-only native helper-status, launchctl print, lstat/file hashes, bounded scoped logs and BTM dump, Settings accessibility, Apple primary-source research, repository wrapper/model/docs edits. No sudo, private key, service mutation, resetbtm, manual bootstrap, permission toggle, local hardware approval, SMC writer or new qualification.",
   "hardwareExperimentStarted": false,
-  "physicalAutoVerified": false
+  "physicalAutoVerified": false,
+  "ownerConfirmation": {
+    "question": "При последнем включении появился запрос пароля администратора или Touch ID, и вы его подтвердили?",
+    "answer": "да",
+    "meaning": "The owner reports that the request appeared and was confirmed. This is not proof of effective SMAppService authorization."
+  }
 }

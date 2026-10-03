@@ -22,6 +22,7 @@ SESSION = ROOT / ".build/owner-session" if ROOT else Path(__file__).resolve().pa
 PREVIOUS_SESSION = None
 SIGNED_SESSION = None
 FRESH_INSTALL = False
+CONTINUE_INSTALLED = False
 
 
 def sha(path):
@@ -80,6 +81,10 @@ def package_files(directory, manifest):
 def check(sealed=False):
     manifest = json.loads((SESSION / "manifest.json").read_text())
     package_files(SESSION, manifest)
+    if manifest.get("installedContinuation") is not None and (
+            manifest["installedContinuation"] != manifest["fingerprint"] or
+            manifest.get("installedReplacement") is not None or manifest.get("freshInstallation")):
+        raise RuntimeError("Invalid installed continuation binding")
     reference = manifest["fingerprint"]
     if (SESSION / "signature-ready.json").exists():
         reference = json.loads((SESSION / "signature-ready.json").read_text())["fingerprint"]
@@ -108,7 +113,12 @@ def package_status():
     signing_stopped = not signed and (SESSION / "sign-started.json").exists()
     qualification_stopped = not sealed and (SESSION / "qualification-started.json").exists()
     if sealed:
-        next_step = "Follow PLAN.md for installation; root helper is not yet verified"
+        if os.path.lexists(SESSION / "registration-started.json"):
+            next_step = "Registration already attempted; preserve state and follow PLAN.md, do not repeat setup/register"
+        elif manifest.get("installedContinuation"):
+            next_step = "setup once in owner Terminal; exact signed copy is already installed"
+        else:
+            next_step = "Follow PLAN.md for installation; root helper is not yet verified"
     elif signing_stopped or qualification_stopped:
         next_step = "Preserve package for developer diagnosis; do not sign or qualify again"
     elif signed:
@@ -117,7 +127,8 @@ def package_status():
         next_step = "sign once in owner Terminal, then qualify"
     return {
         "packagePath": str(SESSION),
-        "installationMode": "replacement" if manifest.get("installedReplacement") else "fresh",
+        "installationMode": "installed" if manifest.get("installedContinuation") else
+            "replacement" if manifest.get("installedReplacement") else "fresh",
         "signature": "complete" if signed else "stopped" if signing_stopped else "notStarted",
         "certificateQualification": "complete" if sealed else
             "stopped" if qualification_stopped else "notStarted",
@@ -164,6 +175,8 @@ def prepare():
         raise RuntimeError("Prepare from repository without root")
     if FRESH_INSTALL and (SIGNED_SESSION is None or PREVIOUS_SESSION is not None):
         raise RuntimeError("Fresh install requires a signed source and no previous installation")
+    if CONTINUE_INSTALLED and (SIGNED_SESSION is None or PREVIOUS_SESSION is not None or FRESH_INSTALL):
+        raise RuntimeError("Installed continuation requires signed source without fresh/replacement mode")
     if SESSION.exists():
         raise RuntimeError("Package already exists; preserve it, use a new output for a revised package")
     instructions = (ROOT / "docs/owner-session.md").read_text()
@@ -173,6 +186,8 @@ def prepare():
     imported = None
     if SIGNED_SESSION:
         bundle, signed_hashes, imported = signed_source()
+    if CONTINUE_INSTALLED:
+        admit_installed_continuation(signed_hashes)
     plan = candidate(bundle)
     SESSION.mkdir(mode=0o700, parents=True)
     shutil.copytree(bundle, SESSION / "Ventilator.app", symlinks=False)
@@ -192,10 +207,13 @@ def prepare():
             raise RuntimeError("Source package changed while copying")
         manifest["signatureReady"] = True
         manifest["resumedFrom"] = imported
-        if imported["installedReplacement"] is not None and not FRESH_INSTALL:
+        if imported["installedReplacement"] is not None and not FRESH_INSTALL and not CONTINUE_INSTALLED:
             manifest["installedReplacement"] = imported["installedReplacement"]
         if FRESH_INSTALL:
             manifest["freshInstallation"] = True
+        if CONTINUE_INSTALLED:
+            admit_installed_continuation(signed_hashes)
+            manifest["installedContinuation"] = signed_hashes
     if PREVIOUS_SESSION:
         previous = json.loads((PREVIOUS_SESSION / "sealed.json").read_text())
         if previous["certificateSHA1"] != CERTIFICATE or previous["teamIdentifier"] != TEAM or not previous["positiveRevocation"]:
@@ -276,6 +294,8 @@ def admit_fresh_install():
 def install():
     owner_terminal()
     manifest = check(sealed=True)
+    if manifest.get("installedContinuation"):
+        raise RuntimeError("Installed continuation cannot install files")
     if manifest.get("installedReplacement") is not None:
         raise RuntimeError("Replacement package cannot perform a fresh install; prepare a new full review")
     admit_fresh_install()
@@ -306,6 +326,24 @@ def admit_replacement(report, actual, previous, hardware_root_exists):
         raise RuntimeError("Replacement requires a disabled, unstarted helper")
 
 
+def admit_installed_continuation(expected):
+    # This is a read-only preparation gate. An initialized root or any job forbids
+    # creating a new registration session that might hide earlier runtime authority.
+    try:
+        HARDWARE_ROOT.lstat()
+    except FileNotFoundError:
+        pass
+    else:
+        raise RuntimeError("Runtime state exists; installed continuation forbidden")
+    if launchd_job_present():
+        raise RuntimeError("Helper job exists; installed continuation forbidden")
+    actual = fingerprints(INSTALLED)
+    if actual != expected:
+        raise RuntimeError("Installed bundle differs from signed continuation source")
+    report = json.loads(output([files(INSTALLED)["applicationSHA256"], "--helper-status"], timeout=10))
+    admit_replacement(report, actual, expected, False)
+
+
 def launchd_job_present():
     result = subprocess.run(["/bin/launchctl", "print", "system/dev.ventilator.helper"],
                             capture_output=True, text=True, timeout=5)
@@ -327,6 +365,8 @@ def launchd_job_present():
 def replace_installed():
     owner_terminal()
     manifest = check(sealed=True)
+    if manifest.get("installedContinuation"):
+        raise RuntimeError("Installed continuation cannot replace files")
     previous = manifest.get("installedReplacement")
     if previous is None:
         raise RuntimeError("This package has no pinned previous installation")
@@ -377,7 +417,8 @@ def service(command):
 
 def register():
     owner_terminal()
-    if not check(sealed=True).get("freshInstallation"):
+    manifest = check(sealed=True)
+    if not manifest.get("freshInstallation") and not manifest.get("installedContinuation"):
         service("--register-helper")
         return
     seal = installed_check()
@@ -397,7 +438,7 @@ def register():
     status = report("--helper-status")
     if status["registration"] == "enabled":
         print(json.dumps(status, indent=2))
-        return  # Existing effective consent needs verification, not a new mutation.
+        return status  # Existing effective consent needs verification, not a new mutation.
     if status["registration"] not in ["notFound", "notRegistered", "requiresApproval"] or \
             status.get("error") != "serviceNotEnabled" or status.get("helperVerified") is not False:
         raise RuntimeError("Fresh registration requires a disabled unstarted helper")
@@ -423,6 +464,18 @@ def register():
     print(json.dumps(status, indent=2))
     if status["registration"] == "requiresApproval":
         print("Registration awaits system approval. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.")
+    return status
+
+
+def setup():
+    owner_terminal()
+    if not check(sealed=True).get("installedContinuation"):
+        raise RuntimeError("Setup requires an installed continuation package")
+    status = register()
+    if status["registration"] != "enabled":
+        print("Setup paused for system approval. Do not repeat setup/register; follow PLAN.md.")
+        return
+    ready()  # Root review import only, without approval or hardware start.
 
 
 def ready():
@@ -461,17 +514,21 @@ def collect():
 
 
 def main():
-    global SESSION, PREVIOUS_SESSION, SIGNED_SESSION, FRESH_INSTALL
+    global SESSION, PREVIOUS_SESSION, SIGNED_SESSION, FRESH_INSTALL, CONTINUE_INSTALLED
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["prepare", "check", "sign", "qualify", "install", "replace-installed", "register", "ready", "run", "collect", "unregister"])
+    parser.add_argument("command", choices=["prepare", "check", "sign", "qualify", "install", "replace-installed", "register", "setup", "ready", "run", "collect", "unregister"])
     parser.add_argument("--output", type=Path, help="Repository-only prepare/check output under .build")
     parser.add_argument("--previous-session", type=Path, help="Prepare a pinned replacement from a preserved signed package under .build")
     parser.add_argument("--signed-session", type=Path, help="Prepare from a preserved failed signing package under .build without signing again")
     parser.add_argument("--fresh-install", action="store_true", help="Prepare a new full review from signed source without inheriting its previous-installation pin")
+    parser.add_argument("--continue-installed", action="store_true", help="Prepare a new full review for the exact already-installed unstarted signed copy, without installing files")
     args = parser.parse_args()
     if args.fresh_install and (args.command != "prepare" or not args.signed_session or args.previous_session):
         raise RuntimeError("Fresh install allowed only for prepare with signed source and no previous installation")
+    if args.continue_installed and (args.command != "prepare" or not args.signed_session or args.previous_session or args.fresh_install):
+        raise RuntimeError("Installed continuation allowed only for prepare with signed source and no fresh/replacement mode")
     FRESH_INSTALL = args.fresh_install
+    CONTINUE_INSTALLED = args.continue_installed
     if args.output:
         if ROOT is None or args.command not in ["prepare", "check"] or not args.output.resolve().is_relative_to(ROOT / ".build"):
             raise RuntimeError("Custom output allowed only for offline prepare/check under .build")
@@ -487,7 +544,7 @@ def main():
     if os.geteuid() == 0:
         raise RuntimeError("Run without root; only listed child commands may use owner sudo")
     actions = {"prepare": prepare, "check": lambda: print(json.dumps(package_status(), indent=2)),
-        "sign": sign, "qualify": qualify, "install": install, "replace-installed": replace_installed, "register": register, "ready": ready,
+        "sign": sign, "qualify": qualify, "install": install, "replace-installed": replace_installed, "register": register, "setup": setup, "ready": ready,
         "run": run, "collect": collect, "unregister": lambda: service("--unregister-helper")}
     actions[args.command]()
 

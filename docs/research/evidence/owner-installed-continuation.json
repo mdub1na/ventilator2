@@ -1,0 +1,137 @@
+{
+  "date": "2026-10-03",
+  "ownerConfirmation": {
+    "question": "При последнем включении появился запрос пароля администратора или Touch ID, и вы его подтвердили?",
+    "answer": "да",
+    "meaning": "The owner reports that the request appeared and was confirmed. This is not proof of effective SMAppService authorization."
+  },
+  "postConfirmationNativeReadOnlyStatus": {
+    "error": "serviceNotEnabled",
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": false,
+    "installedLocation": true,
+    "registration": "notRegistered",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "postConfirmationRuntime": {
+    "path": "/Library/Application Support/Ventilator",
+    "lstatErrno": 2,
+    "exists": false
+  },
+  "postConfirmationLaunchd": {
+    "target": "system/dev.ventilator.helper",
+    "exitCode": 113,
+    "found": false
+  },
+  "diagnosis": "The current installed files are valid and unchanged; registration remains notRegistered after the owner-confirmed administrative action. The previous unregister/register sequence is documented separately. Why effective OS authorization did not complete, and whether immediate re-registration caused the prior failure, remain unproven. No further toggle cycle is prescribed.",
+  "newPreparation": {
+    "mode": "installedContinuation",
+    "arguments": [
+      "prepare",
+      "--signed-session",
+      ".build/owner-session-2026-10-03-path-sign-revocation-failed",
+      "--continue-installed",
+      "--output",
+      ".build/owner-session-next"
+    ],
+    "readOnlyAdmission": "Before native status, require absent entire runtime root and any job, and exact installed/source hashes. Disabled native identity/ownership/location/hash report required. Repeat admission after copying local package.",
+    "behavior": "No installed file copy/replacement, no unregister, no global BTM reset. setup in owner Terminal calls guarded register at most once only for notFound/notRegistered, preserves pending/enabled, then ready only if enabled. ready verifies root XPC and stages review with owner sudo. No hardware approval or start is part of setup.",
+    "nativeBinariesChanged": false,
+    "privateKeyUsed": false,
+    "serviceMutationByDeveloper": false
+  },
+  "package": {
+    "path": ".build/owner-session",
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+    "teamIdentifier": "4659S5GD6X",
+    "positiveRevocation": true,
+    "notarizationClaimed": false,
+    "publicQualificationAttempts": 1,
+    "publicQualificationCompleted": true,
+    "strictAppAndHelperVerification": "passed",
+    "reviewSHA256": "4cb17d79e12c2f77e65970e45319dc714d471cf8c433afaf58e1beafa8815bee",
+    "canonicalReviewUTF8Bytes": 13950,
+    "ownerPlanUTF8Bytes": 11649,
+    "packageFiles": {
+      "PLAN.md": "80217afe0faa01f7e8ea1765117ae1c53a05cd6a61a3bbb9f79c48d7dae225a7",
+      "session.py": "f475e8413456043d99f165cccddd7438487ac3a81da1e37c7ae1b800cc48ae90"
+    },
+    "installedContinuation": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "originalPinOnlyInProvenance": {
+      "applicationSHA256": "610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d",
+      "helperSHA256": "9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "fileCount": 13,
+    "registrationAttempted": false,
+    "approvalOrExperimentStarted": false
+  },
+  "preservation": {
+    "stoppedPackageArchive": ".build/owner-session-2026-10-03-register-denied",
+    "stoppedPackageRelativeFileSHA256": {
+      "install-completed.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "candidate.json": "611beae7cc61f2ab0b3a5892f33400fedeec11b73502610a59cefcc28d3c6243",
+      "sealed.json": "ce83ee9d947a79e9ba927d0de532a87ff8c09bb26a9a14cebf2dc5f764098001",
+      "session.py": "a72b062497c57e8d173d041653f7c72a8aaebb75e4c011c7264154603e98a5c6",
+      "registration-started.json": "70c417120d28b7ff99c32a6e7ed6924e49ed082c5512ef7b9abf4922b0ba712b",
+      "install-started.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "review.sha256": "848af3794382a9928c5e79cec041bbb48088b39c2659db7dec5eddce3027d8e9",
+      "manifest.json": "1548dd31106aec8519e83860c8f2626dd55c8fc0c55bc181d4cb35c46e057587",
+      "PLAN.md": "54f5770d76adf13682fc41a606a86fbdc411590a78ac32ea553277f935f57072",
+      "qualification-started.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "review.json": "86b3d2ddda3d66e7827600af1c66bb0eac3f641939d08cb466d0024f10444885",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Ventilator.app/Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "unchangedStoppedFiles": 16,
+    "signedSource": ".build/owner-session-2026-10-03-path-sign-revocation-failed",
+    "signedSourceRelativeFileSHA256": {
+      "session.py": "df70644a04b90059768eba56788fee08f38751726c6bceed0c0120f64c90169a",
+      "sign-started.json": "0da1a54a45d82b68a2c430f9a711f9c63f4a67750da9f81c6bd5bd7b7775a7f7",
+      "manifest.json": "70e80167682df54b1db739b2a8a90426e970c55b79140fe45942570c7499897f",
+      "PLAN.md": "ee2dc702aeabc035f8d846c4e2269a26f206a71496b6bee09672141b928b42b7",
+      "qualification-started.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "signature-ready.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Ventilator.app/Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "unchangedSignedSourceFiles": 11,
+    "installedCopyChanged": false
+  },
+  "verification": {
+    "offlineModel": "passed; both fresh and installed modes, admission failures before native app, setup staging only after enabled, install/replacement refusal, mode conflicts, full model review/canonical digest through real Swift CLI, no-TTY rejection of nine owner actions",
+    "documents": "docs_check.py --on-main: 13 documents, 81 BDD scenarios, no errors",
+    "whitespace": "git diff --check passed",
+    "preparedPackageUnchanged": "All 13 new sealed package files unchanged after the final model run; PLAN/script match repository sources."
+  },
+  "nextOwnerAction": {
+    "command": "python3 .build/owner-session/session.py setup",
+    "expectedSuccess": "Ready for local review/approval",
+    "sudoPurpose": "Stage the bound full review after verified root XPC only; no hardware approval or writes",
+    "pendingApproval": "Only if a new system notification appears, owner may Allow/authenticate then ready once per PLAN. No new notification or any error means stop; no register/setup/toggle loop."
+  },
+  "rootXPC": "not verified",
+  "hardwareExperimentStarted": false,
+  "physicalAutoVerified": false
+}

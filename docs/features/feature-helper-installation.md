@@ -55,6 +55,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 Actual первый fresh пакет PR #18 содержал прежнее автоматическое unregister/register. Установка прошла; system log подтверждает unregister error=0 и status 2→0, затем через 70 мс register error=1, `Job is not allowed to bootstrap`, status=0. Повторы wrapper заблокированы до новых native операций. Read-only Settings сейчас показывает on, BTM parent содержит pending authorization, job/runtime root отсутствуют; почему разрешение не стало effective, не доказано. Apple DTS обсуждает race немедленного unregister/register даже после completion; это внешнее свидетельство, не доказательство причины на macOS 27. Новый wrapper сохраняет pending регистрацию; модель проверяет отсутствие обеих lifecycle mutations, но остановленный sealed пакет не переписан и не возобновлён. Факт административного подтверждения ожидается от владельца. [Диагноз и сохранённые хеши](../research/evidence/owner-fresh-register-denied.json), [Apple DTS о re-registration](https://developer.apple.com/forums/thread/783539).
 
+Последующее подтверждение владельца: запрос администратора был и подтверждён. Read-only native status всё ещё notRegistered, job/runtime отсутствуют; причина effective authorization не установлена. `prepare --signed-session --continue-installed` создаёт **новый** полный review для exact уже установленной unstarted копии. До native status проверяются отсутствие runtime/job и совпадение source/installed hashes; admission повторяется после копирования. Прежний source pin сохраняется только в provenance, manifest содержит installedContinuation с текущим fingerprint; check отвергает несовпадение и смешанные режимы. Install/replacement в этом режиме запрещены. `setup` требует owner Terminal и этот mode: один bounded register при notFound/notRegistered, pending не меняет, ready вызывается только после enabled. Ready проверяет root XPC и импортирует review с owner sudo; approval/start не выполняются. Pending/failure сохраняют marker без повторов. Actual подготовка, strict verify и одна public qualification прошли на прежних signed файлах. Старый stopped пакет сохранён целиком (16 SHA); новый root XPC всё ещё требует владельца. [Факты и новый пакет](../research/evidence/owner-installed-continuation.json), [полный план](../owner-session.md).
+
 Новая проверка после включения фоновой активности: Settings показывает on, но actual SMAppService по-прежнему requiresApproval. BTM parent текущего installed app содержит pending authorization; helper allowed, launchd job отсутствует, runtime root отсутствует. Поэтому переключатель не является критерием успеха daemon approval; нужен фактический enabled и проверенный root XPC. Apple DTS описывает Allow системного уведомления с подтверждением администратора. Причина расхождения на macOS 27 и факт auth prompt не установлены; не повторять регистрацию и не сбрасывать BTM для обхода этого отказа. [Свидетельство](../research/evidence/owner-system-authorization-pending.json), [Apple DTS](https://developer.apple.com/forums/thread/802443).
 
 После новой регистрации владелец получил `requiresApproval/serviceNotEnabled`; `ready` остановился с тем же статусом. Native status отказывает до root XPC, wrapper — до protected review staging. Требуется системное разрешение фоновой активности Ventilator, затем `ready` после изменения этого состояния; новая подпись/замена/регистрация не нужна. Переключатель Settings и успешный root handshake пока не проверены. [Вывод владельца](../research/evidence/owner-helper-update-completed.json), [нужный раздел настроек](https://support.apple.com/ru-ru/guide/mac-help/mtusr003/mac).
@@ -152,6 +154,30 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Дано:** pinned previous fingerprint и replacement package.
 **Когда:** registration/identity/hash/journal не удовлетворяют policy либо installed hash меняется во время staging.
 **Тогда:** замена отвергнута; после изменения hash обе mv-команды не выполняются, marker сохраняется. Успех модели сохраняет старый bundle до переноса нового.
+
+**Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Installed continuation связывает установленную копию без замены
+
+**Дано:** сохранённый signed source и exact уже установленный unstarted bundle.
+**Когда:** prepare получает --continue-installed.
+**Тогда:** admission проверяется до/после копирования пакета; signatureReady сохраняется, operative old pin отсутствует, installedContinuation совпадает с fingerprint. Check показывает installationMode=installed, новый полный review запечатывается без подписи. Install/replacement, missing source и смешанные режимы отвергаются без внешних мутаций.
+
+**Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Continuation не активирует helper при неизвестном runtime
+
+**Дано:** runtime path, broken alias, ошибка доступа, любой job или другой installed hash.
+**Когда:** проверяется admission продолжения.
+**Тогда:** отказ происходит до запуска installed app; runtime/approval/journal сохраняются. Disabled native report обязан подтвердить identity/ownership/hashes; enabled, чужой report hash и неверные права отвергаются.
+
+**Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Setup импортирует review только после enabled
+
+**Дано:** sealed installed continuation в owner Terminal.
+**Когда:** вызывается setup.
+**Тогда:** register следует one-shot policy без unregister; ready выполняется только после enabled. Pending, failed register и другой package mode не выполняют ready; approval/аппаратный start в setup отсутствуют. Без owner Terminal отказ предшествует действиям.
 
 **Automated:** `scripts/owner-session-dry-run.py`
 
