@@ -12,7 +12,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. Последняя чистая установка signed/root-owned bundle подтверждена. **После unregister/register система отказала в запуске; actual status=notRegistered**, root helper отсутствует. Исправлена воспроизведённая ошибка пути запуска, но installed root XPC новой сборки ещё не проверен. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
+Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. Последняя чистая установка signed/root-owned bundle подтверждена. **Один owner setup получил requiresApproval и остановился; последующий read-only status — enabled/remoteFailure при отсутствующем launchd job**, helperVerified=false. Причина смены статуса пока не установлена. [Последние факты](../research/evidence/owner-setup-service-state.json). Исправлена воспроизведённая ошибка пути запуска, но installed root XPC новой сборки ещё не проверен. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
 
 ## Проверки и границы
 
