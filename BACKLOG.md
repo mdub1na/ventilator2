@@ -37,7 +37,9 @@
 - [x] Исправить первую регистрацию без BTM record; подтвердить реальные signed/root-owned installed gates, подготовить ограниченную замену незарегистрированной версии с backup и проверками, сохранить план/результаты.
 - [x] Разделить подпись и public qualification; восстановить подготовку из сохранённых signed файлов без повторного доступа к ключу, сохранив исходный пакет и полный новый review.
 - [x] Выполнить защищённую замену с backup и первую framework регистрацию: BTM record создана, requiresApproval подтверждён после error 1.
-- [ ] Получить системное одобрение helper, проверить enabled root XPC gate и получить одно локальное одобрение точного sealed опыта.
+- [x] Получить системное одобрение helper; actual registration=enabled подтверждён.
+- [x] Воспроизвести ошибку пути argv[0], исправить путь загруженного executable, добавить startup log и подготовить ограниченную замену disabled службы без runtime state.
+- [ ] Обновить signed installed helper, проверить enabled root XPC gate и получить одно локальное одобрение точного sealed опыта.
 - [ ] После одобрения выполнить ровно один ограниченный аппаратный опыт и проверить устойчивый возврат Auto.
 
 Проверено 2026-09-30: [симуляция](docs/features/feature-control-simulation.md), независимый процесс восстановления, [подготовленный протокол](docs/features/feature-experiment-protocol.md) и [dry-run](docs/research/evidence/control-dry-run.txt). На текущем шаге локальный issuer и restart подготовлены и проверены на модели; для аппаратного runtime нужны подключение broker к daemon/public start и положительный signed/installed gate. Кандидатный план не готов к одобрению. GUI по-прежнему read-only; hardwareControlAvailable=false. До PR #2 локально было 0 valid identities; последняя команда сообщает 2, одна помечена revoked. Подпись второй identity и установленный helper ещё не проверены.
@@ -53,6 +55,8 @@ PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https:/
 После PR #6: guarded session runtime реализован; положительные аппаратные проверки остаются открытыми. Следующий шаг — owner CLI/review staging и единый готовый сеанс, затем участие владельца для подписи/установки и конкретного опыта.
 
 2026-10-02: владелец завершил защищённую замену; новый installed bundle и backup совпали с pinned hashes. Первая framework registration создала BTM record, но вернула error 1 до административного одобрения; actual status=requiresApproval. [Свидетельство](docs/research/evidence/owner-helper-approval-pending.json). Следующий уже предусмотренный шаг — разрешение helper в System Settings и ready; повтор подписи/замены/register не нужен. Sealed PLAN/script/review не меняются, аппаратный опыт не запускался.
+
+2026-10-03: ready остановился с deadline до review staging. Launchd успешно запускал helper, но тот завершался exit 78. На signed app с relative argv[0] воспроизведён invalidLayout; actual root argv/точный этап отказа не доказаны. Исправление и disabled update проверены на модели; текущая служба ещё старая. Прежний sealed пакет сохраняется целиком, новый требует подписи из-за изменения executable. Следующий шаг — полный [обновлённый owner сеанс](docs/owner-session.md); аппаратный опыт не начинался. [Факты](docs/research/evidence/owner-ready-deadline.json).
 
 ## M3 — управление и поставка
 

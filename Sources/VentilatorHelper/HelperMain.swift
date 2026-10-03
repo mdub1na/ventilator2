@@ -1,6 +1,7 @@
 import Darwin
 import CSystemPower
 import Foundation
+import os
 import VentilatorControl
 import VentilatorInstallation
 
@@ -8,6 +9,8 @@ import VentilatorInstallation
 enum HelperMain {
     static func main() {
         let arguments = Array(CommandLine.arguments.dropFirst())
+        let startupLog = Logger(subsystem: "dev.ventilator.helper", category: "startup")
+        var startupStage = "command"
         do {
             if arguments == ["--hardware-broker"] { try runPreparedHardwareBroker(); return }
             if arguments == ["--hardware-preflight-child"] { try runPreflightChild(domain: .hardware); return }
@@ -132,14 +135,22 @@ enum HelperMain {
             guard arguments.isEmpty, geteuid() == 0 else {
                 throw CheckError.failed("Daemon requires an Apple-issued helper signature and root; launchd registration is separate")
             }
+            startupStage = "identity"
+            startupLog.notice("Daemon validating identity")
             let proof = try SignedBundleInspector.requireCurrentProcess(role: .helper)
+            startupStage = "runtime"
             let server = try HelperServer(acceptance: .signedApplication(proof: proof),
                                           directory: URL(fileURLWithPath: "/Library/Application Support/Ventilator/HelperSimulation", isDirectory: true))
+            startupStage = "listener"
             let listener = NSXPCListener(machServiceName: "dev.ventilator.helper")
             listener.delegate = server
             listener.resume()
+            startupLog.notice("Daemon listener ready")
             withExtendedLifetime(server) { RunLoop.current.run() }
         } catch {
+            if arguments.isEmpty && geteuid() == 0 {
+                startupLog.error("Daemon refused: stage=\(startupStage, privacy: .public), error=\(String(describing: error), privacy: .public)")
+            }
             fputs("VentilatorHelper: \(error)\n", stderr)
             exit(78)
         }

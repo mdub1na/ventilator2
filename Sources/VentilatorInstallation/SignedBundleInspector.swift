@@ -40,8 +40,8 @@ public enum SignedBundleInspector {
     internal static let offlineFlags: SecCSFlags = [.considerExpiration, .noNetworkAccess]
     public enum Role: Equatable { case application, helper }
 
-    public static func currentBundleURL() -> URL {
-        URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
+    public static func currentBundleURL() throws -> URL {
+        try CurrentExecutable.url()
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
     }
 
@@ -87,7 +87,7 @@ public enum SignedBundleInspector {
         let proof = try inspect(currentBundleURL())
         try requireInstalled(proof)
         let executable = proof.bundleURL.appendingPathComponent("Contents/MacOS/\(role == .application ? "Ventilator" : "VentilatorHelper")")
-        guard URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL.path == executable.path else { throw InstallationError.runtimeIdentityRejected }
+        guard try CurrentExecutable.url().path == executable.path else { throw InstallationError.runtimeIdentityRejected }
         var code: SecCode?, requirement: SecRequirement?
         let text = try Self.requirement(role: role, proof: proof)
         guard SecCodeCopySelf([], &code) == errSecSuccess, let code,

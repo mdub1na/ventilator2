@@ -33,7 +33,8 @@ previous = {"applicationSHA256": "a" * 64, "helperSHA256": "b" * 64, "launchDaem
 inactive = {"fingerprint": previous, "trustedBundle": True, "rootOwned": True, "installedLocation": True,
             "registration": "notFound", "error": "serviceNotEnabled", "helperVerified": False, "hardwareControlAvailable": False}
 session.admit_replacement(inactive, previous, previous, False)
-for key, value in [("registration", "enabled"), ("registration", "requiresApproval"), ("trustedBundle", False),
+session.admit_replacement({**inactive, "registration": "requiresApproval"}, previous, previous, False)
+for key, value in [("registration", "enabled"), ("registration", "unknown"), ("trustedBundle", False),
                    ("rootOwned", False), ("installedLocation", False), ("helperVerified", True),
                    ("hardwareControlAvailable", True), ("error", "pendingRecovery"), ("fingerprint", {})]:
     try:
@@ -47,24 +48,58 @@ for actual, hardware_exists in [({}, False), (previous, True)]:
         raise AssertionError("Unsafe replacement admitted")
     except RuntimeError:
         pass
-lines.append("Pinned replacement policy rejects active/approved service, changed hashes, invalid identity/ownership and any hardware journal directory; pure inputs only.")
+lines.append("Pinned replacement policy admits disabled requiresApproval only with an absent entire runtime root; rejects enabled/unknown service, changed hashes, invalid identity/ownership and any runtime state; pure inputs only.")
+
+# Launchd output is diagnostic data: only the exact absent or matching inactive job is accepted.
+job = '''system/dev.ventilator.helper = {
+    state = spawn scheduled
+    program identifier = Contents/MacOS/VentilatorHelper (mode: 2)
+    parent bundle identifier = dev.ventilator.macos
+    managed_by = com.apple.xpc.ServiceManagement
+}'''
+for code, stdout, stderr, expected in [
+        (113, "", 'Could not find service "dev.ventilator.helper" in domain for system', False),
+        (0, job, "", True),
+        (0, job.replace("state = spawn scheduled", "state = running\n    pid = 42"), "", None),
+        (0, job.replace("state = spawn scheduled", "state = running"), "", None),
+        (0, job.replace("state = spawn scheduled", "state = unknown"), "", None),
+        (0, job.replace("dev.ventilator.macos", "other.bundle"), "", None),
+        (0, job.replace("dev.ventilator.macos", "dev.ventilator.macos.other"), "", None),
+        (1, "", "Operation not permitted", None),
+        (113, "", "unrelated error", None)]:
+    with patch.object(session.subprocess, "run", return_value=subprocess.CompletedProcess([], code, stdout, stderr)):
+        if expected is None:
+            try:
+                session.launchd_job_present()
+                raise AssertionError("Uncertain or active launchd state admitted")
+            except RuntimeError:
+                pass
+        else:
+            assert session.launchd_job_present() is expected
+lines.append("Launchd repair refused an active PID, foreign bundle and ambiguous errors; accepted only exact missing service or matching inactive job on mocked diagnostic data.")
 
 # Execute the orchestration with fake external commands, including a change during staging.
-for changed_after_staging in [False, True]:
+for mode in ["inactive-absent", "disabled-job", "changed-after-staging", "job-reappeared"]:
     with tempfile.TemporaryDirectory(prefix="ventilator-replace-", dir=root / ".build") as tmp:
         directory = Path(tmp)
         new = {**previous, "applicationSHA256": "d" * 64}
         (directory / "sealed.json").write_text(json.dumps({"fingerprint": new}))
         staged = {"trustedBundle": True, "rootOwned": True, "fingerprint": new}
-        second = {**inactive, "fingerprint": {}} if changed_after_staging else inactive
+        state = {**inactive, "registration": "requiresApproval"} if mode == "disabled-job" else inactive
+        second = {**state, "fingerprint": {}} if mode == "changed-after-staging" else state
+        outputs = [json.dumps(state), json.dumps(staged), json.dumps(second)]
+        if mode == "disabled-job":
+            outputs.insert(1, json.dumps(state))
+        jobs = [True, False, False] if mode == "disabled-job" else [False, False, mode == "job-reappeared"]
         with patch.object(session, "SESSION", directory), patch.object(session, "owner_terminal"), \
                 patch.object(session, "check", return_value={"installedReplacement": previous}), \
                 patch.object(session, "fingerprints", return_value=previous), \
                 patch.object(session, "installed_check"), patch.object(session.HARDWARE_ROOT.__class__, "lstat", side_effect=FileNotFoundError), \
                 patch.object(session.os.path, "lexists", return_value=False), \
-                patch.object(session, "output", side_effect=[json.dumps(inactive), json.dumps(staged), json.dumps(second)]), \
+                patch.object(session, "output", side_effect=outputs), \
+                patch.object(session, "launchd_job_present", side_effect=jobs), \
                 patch.object(session.subprocess, "run") as commands:
-            if changed_after_staging:
+            if mode in ["changed-after-staging", "job-reappeared"]:
                 try:
                     session.replace_installed()
                     raise AssertionError("Changed installation moved")
@@ -76,9 +111,13 @@ for changed_after_staging in [False, True]:
                 session.replace_installed()
                 assert (directory / "replacement-completed.json").exists()
                 operations = [c.args[0][1] for c in commands.call_args_list]
-                assert operations == ["/usr/bin/ditto", "/usr/sbin/chown", "/bin/chmod", "/bin/mv", "/bin/mv"]
+                expected = ["/usr/bin/ditto", "/usr/sbin/chown", "/bin/chmod", "/bin/mv", "/bin/mv"]
+                if mode == "disabled-job":
+                    expected.insert(0, "/bin/launchctl")
+                    assert commands.call_args_list[0].args[0] == ["sudo", "/bin/launchctl", "bootout", "system/dev.ventilator.helper"]
+                assert operations == expected
             assert (directory / "replacement-started.json").exists()
-lines.append("Replacement orchestration preserved backup order on mocked commands; an installed hash change during staging stopped both moves and retained its marker.")
+lines.append("Replacement orchestration preserved backup order and performed one exact bootout only for a disabled inactive job on mocked commands; changed installation or a reappearing job stopped both moves and retained the marker.")
 
 # A failed read must be recorded while the remaining audit/status collection still runs.
 with tempfile.TemporaryDirectory(prefix="ventilator-collect-", dir=root / ".build") as tmp:

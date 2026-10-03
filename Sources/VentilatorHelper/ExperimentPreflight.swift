@@ -1,5 +1,6 @@
 import Darwin
 import Foundation
+import VentilatorInstallation
 import VentilatorControl
 import VentilatorExperiment
 
@@ -21,7 +22,7 @@ func experimentPreflight(domain: ExperimentDomain) throws -> ControlObservation 
     let channel = try WorkerChannel(input: output.fileHandleForReading.fileDescriptor,
                                     output: input.fileHandleForWriting.fileDescriptor)
     let nonce = UUID(), date = Date(), deadline = HelperClock.now() + 2
-    process.executableURL = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
+    process.executableURL = try CurrentExecutable.url()
     process.arguments = [domain == .hardware ? "--hardware-preflight-child" : "--model-preflight-child"]
     process.standardInput = input; process.standardOutput = output; process.standardError = FileHandle.standardError
     try process.run()

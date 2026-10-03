@@ -1,5 +1,6 @@
 import Darwin
 import Foundation
+import VentilatorInstallation
 import VentilatorControl
 
 enum WorkerCommand: String, Codable { case status, start, heartbeat, restore, disconnected }
@@ -100,7 +101,7 @@ final class SimulationWorkerClient {
         journal = try FileSessionJournal(directory: directory)
         channel = try WorkerChannel(input: output.fileHandleForReading.fileDescriptor,
                                     output: input.fileHandleForWriting.fileDescriptor)
-        process.executableURL = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL
+        process.executableURL = try CurrentExecutable.url()
         process.arguments = [restoreFailure ? "--simulation-worker-restore-failure" : "--simulation-worker", directory.path]
         process.standardInput = input
         process.standardOutput = output

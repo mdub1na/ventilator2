@@ -40,6 +40,20 @@ for name in ["--verify-installed-helper", "--register-helper", "--unregister-hel
 after = json.loads(command(app, "--helper-status").stdout)
 assert after["registration"] == report["registration"] and not after["helperVerified"]
 lines.append("Status is not readiness: ad hoc signature rejected; service registration state remained " + report["registration"] + ".")
+for argv0 in ["Contents/MacOS/Ventilator", "/tmp/other-app/Ventilator", "arbitrary-process-name"]:
+    relative = subprocess.run([argv0, "--helper-status"], executable=str(app), cwd="/",
+                              capture_output=True, text=True, timeout=5)
+    loaded = json.loads(relative.stdout)
+    assert relative.returncode == 0 and loaded["error"] == "appleSignatureRequired", loaded
+    assert not loaded["helperVerified"] and not loaded["hardwareControlAvailable"]
+    exported = subprocess.run([argv0, "--candidate-plan"], executable=str(helper), cwd="/",
+                              capture_output=True, text=True, timeout=5)
+    assert exported.returncode == 0, exported.stderr
+    candidate = json.loads(exported.stdout)
+    assert candidate["plan"]["binaries"] == {"applicationSHA256": hashlib.sha256(app.read_bytes()).hexdigest(),
+                                              "helperSHA256": hashlib.sha256(helper.read_bytes()).hexdigest()}
+    assert candidate["hardwareWritesExecuted"] == 0
+lines.append("Relative/foreign/opaque argv[0] from cwd=/ used the loaded app/helper path: native layout passed to ad hoc rejection and candidate hashes matched actual binaries. No signing/registration/device.")
 malformed = command(app, "--register-helper", "unexpected")
 assert malformed.returncode == 78 and "invalidChallenge" in malformed.stderr
 lines.append("Extra command arguments rejected before service access; no arbitrary path/service supplied by CLI.")
