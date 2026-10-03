@@ -8,6 +8,12 @@ date: 2026-10-03
 
 # Исследование
 
+## Последняя проверка: нового системного запроса не было, 2026-10-03
+
+Владелец уточнил, что после setup уведомления и подтверждения **не было**. Один новый read-only status exact installed bundle снова дал enabled/remoteFailure, job lookup — 113, runtime root — ENOENT. Это уточнение исключает утверждение о новом owner Allow после setup; причина смены framework status остаётся неизвестной. Административный read-only `sudo -n launchctl print` завершился `a password is required` до запуска launchctl; агент не получил root-доступ. Старый BTM snapshot нельзя считать текущим. [Ответ и прошлые факты](evidence/owner-setup-service-state.json).
+
+Подготовлен отдельный [полный диагностический сеанс](../helper-registration-diagnostics.md): одна owner-Terminal команда, только system job print и BTM dump с owner sudo. Frozen script/plan привязаны к 15 owner файлам и installed fingerprint; app/helper не запускаются, lifecycle/настройки/SMC не меняются. Kernel alarm переживает exec, ограничивает utilities 5/20 с после аутентификации; реальный non-root зависший dump завершился SIGALRM через 20.016 с. Model проверяет owner boundary, hash substitution до sudo, partial result/replay denial и фильтрацию точных Ventilator records. Снимок с root ещё не получен; установленная app и sealed hardware review сохраняются, positive root XPC/SMC/Auto остаются открытыми. [Подготовка и границы](evidence/owner-registration-diagnostics-preparation.json).
+
 ## Последняя проверка: setup и отсутствие загруженной службы, 2026-10-03
 
 Владелец выполнил один `setup`: marker фиксирует исходный notRegistered, post-register report — requiresApproval/serviceNotEnabled с диагностикой error 1. Wrapper сохранил результат и остановился до ready/import review. Узкий журнал того же Ventilator PID подтверждает `Job is not allowed to bootstrap` при effective disposition enabled/disallowed и framework status 0→2. Последующий read-only installed status уже **enabled/remoteFailure**, но helperVerified=false; `launchctl print system/dev.ventilator.helper` возвращает 113, runtime root отсутствует (ENOENT). Disabled override не наблюдается, Settings AX — on. Это не положительный root handshake. Причина смены статуса и отсутствие job после enabled пока не установлены; новый BTM dump не завершился и не используется как свидетельство текущих records.

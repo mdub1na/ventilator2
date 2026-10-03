@@ -20,6 +20,8 @@ Root-owned signed bundle установлен в `/Applications/Ventilator.app`,
 
 Wrapper поддерживает installed continuation полного owner review для exact уже установленного unstarted bundle. Admission отказывает до app invocation при runtime/job/changed hash; файлы установки в этом mode не меняются. Owner-only setup выполняет bounded one-shot register, затем ready только после enabled. Root review import может потребовать owner sudo; одобрение/аппаратный start выполняются отдельно. Новый пакет подготовлен и qualified без новой подписи, положительный installed root XPC ещё ожидается. [Проверки и границы](../research/evidence/owner-installed-continuation.json).
 
+Отдельный read-only diagnostics wrapper готовит frozen snapshot system job/BTM; collect требует owner non-root TTY и точные script/plan/owner/installed хеши. Root используется только для двух фиксированных системных чтений с exec alarm, app/helper не запускаются. Отчёт сохраняет только Ventilator identifiers; повтор blocked marker. Участие владельца нужно для sudo authentication; никакого hardware staging/start в этом сеансе нет. [Полный порядок](../helper-registration-diagnostics.md), [подготовка](../research/evidence/owner-registration-diagnostics-preparation.json).
+
 ## Code anchors
 
 | Компонент | Code |

@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-03",
+  "ownerFollowUp": "No notification or administrative confirmation appeared after setup.",
+  "readOnlyStatusAfterFollowUp": {
+    "error": "remoteFailure",
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": false,
+    "installedLocation": true,
+    "registration": "enabled",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "launchdAfterFollowUp": {
+    "target": "system/dev.ventilator.helper",
+    "ordinaryUserExitCode": 113,
+    "runtimeLstatErrno": 2
+  },
+  "nonInteractiveAdministrativeCheck": {
+    "command": [
+      "/usr/bin/sudo",
+      "-n",
+      "/bin/launchctl",
+      "print",
+      "system/dev.ventilator.helper"
+    ],
+    "exitCode": 1,
+    "diagnostic": "sudo: a password is required",
+    "launchctlExecuted": false,
+    "administrativeAccessObtained": false
+  },
+  "diagnosis": "No new owner Allow action explains the change to enabled. The job remains absent for an ordinary-user lookup and the root XPC request fails. Cause remains unknown; obtain one administrative system snapshot before changing lifecycle or installation.",
+  "package": {
+    "path": ".build/helper-registration-diagnostics",
+    "scriptSHA256": "dc6950f39a93c0063df9737a72f274a31cc3b3afe510b8ce5b9fefe8a8df525e",
+    "planSHA256": "083cbefab229df1217cf23a2d710baa8e0a9a1766ffda0213f389f2a7784f698",
+    "ownerFilesBound": 15,
+    "installedFingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "commands": {
+      "launchd": [
+        "/usr/bin/sudo",
+        "--",
+        "/usr/bin/perl",
+        "-e",
+        "alarm 5; exec \"/bin/launchctl\", \"print\", \"system/dev.ventilator.helper\"; die \"exec failed\\n\";"
+      ],
+      "btm": [
+        "/usr/bin/sudo",
+        "--",
+        "/usr/bin/perl",
+        "-e",
+        "alarm 20; exec \"/usr/bin/sfltool\", \"dumpbtm\"; die \"exec failed\\n\";"
+      ]
+    },
+    "started": false
+  },
+  "systemReadScope": {
+    "launchctl": "print system/dev.ventilator.helper",
+    "sfltool": "dumpbtm",
+    "rootCode": "Fixed Perl alarm then exec of a system utility; no root shell/Python, app/helper execution or free-form commands",
+    "timeoutsSecondsAfterAuthentication": {
+      "launchd": 5,
+      "btm": 20
+    },
+    "BTMRetainedIdentifiers": [
+      "2.dev.ventilator.macos",
+      "16.dev.ventilator.helper"
+    ],
+    "rawOtherApplicationsSaved": false,
+    "settingsOrLifecycleChanged": false
+  },
+  "realNonRootBTMTimerCheck": {
+    "uidMode": "non-root",
+    "elapsedSeconds": 20.015893208,
+    "exitCode": -14,
+    "alarmExpired": true,
+    "scopedRecords": [],
+    "rawOtherApplicationsSaved": false
+  },
+  "verification": {
+    "dryRun": "passed: real alarm/exec SIGALRM; scoped record fixtures; root/no-TTY and changed script/seal/helper refusals before sudo; timed-out partial report; replay refusal; first sudo refusal skips BTM",
+    "positiveAdministrativeSnapshot": "not performed; owner authentication required",
+    "nativeCodeChanged": false,
+    "privateKeyUsed": false,
+    "ownerPackageChanged": false,
+    "documents": "docs_check.py --on-main: 13 documents, 84 BDD scenarios, no errors",
+    "frozenPackage": "script/plan match repository sources; all 15 owner files and 3 installed files unchanged; started.json absent",
+    "preparedCollectFromAgent": "actual frozen CLI rejects non-TTY before markers or sudo",
+    "whitespace": "git diff --check passed"
+  },
+  "nextOwnerAction": {
+    "command": "python3 /Users/mdub1na/IdeaProjects/ventilator2/.build/helper-registration-diagnostics/snapshot.py collect",
+    "expectedPrompt": "sudo authentication in owner Terminal for fixed system reads",
+    "finish": "Saved read-only snapshot, then stop and notify developer",
+    "fullPlan": "docs/helper-registration-diagnostics.md"
+  },
+  "rootXPC": "not verified",
+  "hardwareExperimentStarted": false,
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "sources": [
+    {
+      "url": "https://developer.apple.com/documentation/servicemanagement/smappservice/status-swift.enum/enabled",
+      "scope": "eligible to run does not prove a live authenticated peer"
+    },
+    {
+      "url": "https://developer.apple.com/forums/thread/802443",
+      "scope": "DTS uses an administrative launchctl inspection after approval; tested on macOS 15.6.1, not a diagnosis of this macOS 27 state"
+    }
+  ]
+}

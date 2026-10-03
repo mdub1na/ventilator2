@@ -83,6 +83,7 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 | Native gate | `Sources/VentilatorExperiment/NativeExperimentDevice.swift` |
 | Signing gate | `tools/sign_without_ui.swift`, `scripts/sign-app-without-ui.py` |
 | Owner seal и online public certificate qualification | `scripts/owner-session.py`, `Sources/VentilatorInstallation/CertificateQualification.swift` |
+| Отдельный read-only снимок system job / BTM | `scripts/helper-registration-diagnostics.py`, `scripts/helper-registration-diagnostics-dry-run.py` |
 | Проверки | `Tests/VentilatorInstallationTests/InstallationTests.swift`, `scripts/installation-dry-run.py` |
 
 ### Scenario: Ad hoc bundle не устанавливает helper
@@ -156,6 +157,30 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** замена отвергнута; после изменения hash обе mv-команды не выполняются, marker сохраняется. Успех модели сохраняет старый bundle до переноса нового.
 
 **Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Диагностический снимок не допускает неподтверждённый запуск sudo
+
+**Дано:** frozen диагностический пакет с привязкой к текущим owner/installed файлам.
+**Когда:** collect вызван без owner TTY, от root или после подмены скрипта, owner seal либо installed helper.
+**Тогда:** отказ происходит до привилегированных команд; marker до попытки не создаётся. Допустимый collect выполняет только два фиксированных system read, app/helper не запускаются.
+
+**Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
+
+### Scenario: Зависшее системное чтение сохраняет неполный результат
+
+**Дано:** owner collect и read-only system utility после sudo authentication.
+**Когда:** дочерняя утилита не завершает чтение либо sudo отказывает.
+**Тогда:** alarm переживает exec и завершает utility, exit/неполнота сохраняются без объявления готовности; отказ первой команды исключает вторую, повторный collect не запускает sudo. Owner package не меняется.
+
+**Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
+
+### Scenario: Снимок BTM сохраняет только записи Ventilator
+
+**Дано:** BTM dump с несколькими UID, embedded numbering и записями других приложений.
+**Когда:** snapshot извлекает app/helper records.
+**Тогда:** UID, URL и parent disposition Ventilator сохраняются, похожее имя с другим identifier и чужие записи исключаются. Незнакомый формат помечается отдельно; пустой stdout не доказывает отсутствие records.
+
+**Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
 
 ### Scenario: Installed continuation связывает установленную копию без замены
 

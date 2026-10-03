@@ -70,6 +70,8 @@ PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https:/
 
 2026-10-03, после owner setup: один register перешёл notRegistered→requiresApproval, wrapper остановился до ready. Последующий read-only status=enabled/remoteFailure; job отсутствует (113), runtime root — ENOENT, Settings on. Root XPC остаётся открытым; причина смены статуса не установлена. Запрошен факт нового системного Allow/authentication; повтор setup/register/ready пока не назначен. Все 13 sealed файлов неизменны, добавлены только два owner registration marker; аппаратный опыт не начинался. [Свидетельство](docs/research/evidence/owner-setup-service-state.json).
 
+2026-10-03, уточнение владельца: нового уведомления/подтверждения после setup не было; enabled/remoteFailure и отсутствующий job подтверждены одним новым read-only снимком. Для административного system read нужен owner Terminal. Подготовлен отдельный bounded [диагностический сеанс](docs/helper-registration-diagnostics.md), frozen script/plan, owner/installed hash gates и scoped BTM report. Native app/helper и sealed hardware review не менялись; следующий owner шаг — collect снимка, затем остановка и анализ результата. [Подготовка](docs/research/evidence/owner-registration-diagnostics-preparation.json).
+
 ## M3 — управление и поставка
 
 - [ ] Подтвердить атрибуцию CPU/GPU и повторить температурные чтения после сна/пробуждения; текущие кандидаты не считать доказанными датчиками.

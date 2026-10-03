@@ -1,0 +1,16 @@
+Real non-root exec timer: sleeping utility terminated by SIGALRM; no sudo.
+Scoped BTM fixture: preserves UID/parent disposition, rejects unrelated/lookalike records and embedded numbering.
+Root and no-TTY collection refused before file inspection, markers or privileged commands.
+Changed diagnostic script, owner seal and installed helper refused before sudo/attempt marker.
+Model read-only plan; zero hardware writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-registration-model-ovahqu4h/helper-registration-diagnostics/result.json
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Missing job and timed-out BTM retained as failures; no readiness claim, owner file unchanged and replay blocked.
+Model authentication refusal.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-registration-denied-wfuhlxqi/result.json
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Sudo refusal stops before BTM; partial result retained without a second administrative command.
+Registration diagnostics dry-run passed; no registration, installed app execution, root commands or SMC.
