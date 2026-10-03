@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-03",
+  "ownerMessageMeaning": "Snapshot collected",
+  "snapshot": {
+    "startedAt": "2026-10-03T23:10:33+05:00",
+    "installedFingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "scriptSHA256": "dc6950f39a93c0063df9737a72f274a31cc3b3afe510b8ce5b9fefe8a8df525e",
+    "planSHA256": "083cbefab229df1217cf23a2d710baa8e0a9a1766ffda0213f389f2a7784f698",
+    "runtimeBefore": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    },
+    "hardwareWritesExecuted": 0,
+    "steps": {
+      "launchd": {
+        "exitCode": 113,
+        "completedAt": "2026-10-03T23:10:37+05:00",
+        "alarmExpired": false,
+        "stdout": ""
+      },
+      "btm": {
+        "exitCode": 0,
+        "completedAt": "2026-10-03T23:10:37+05:00",
+        "alarmExpired": false,
+        "records": [
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, not notified] (pending authorization) (0x12)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "16",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F",
+              "Name": "VentilatorHelper",
+              "Developer Name": "(null)",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "daemon (0x10)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[enabled, allowed, not notified] (0x3)",
+              "Identifier": "16.dev.ventilator.helper",
+              "URL": "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist",
+              "Executable Path": "Contents/MacOS/VentilatorHelper",
+              "Generation": "903",
+              "Last Use": "2026-10-03 15:33:22+05:00",
+              "Parent Identifier": "2.dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 0,
+            "fields": {
+              "UUID": "BACD812D-ACFD-4C47-9C6A-D6161F076D49",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, notified] (0xa)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "1",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 501,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, not notified] (pending authorization) (0x12)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "18",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          }
+        ],
+        "rawOtherApplicationsSaved": false,
+        "complete": true,
+        "formatRecognized": true
+      }
+    },
+    "runtimeAfter": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    }
+  },
+  "snapshotSHA256": "e95d61ff25d5d16d74c8fd3e6a63a263d9ff1592c8c41ad0714eb13e0eb969c9",
+  "interpretation": "The administrative launchd lookup confirms absent job (113). Current BTM child is enabled/allowed, but app records at UID -2 and 501 remain pending authorization. UID 0 app is allowed/notified. These printed records show a mismatch; they do not establish that a missing notification is the sole cause. No live root helper has been authenticated.",
+  "settingsReadOnlyAX": {
+    "elementID": "background-switch-Ventilator",
+    "value": "on",
+    "agentChangedSetting": false
+  },
+  "notificationCenterInspection": {
+    "succeeded": false,
+    "error": "Computer Use server timeoutReached",
+    "noAbsenceConclusion": true
+  },
+  "preservation": "Snapshot validated against original 15 owner file hashes and 3 installed hashes. Original diagnostic package and sealed hardware package unchanged.",
+  "nextPreparation": "One explicitly bounded off/on of only Ventilator in System Settings for the existing registration, then one administrative snapshot in the same owner Terminal session. No register/unregister or a repeated toggle loop. Success on macOS 27 remains unproven.",
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false
+}

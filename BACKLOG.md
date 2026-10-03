@@ -72,6 +72,8 @@ PR #1, [PR #2](https://github.com/mdub1na/ventilator2/pull/2) и [PR #3](https:/
 
 2026-10-03, уточнение владельца: нового уведомления/подтверждения после setup не было; enabled/remoteFailure и отсутствующий job подтверждены одним новым read-only снимком. Для административного system read нужен owner Terminal. Подготовлен отдельный bounded [диагностический сеанс](docs/helper-registration-diagnostics.md), frozen script/plan, owner/installed hash gates и scoped BTM report. Native app/helper и sealed hardware review не менялись; следующий owner шаг — collect снимка, затем остановка и анализ результата. [Подготовка](docs/research/evidence/owner-registration-diagnostics-preparation.json).
 
+2026-10-03, owner административный снимок: root job отсутствует (113), BTM child enabled/allowed, parent UID -2/501 pending authorization, runtime отсутствует. Native/owner hashes сохранены; точная причина расхождения остаётся открытой. Подготовлен отдельный frozen [сеанс одного off/on только Ventilator и snapshot](docs/helper-registration-approval.md), с привязкой к семи файлам прежнего snapshot/owner UID и отказом при runtime/job до UI действия. Модель отмены/DONE/replay и сохранения файлов прошла. Следующий шаг требует владельца в Settings и его Terminal; root XPC/SMC/физический Auto ещё не подтверждены. [Факты](docs/research/evidence/owner-registration-administrative-snapshot.json), [подготовка](docs/research/evidence/owner-system-approval-session.json).
+
 ## M3 — управление и поставка
 
 - [ ] Подтвердить атрибуцию CPU/GPU и повторить температурные чтения после сна/пробуждения; текущие кандидаты не считать доказанными датчиками.

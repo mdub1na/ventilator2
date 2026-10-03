@@ -8,6 +8,12 @@ date: 2026-10-03
 
 # Исследование
 
+## Последняя проверка: административный снимок получен, 2026-10-03
+
+Владелец собрал snapshot: root `launchctl print system/dev.ventilator.helper` тоже вернул 113; BTM dump завершился 0 без timeout, формат распознан. Current helper record для UID -2 — enabled/allowed/not notified; app parent для UID -2 и 501 — disabled/allowed/pending authorization, для UID 0 — disabled/allowed/notified. Все URLs относятся к canonical установленной копии; её hashes и 15 owner файлов неизменны. Runtime root отсутствовал до/после снимка. Settings AX остаётся on. Это подтверждённое расхождение BTM и загруженной службы; точная причина не установлена, новый root XPC по-прежнему не подтверждён. Чтение Notification Center завершилось tool timeout; отсутствие сохранённого уведомления из этого не выводится. [Exact scoped snapshot](evidence/owner-registration-administrative-snapshot.json).
+
+Подготовлен [полный отдельный сеанс](../helper-registration-approval.md): один ограниченный цикл off/on только Ventilator для уже существующей регистрации, затем administrative snapshot в том же Terminal. Ранее owner включал background activity до новой one-shot регистрации; теперь child record существует и enabled, root job/state отсутствуют, app parent pending. Это основание проверить документированный системный переключатель в текущем состоянии; успех на macOS 27 не доказан. Frozen пакет связывает 15 owner файлов, три installed hashes, семь файлов прошлого snapshot и исходный owner UID. Модель проверяет отказ при existing/unknown runtime/job, отмену до sudo и запрет повторного UI prompt/чтения; аппаратных записей нет. Следующий owner шаг — одна команда collect по этому плану. [Подготовка и проверки](evidence/owner-system-approval-session.json).
+
 ## Последняя проверка: нового системного запроса не было, 2026-10-03
 
 Владелец уточнил, что после setup уведомления и подтверждения **не было**. Один новый read-only status exact installed bundle снова дал enabled/remoteFailure, job lookup — 113, runtime root — ENOENT. Это уточнение исключает утверждение о новом owner Allow после setup; причина смены framework status остаётся неизвестной. Административный read-only `sudo -n launchctl print` завершился `a password is required` до запуска launchctl; агент не получил root-доступ. Старый BTM snapshot нельзя считать текущим. [Ответ и прошлые факты](evidence/owner-setup-service-state.json).

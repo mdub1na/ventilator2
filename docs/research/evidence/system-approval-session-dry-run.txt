@@ -1,0 +1,25 @@
+Real non-root exec timer: sleeping utility terminated by SIGALRM; no sudo.
+Scoped BTM fixture: preserves UID/parent disposition, rejects unrelated/lookalike records and embedded numbering.
+Root and no-TTY collection refused before file inspection, markers or privileged commands.
+Changed diagnostic script, owner seal and installed helper refused before sudo/attempt marker.
+Model read-only plan; zero hardware writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-registration-model-ohwkvwga/helper-registration-diagnostics/result.json
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Missing job and timed-out BTM retained as failures; no readiness claim, owner file unchanged and replay blocked.
+Model authentication refusal.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-registration-denied-u8io0vh0/result.json
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Sudo refusal stops before BTM; partial result retained without a second administrative command.
+System cycle refuses runtime presence/unreadability and loaded job before owner UI action.
+Changed owner UID or previous administrative evidence refused before UI prompt, marker or sudo.
+Model one system cycle; no hardware approval.
+Model one system cycle; no hardware approval.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-system-cycle-model-1_jbs375/result.json
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Cancel stops before sudo; DONE performs two fixed reads only; marker blocks repeated UI prompt and sudo.
+Registration diagnostics dry-run passed; no registration, actual UI cycle, installed app execution, root commands or SMC.
