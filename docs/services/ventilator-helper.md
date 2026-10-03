@@ -80,6 +80,8 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 
 Последующая проверка: installed update выполнен, native signed/root-owned/installed gates прошли на exact новом seal. Backup сохранил предыдущую сборку, stage/runtime root отсутствуют. Повтор замены отказывает до мутаций; actual service=requiresApproval. Остаётся предусмотренный шаг 3: unregister/register, системное разрешение, ready; root XPC новой сборки не подтверждён. [Результат](../research/evidence/owner-helper-update-completed.json).
 
+После включения владельцем фоновой активности actual service остался requiresApproval: Settings on подтверждён, BTM parent содержит pending authorization, job/runtime root отсутствуют. Root handshake не выполнялся. Системное административное одобрение ещё не подтверждено; причина расхождения/наличие auth prompt не установлены, sealed package сохраняется. [Диагностика](../research/evidence/owner-system-authorization-pending.json).
+
 ## Code anchors
 
 | Компонент | Code |
