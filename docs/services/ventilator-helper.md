@@ -82,6 +82,8 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 
 После включения владельцем фоновой активности actual service остался requiresApproval: Settings on подтверждён, BTM parent содержит pending authorization, job/runtime root отсутствуют. Root handshake не выполнялся. Системное административное одобрение ещё не подтверждено; причина расхождения/наличие auth prompt не установлены, sealed package сохраняется. [Диагностика](../research/evidence/owner-system-authorization-pending.json).
 
+После owner удаления app/backup новые установочные команды находятся в fresh wrapper: пустые пути/runtime/job, one-shot markers, exact installed proof и максимум один bounded guarded unregister/register. Native daemon/XPC/broker не менялись; новый review запечатан на тех же signed файлах. Actual root XPC остаётся открытым. [Подготовка](../research/evidence/owner-fresh-install-package.json).
+
 ## Code anchors
 
 | Компонент | Code |

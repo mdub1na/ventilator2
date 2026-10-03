@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-03",
+  "ownerReport": "Owner deleted all installed Ventilator versions and disabled background services; requested another attempt",
+  "readOnlyCleanupVerification": {
+    "applicationScopesChecked": ["/Applications", "/Users/mdub1na/Applications"],
+    "ventilatorNamedEntriesFound": [],
+    "lstatENOENT": [
+      "/Applications/Ventilator.app",
+      "/Applications/Ventilator-before-helper-path-fix.app",
+      "/Applications/Ventilator-before-registration-fix.app",
+      "/Applications/Ventilator-helper-path-staging.app",
+      "/Library/Application Support/Ventilator"
+    ],
+    "launchdJob": "system/dev.ventilator.helper absent",
+    "btmRecordsRemain": true,
+    "btmUser501ParentURL": "/Applications/Ventilator-before-registration-fix.app",
+    "btmUser501ParentDisposition": "disabled, disallowed, not notified; pending authorization (0x10)",
+    "btmSystemParentURL": "/Applications/Ventilator.app",
+    "btmSystemParentDisposition": "disabled, disallowed, not notified; pending authorization (0x10)",
+    "btmDaemonDisposition": "enabled, disallowed, not notified (0x1)",
+    "interpretation": "Removal of the installed files did not remove BTM records. A user-scope record points to the deleted backup. This confirms an obsolete reference, not the cause of the previous authorization failure or a clean BTM database."
+  },
+  "preservedPreviousPackage": {
+    "path": ".build/owner-session-2026-10-03-after-owner-removal",
+    "fileHashesComparedBeforeAndAfterMove": 15,
+    "allUnchanged": true,
+    "reviewSHA256": "c124dbb0c8e5f959bdfe9be66986985259c32cee51ec170433c1e7f1bded93f6"
+  },
+  "signedSource": {
+    "path": ".build/owner-session-2026-10-03-path-sign-revocation-failed",
+    "fileHashesCompared": 11,
+    "allUnchanged": true,
+    "privateKeyUsed": false,
+    "binariesRebuilt": false,
+    "strictSignaturesVerified": true
+  },
+  "newPackage": {
+    "path": ".build/owner-session",
+    "freshInstallation": true,
+    "previousInstallationPinInherited": false,
+    "originalPinRetainedInSourceProvenance": true,
+    "fingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "packageFiles": {
+      "PLAN.md": "54f5770d76adf13682fc41a606a86fbdc411590a78ac32ea553277f935f57072",
+      "session.py": "a72b062497c57e8d173d041653f7c72a8aaebb75e4c011c7264154603e98a5c6"
+    },
+    "reviewSHA256": "b549b279444987f69d8218ac6c6ae38f38f3e1258f0f1a4c82a5661ba8a15e5f",
+    "reviewUTF8Bytes": 14367,
+    "ownerInstructionsUTF8Bytes": 12048,
+    "certificateQualificationAttempts": 1,
+    "positiveRevocation": true,
+    "notarizationClaimed": false,
+    "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+    "teamIdentifier": "4659S5GD6X",
+    "sealedCheckPassed": true,
+    "installationOrRegistrationMarkersPresent": false
+  },
+  "softwareVerification": {
+    "docsCheck": "13 documents, 78 BDD scenarios, no errors; git diff --check passed",
+    "ownerSessionDryRun": "scripts/owner-session-dry-run.py passed; non-root offline/model and mocked external commands",
+    "realModelReviewUTF8Bytes": 14369,
+    "mutationCheck": "Removing the fresh-install job gate failed the existing-job scenario; original script restored, normal suite passed again",
+    "nativeCodeChanged": false,
+    "limitations": "Mocked copying/ownership/registration does not establish actual installed root ownership, effective system consent, root XPC, or physical Auto. Launching the exact installed GUI is a planned path disambiguation action, not a proven fix of BTM."
+  },
+  "plannedOwnerActions": [
+    "check new fresh sealed package",
+    "install one root-owned /Applications/Ventilator.app via listed owner sudo copies",
+    "open exact installed path",
+    "register: at most one guarded native unregister if disabled pending, then one register; no global BTM reset",
+    "approve system notification/background permission with administrator confirmation if presented",
+    "ready: verify effective enabled root peer and stage full review",
+    "only then locally APPROVE exact review and START once under the complete PLAN",
+    "collect outcome without clearing pending state"
+  ],
+  "developerSystemMutations": "None: no sudo installation, registration, permission toggle, BTM reset, launchd bootstrap, key access, local hardware approval or hardware writer",
+  "hardwareExperimentStarted": false,
+  "physicalAutoVerified": false
+}

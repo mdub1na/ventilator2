@@ -1,14 +1,16 @@
-# Единый сеанс владельца: обновление helper и опыт 2500 RPM
+# Единый сеанс владельца: чистая установка и опыт 2500 RPM
 
 **Шаги 1 → 6, переход после указанного успеха. При STOP сохраните вывод и сообщите разработчику; команду не повторять.**
 
 Mac15,7, macOS 27.0.0 (26A428), два вентилятора; GUI read-only. Один Fixed и один Auto без повторов/сна/аварийных тестов. Сохраните работу, подключите питание, закройте нагрузки и Ventilator. Сеанс 15–25 минут; опыт до 25 с. Без перезагрузки.
 
-## Исправление и файлы
+## Одна выбранная сборка
 
-Ошибка пути argv[0] исправлена, добавлен startup log. Причина root exit 78 не доказана; новый XPC проверяется в шаге 3.
+Root XPC этой сборки ещё не подтверждён; проверка в шаге 3.
 
-Подпись завершена владельцем; online qualification остановился на проверке отзыва. Отдельная public проверка тех же файлов затем прошла; причина отказа неизвестна. Failed пакет сохранён в `.build/owner-session-2026-10-03-path-sign-revocation-failed/`. Новый `.build/owner-session/` использует те же signed файлы, без пересборки/ключа. Manifest связывает source hashes, PLAN/script и прежнюю установку; seal/review — весь план и signed хеши. До START записей нет.
+Владелец удалил app/backup и выключил фоновую активность. Job/runtime root отсутствуют; BTM сохранил запись удалённого backup. Старый пакет: `.build/owner-session-2026-10-03-after-owner-removal/`.
+
+Новый `.build/owner-session/` содержит те же signed файлы и новый полный review. Пересборка/подпись не нужны. Открывать только `/Applications/Ventilator.app`, не архивы из `.build/`. До START записей нет.
 
 Новая **signed** сборка; **sign повторно не выполнять**:
 
@@ -17,14 +19,7 @@ Ventilator:       342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27c
 VentilatorHelper: 24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430
 ```
 
-Точная прежняя **signed** установка:
-
-```text
-Ventilator:       610afb3f3d3f3884ec3e2bec2a5a9e1495c1db5ee9a48c8cbfa362e4698c1b6d
-VentilatorHelper: 9c6d361be0296c1a5b96c5d83946e98b3c6906bc669568f235e8f1d38cc03ffe
-```
-
-Identity `4895C06FF7407EAF5F350E78CF23D0B41AD466C9`, Team `4659S5GD6X`. Local Development без notarization; Gatekeeper не обходить. ACL/ключи не менять. Старый backup `/Applications/Ventilator-before-registration-fix.app` сохраняется.
+Identity `4895C06FF7407EAF5F350E78CF23D0B41AD466C9`, Team `4659S5GD6X`. Local Development без notarization; Gatekeeper не обходить. ACL/ключи не менять.
 
 ## Шаг 1. Проверить подготовленный пакет
 
@@ -35,38 +30,45 @@ cd /Users/mdub1na/IdeaProjects/ventilator2
 python3 .build/owner-session/session.py check
 ```
 
-Успех: signature=complete, certificateQualification=complete, fullReview=sealed. Sealed.json и review.sha256 уже подготовлены разработчиком. Иначе STOP. Разделённые sign/qualify сохраняют отдельные результаты; public qualification не требует private key, одна попытка до 20 с. Повтор подписи не нужен.
+Успех: packagePath заканчивается на `.build/owner-session`, installationMode=fresh, signature=complete, certificateQualification=complete, fullReview=sealed. Иначе STOP. Новый seal подготовлен разработчиком: public qualification без private key, одна попытка до 20 с. Подпись не повторять.
 
-## Шаг 2. Отключить старую службу и заменить app
+## Шаг 2. Установить одну копию
 
-В «Системные настройки → Основные → Объекты входа и расширения» **выключите** фоновую активность Ventilator. Возможен запрос администратора/Touch ID. Затем в A:
+Фоновая активность Ventilator остаётся выключенной. В A:
 
 ```sh
-python3 .build/owner-session/session.py replace-installed
+python3 .build/owner-session/session.py install
 ```
 
-Успех: **Replaced exact disabled unstarted bundle**. Новая копия на `/Applications/Ventilator.app`, прежняя — `/Applications/Ventilator-before-helper-path-fix.app`. Пароль sudo только в Terminal, ввод не отображается.
+Успех: **Installed exact signed bundle at /Applications/Ventilator.app**. Пароль sudo только в Terminal, ввод не отображается. Install требует отсутствие целевого app, обоих прежних backup, stage, всего runtime root и job; один marker до копирования, после копирования signed/root-owned/installed gates. Частичная ошибка — сохранить файлы и STOP без удаления/повтора. Replace-installed не выполнять.
 
-Замена требует exact прежних hashes, native identity/root ownership, non-enabled регистрации, отсутствия **всего** `/Library/Application Support/Ventilator` и активного PID. Любой runtime state/ошибка доступа запрещают её. Остаточный неактивный job допускает один bootout ниже; затем job должен отсутствовать до staging и mv. Existing stage/backup/marker или частичная ошибка — STOP без очистки/повтора.
+Затем откройте точную установленную копию, чтобы macOS распознала её путь:
+
+```sh
+open /Applications/Ventilator.app
+```
+
+Откроется read-only окно/значок. Не включайте автозапуск приложения. Если Gatekeeper блокирует запуск, STOP без обхода.
 
 ## Шаг 3. Пересоздать регистрацию и проверить root helper
 
-В A, по одной команде:
+В A:
 
 ```sh
-python3 .build/owner-session/session.py unregister
 python3 .build/owner-session/session.py register
 ```
 
-Unregister: requiresApproval и отсутствующий runtime root; notRegistered — без изменения. Иной state запрещает repair. Успех register: **requiresApproval** либо **enabled**. Error 1 допускается лишь при actual requiresApproval, выводится registrationDiagnostic; иначе STOP, без retry.
+Wrapper проверяет signed/installed identity. При requiresApproval и отсутствии runtime root/job: один unregister → notFound/notRegistered → register. NotFound/notRegistered сразу register; enabled не меняет. Marker запрещает повтор. Успех: **requiresApproval** либо **enabled**; error 1 только с actual requiresApproval и registrationDiagnostic. Иначе STOP. Каждая native команда до 10 с.
 
-В системных настройках **включите** Ventilator; возможен запрос администратора/Touch ID. Затем в A:
+Если macOS показала уведомление о добавлении фоновых объектов Ventilator: **Параметры/Options → Разрешить/Allow**, подтвердите системный пароль/Touch ID. Apple описывает административное одобрение daemon именно так; это разрешение запуска службы, не одобрение SMC-опыта.
+
+В «Системные настройки → Основные → Объекты входа и расширения» **включите** Ventilator, подтвердите запрос администратора, если появится. Отметьте, были ли notification/auth prompt. При enabled либо после разрешения в A:
 
 ```sh
 python3 .build/owner-session/session.py ready
 ```
 
-Успех: **Ready for local review/approval**, проверены root peer/review; receipt/записей нет. При отказе run запрещён.
+Успех: **Ready for local review/approval**, проверены root peer/review; receipt/записей нет. Отказ, в том числе on + requiresApproval — STOP; run запрещён, без циклов register/переключателя, resetbtm/ручного bootstrap.
 
 ## Шаг 4. Локально одобрить точный опыт
 
@@ -102,15 +104,12 @@ python3 .build/owner-session/session.py collect
 
 ## Команды script и сроки
 
-Script сам выполняет команды ниже; отдельно не вводить. Bootout только для disabled неактивного job. Marker предшествует sudo; staging и прежняя установка проверяются перед backup.
+Script сам выполняет команды ниже; отдельно не вводить. Marker предшествует sudo, job/runtime state запрещают установку. Backup/staging не создаются.
 
 ```sh
-sudo /bin/launchctl bootout system/dev.ventilator.helper
-sudo /usr/bin/ditto /Users/mdub1na/IdeaProjects/ventilator2/.build/owner-session/Ventilator.app /Applications/Ventilator-helper-path-staging.app
-sudo /usr/sbin/chown -R root:wheel /Applications/Ventilator-helper-path-staging.app
-sudo /bin/chmod -R go-w /Applications/Ventilator-helper-path-staging.app
-sudo /bin/mv /Applications/Ventilator.app /Applications/Ventilator-before-helper-path-fix.app
-sudo /bin/mv /Applications/Ventilator-helper-path-staging.app /Applications/Ventilator.app
+sudo /usr/bin/ditto /Users/mdub1na/IdeaProjects/ventilator2/.build/owner-session/Ventilator.app /Applications/Ventilator.app
+sudo /usr/sbin/chown -R root:wheel /Applications/Ventilator.app
+sudo /bin/chmod -R go-w /Applications/Ventilator.app
 ```
 
 Register/unregister: signed app CLI после native gates, без SMC. Ready: `--verify-installed-helper` проверяет enabled/root audit UID/PID/XPC nonce/CDHash/fingerprint, затем:
