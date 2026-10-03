@@ -2,13 +2,15 @@
 
 **Шаги 1 → 6, переход после указанного успеха. При STOP сохраните вывод и сообщите разработчику; команду не повторять.**
 
+PR #18 остановлен на register. Sealed пакет сохранён. Продолжение — после [диагноза разработчика](research/evidence/owner-fresh-register-denied.json); этот шаблон относится к будущим пакетам.
+
 Mac15,7, macOS 27.0.0 (26A428), два вентилятора; GUI read-only. Один Fixed и один Auto без повторов/сна/аварийных тестов. Сохраните работу, подключите питание, закройте нагрузки и Ventilator. Сеанс 15–25 минут; опыт до 25 с. Без перезагрузки.
 
 ## Одна выбранная сборка
 
 Root XPC этой сборки ещё не подтверждён; проверка в шаге 3.
 
-Владелец удалил app/backup и выключил фоновую активность. Job/runtime root отсутствуют; BTM сохранил запись удалённого backup. Старый пакет: `.build/owner-session-2026-10-03-after-owner-removal/`.
+Перед fresh установкой владелец удалил app/backup; job/runtime root отсутствовали, BTM сохранил запись. Архив: `.build/owner-session-2026-10-03-after-owner-removal/`.
 
 Новый `.build/owner-session/` содержит те же signed файлы и новый полный review. Пересборка/подпись не нужны. Открывать только `/Applications/Ventilator.app`, не архивы из `.build/`. До START записей нет.
 
@@ -50,7 +52,7 @@ open /Applications/Ventilator.app
 
 Откроется read-only окно/значок. Не включайте автозапуск приложения. Если Gatekeeper блокирует запуск, STOP без обхода.
 
-## Шаг 3. Пересоздать регистрацию и проверить root helper
+## Шаг 3. Проверить регистрацию и root helper
 
 В A:
 
@@ -58,7 +60,7 @@ open /Applications/Ventilator.app
 python3 .build/owner-session/session.py register
 ```
 
-Wrapper проверяет signed/installed identity. При requiresApproval и отсутствии runtime root/job: один unregister → notFound/notRegistered → register. NotFound/notRegistered сразу register; enabled не меняет. Marker запрещает повтор. Успех: **requiresApproval** либо **enabled**; error 1 только с actual requiresApproval и registrationDiagnostic. Иначе STOP. Каждая native команда до 10 с.
+Wrapper проверяет identity; disabled путь требует отсутствие runtime root/job. NotFound/notRegistered допускают один register; requiresApproval сохраняет без unregister/register, enabled не меняет. Marker запрещает повтор. Успех: **requiresApproval** либо **enabled**; error 1 только с actual requiresApproval и registrationDiagnostic. Иначе STOP. Native команда до 10 с.
 
 Если macOS показала уведомление о добавлении фоновых объектов Ventilator: **Параметры/Options → Разрешить/Allow**, подтвердите системный пароль/Touch ID. Apple описывает административное одобрение daemon именно так; это разрешение запуска службы, не одобрение SMC-опыта.
 

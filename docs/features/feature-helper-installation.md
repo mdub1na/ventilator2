@@ -12,7 +12,7 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. Signed/root-owned installed bundle и системное одобрение подтверждены. **Registration=enabled, но helper завершается exit 78; root XPC не отвечает**. Исправлена воспроизведённая ошибка пути запуска, подготовлена ограниченная замена disabled службы без runtime state. Новая сборка проверена на модели, её installed root XPC ещё не проверен. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
+Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. Последняя чистая установка signed/root-owned bundle подтверждена. **После unregister/register система отказала в запуске; actual status=notRegistered**, root helper отсутствует. Исправлена воспроизведённая ошибка пути запуска, но installed root XPC новой сборки ещё не проверен. Это gate M2, не аппаратная готовность; GUI-кнопки RPM отключены.
 
 ## Проверки и границы
 
@@ -51,7 +51,9 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 ## Подпись без диалогов
 
-После удаления владельцем установленных копий подготовлен новый fresh пакет из неизменённого signed source. `prepare --signed-session --fresh-install` сохраняет исходный pin в provenance, но не переносит его как требование новой установки; вместе с `--previous-session` или без signed source отказывает. Package check показывает выбранный путь и installationMode. Install запрещён для replacement manifest, существующего app/backup/stage/runtime/job; до sudo создаётся exclusive marker, partial failure сохраняет файлы и запрещает повтор, после копирования проверяются native signed/root-owned/installed identity и hashes. Fresh register проверяет exact report: notFound/notRegistered → register; requiresApproval допускает один unregister лишь при отсутствующих runtime/job, затем требует notFound/notRegistered и повторно отсутствие state/job перед register. Enabled не меняет; unknown state, смена fingerprint, ошибка или ещё pending unregister останавливают путь. Marker запрещает повтор мутаций. Полный новый PLAN включает открытие exact installed GUI и административное одобрение; устаревший BTM URL не считается доказанной причиной отказа. [Новый пакет и проверки](../research/evidence/owner-fresh-install-package.json).
+После удаления владельцем установленных копий подготовлен fresh пакет из неизменённого signed source. `prepare --signed-session --fresh-install` сохраняет исходный pin в provenance, но не переносит его как требование новой установки; вместе с `--previous-session` или без signed source отказывает. Package check показывает выбранный путь и installationMode. Install запрещён для replacement manifest, существующего app/backup/stage/runtime/job; до sudo создаётся exclusive marker, partial failure сохраняет файлы и запрещает повтор, после копирования проверяются native signed/root-owned/installed identity и hashes. Fresh register проверяет exact report: notFound/notRegistered → один register; requiresApproval сохраняется без unregister/register при отсутствующих runtime/job. Enabled не меняется; unknown state, смена fingerprint, state/job, ошибка и неожиданный post-register status останавливают путь. Ошибка называет native action; marker запрещает повтор. Полный PLAN включает exact installed GUI и административное одобрение. [Подготовка первого fresh пакета](../research/evidence/owner-fresh-install-package.json).
+
+Actual первый fresh пакет PR #18 содержал прежнее автоматическое unregister/register. Установка прошла; system log подтверждает unregister error=0 и status 2→0, затем через 70 мс register error=1, `Job is not allowed to bootstrap`, status=0. Повторы wrapper заблокированы до новых native операций. Read-only Settings сейчас показывает on, BTM parent содержит pending authorization, job/runtime root отсутствуют; почему разрешение не стало effective, не доказано. Apple DTS обсуждает race немедленного unregister/register даже после completion; это внешнее свидетельство, не доказательство причины на macOS 27. Новый wrapper сохраняет pending регистрацию; модель проверяет отсутствие обеих lifecycle mutations, но остановленный sealed пакет не переписан и не возобновлён. Факт административного подтверждения ожидается от владельца. [Диагноз и сохранённые хеши](../research/evidence/owner-fresh-register-denied.json), [Apple DTS о re-registration](https://developer.apple.com/forums/thread/783539).
 
 Новая проверка после включения фоновой активности: Settings показывает on, но actual SMAppService по-прежнему requiresApproval. BTM parent текущего installed app содержит pending authorization; helper allowed, launchd job отсутствует, runtime root отсутствует. Поэтому переключатель не является критерием успеха daemon approval; нужен фактический enabled и проверенный root XPC. Apple DTS описывает Allow системного уведомления с подтверждением администратора. Причина расхождения на macOS 27 и факт auth prompt не установлены; не повторять регистрацию и не сбрасывать BTM для обхода этого отказа. [Свидетельство](../research/evidence/owner-system-authorization-pending.json), [Apple DTS](https://developer.apple.com/forums/thread/802443).
 
@@ -169,11 +171,11 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 **Automated:** `scripts/owner-session-dry-run.py`
 
-### Scenario: Fresh register пересоздаёт только неинициализированную отключённую запись
+### Scenario: Fresh register сохраняет ожидающую одобрения регистрацию
 
 **Дано:** exact signed installed proof и actual service status.
 **Когда:** fresh wrapper выполняет register.
-**Тогда:** notFound/notRegistered допускают один register; requiresApproval лишь без runtime/job допускает один unregister, требует cleared status и повторно отсутствие runtime/job, затем один register. Enabled не меняется. Unknown status, чужой hash, state/job, ошибка и ещё pending unregister останавливают путь; marker запрещает повтор мутаций.
+**Тогда:** notFound/notRegistered допускают один register; requiresApproval без runtime/job сохраняется без unregister/register. Enabled не меняется. Unknown status, чужой hash до/после register, state/job, ошибка и неожиданный post-register status останавливают путь. Ошибка называет --register-helper; marker запрещает повтор попытки, включая ожидание системного одобрения.
 
 **Automated:** `scripts/owner-session-dry-run.py`
 

@@ -385,7 +385,10 @@ def register():
         raise RuntimeError("Registration was already attempted; preserve state and diagnose, no retry")
 
     def report(command):
-        value = json.loads(output([files(INSTALLED)["applicationSHA256"], command], timeout=10))
+        try:
+            value = json.loads(output([files(INSTALLED)["applicationSHA256"], command], timeout=10))
+        except RuntimeError as error:
+            raise RuntimeError(f"Registration action {command} failed: {error}") from error
         if not all(value.get(k) is True for k in ["trustedBundle", "rootOwned", "installedLocation"]) or \
                 value.get("fingerprint") != seal["fingerprint"] or value.get("hardwareControlAvailable") is not False:
             raise RuntimeError("Installed identity changed during registration; preserve state and stop")
@@ -410,18 +413,16 @@ def register():
 
     unstarted()
     save("registration-started.json", {"fingerprint": seal["fingerprint"], "previousStatus": status["registration"], "hardwareWritesExecuted": 0})
-    if status["registration"] == "requiresApproval":
-        status = report("--unregister-helper")
-        if status["registration"] not in ["notFound", "notRegistered"]:
-            raise RuntimeError("Unregister did not clear disabled registration; no retry")
-        unstarted()
-    status = report("--register-helper")
+    # A pending service is already registered. Preserve it for administrator consent;
+    # unregister/register can leave BTM disabled even when the Settings toggle is on.
+    if status["registration"] != "requiresApproval":
+        status = report("--register-helper")
     if status["registration"] not in ["enabled", "requiresApproval"]:
         raise RuntimeError("Unexpected registration result; preserve state and stop")
     save("registration-completed.json", status)
     print(json.dumps(status, indent=2))
     if status["registration"] == "requiresApproval":
-        print("Registration created. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.")
+        print("Registration awaits system approval. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.")
 
 
 def ready():
