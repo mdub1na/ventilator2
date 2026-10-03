@@ -51,6 +51,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 ## Подпись без диалогов
 
+После удаления владельцем установленных копий подготовлен новый fresh пакет из неизменённого signed source. `prepare --signed-session --fresh-install` сохраняет исходный pin в provenance, но не переносит его как требование новой установки; вместе с `--previous-session` или без signed source отказывает. Package check показывает выбранный путь и installationMode. Install запрещён для replacement manifest, существующего app/backup/stage/runtime/job; до sudo создаётся exclusive marker, partial failure сохраняет файлы и запрещает повтор, после копирования проверяются native signed/root-owned/installed identity и hashes. Fresh register проверяет exact report: notFound/notRegistered → register; requiresApproval допускает один unregister лишь при отсутствующих runtime/job, затем требует notFound/notRegistered и повторно отсутствие state/job перед register. Enabled не меняет; unknown state, смена fingerprint, ошибка или ещё pending unregister останавливают путь. Marker запрещает повтор мутаций. Полный новый PLAN включает открытие exact installed GUI и административное одобрение; устаревший BTM URL не считается доказанной причиной отказа. [Новый пакет и проверки](../research/evidence/owner-fresh-install-package.json).
+
 Новая проверка после включения фоновой активности: Settings показывает on, но actual SMAppService по-прежнему requiresApproval. BTM parent текущего installed app содержит pending authorization; helper allowed, launchd job отсутствует, runtime root отсутствует. Поэтому переключатель не является критерием успеха daemon approval; нужен фактический enabled и проверенный root XPC. Apple DTS описывает Allow системного уведомления с подтверждением администратора. Причина расхождения на macOS 27 и факт auth prompt не установлены; не повторять регистрацию и не сбрасывать BTM для обхода этого отказа. [Свидетельство](../research/evidence/owner-system-authorization-pending.json), [Apple DTS](https://developer.apple.com/forums/thread/802443).
 
 После новой регистрации владелец получил `requiresApproval/serviceNotEnabled`; `ready` остановился с тем же статусом. Native status отказывает до root XPC, wrapper — до protected review staging. Требуется системное разрешение фоновой активности Ventilator, затем `ready` после изменения этого состояния; новая подпись/замена/регистрация не нужна. Переключатель Settings и успешный root handshake пока не проверены. [Вывод владельца](../research/evidence/owner-helper-update-completed.json), [нужный раздел настроек](https://support.apple.com/ru-ru/guide/mac-help/mtusr003/mac).
@@ -148,6 +150,30 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 **Дано:** pinned previous fingerprint и replacement package.
 **Когда:** registration/identity/hash/journal не удовлетворяют policy либо installed hash меняется во время staging.
 **Тогда:** замена отвергнута; после изменения hash обе mv-команды не выполняются, marker сохраняется. Успех модели сохраняет старый bundle до переноса нового.
+
+**Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Fresh import сохраняет источник без требования прежней установки
+
+**Дано:** сохранённый signed source с прежним installed pin и запрос --fresh-install.
+**Когда:** prepare создаёт новый пакет и полный review.
+**Тогда:** исходные файлы/provenance сохраняются; operative pin отсутствует, sign запрещён, новый review включает весь fresh PLAN. Отсутствующий signed source и сочетание с previous-session отвергаются до создания пакета.
+
+**Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Чистая установка не заменяет оставшееся состояние
+
+**Дано:** fresh пакет и целевой app/backup/stage/runtime path либо launchd job.
+**Когда:** вызывается install.
+**Тогда:** существующий путь, broken runtime alias, ошибка доступа и любой job запрещают копирование. Допустимая установка сохраняет marker до трёх sudo команд, проверяет native installed identity после копирования; copy/ownership/native отказ и повтор не вызывают новые sudo команды. Replacement пакет не устанавливается как fresh.
+
+**Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Fresh register пересоздаёт только неинициализированную отключённую запись
+
+**Дано:** exact signed installed proof и actual service status.
+**Когда:** fresh wrapper выполняет register.
+**Тогда:** notFound/notRegistered допускают один register; requiresApproval лишь без runtime/job допускает один unregister, требует cleared status и повторно отсутствие runtime/job, затем один register. Enabled не меняется. Unknown status, чужой hash, state/job, ошибка и ещё pending unregister останавливают путь; marker запрещает повтор мутаций.
 
 **Automated:** `scripts/owner-session-dry-run.py`
 

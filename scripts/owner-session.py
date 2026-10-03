@@ -15,11 +15,13 @@ TEAM = "4659S5GD6X"
 INSTALLED = Path("/Applications/Ventilator.app")
 REPLACEMENT_STAGE = Path("/Applications/Ventilator-helper-path-staging.app")
 REPLACEMENT_BACKUP = Path("/Applications/Ventilator-before-helper-path-fix.app")
+LEGACY_BACKUP = Path("/Applications/Ventilator-before-registration-fix.app")
 HARDWARE_ROOT = Path("/Library/Application Support/Ventilator")
 ROOT = Path(__file__).resolve().parents[1] if Path(__file__).parent.name == "scripts" else None
 SESSION = ROOT / ".build/owner-session" if ROOT else Path(__file__).resolve().parent
 PREVIOUS_SESSION = None
 SIGNED_SESSION = None
+FRESH_INSTALL = False
 
 
 def sha(path):
@@ -114,6 +116,8 @@ def package_status():
     else:
         next_step = "sign once in owner Terminal, then qualify"
     return {
+        "packagePath": str(SESSION),
+        "installationMode": "replacement" if manifest.get("installedReplacement") else "fresh",
         "signature": "complete" if signed else "stopped" if signing_stopped else "notStarted",
         "certificateQualification": "complete" if sealed else
             "stopped" if qualification_stopped else "notStarted",
@@ -132,7 +136,8 @@ def signed_source():
             started.get("certificateSHA1") != CERTIFICATE or started.get("hardwareWritesExecuted") != 0:
         raise RuntimeError("Unexpected source signing identity/state")
     for name in ["sealed.json", "candidate.json", "review.json", "review.sha256",
-                 "replacement-started.json", "replacement-completed.json", "result.json"]:
+                 "replacement-started.json", "replacement-completed.json", "install-started.json", "install-completed.json",
+                 "registration-started.json", "registration-completed.json", "result.json"]:
         if os.path.lexists(SIGNED_SESSION / name):
             raise RuntimeError(f"Source is not a failed, unsealed signing package: {name}")
     bundle = SIGNED_SESSION / "Ventilator.app"
@@ -157,6 +162,8 @@ def installed_check():
 def prepare():
     if ROOT is None or os.geteuid() == 0:
         raise RuntimeError("Prepare from repository without root")
+    if FRESH_INSTALL and (SIGNED_SESSION is None or PREVIOUS_SESSION is not None):
+        raise RuntimeError("Fresh install requires a signed source and no previous installation")
     if SESSION.exists():
         raise RuntimeError("Package already exists; preserve it, use a new output for a revised package")
     instructions = (ROOT / "docs/owner-session.md").read_text()
@@ -185,8 +192,10 @@ def prepare():
             raise RuntimeError("Source package changed while copying")
         manifest["signatureReady"] = True
         manifest["resumedFrom"] = imported
-        if imported["installedReplacement"] is not None:
+        if imported["installedReplacement"] is not None and not FRESH_INSTALL:
             manifest["installedReplacement"] = imported["installedReplacement"]
+        if FRESH_INSTALL:
+            manifest["freshInstallation"] = True
     if PREVIOUS_SESSION:
         previous = json.loads((PREVIOUS_SESSION / "sealed.json").read_text())
         if previous["certificateSHA1"] != CERTIFICATE or previous["teamIdentifier"] != TEAM or not previous["positiveRevocation"]:
@@ -251,16 +260,38 @@ def qualify():
     print("Signed and public certificate qualified; no install or SMC writes. Review SHA-256:", hashlib.sha256(canonical).hexdigest())
 
 
+def admit_fresh_install():
+    # Deleting an app does not prove its root runtime or launchd job is gone.
+    # lstat also refuses broken aliases and propagates permission errors.
+    for path in [INSTALLED, HARDWARE_ROOT, REPLACEMENT_STAGE, REPLACEMENT_BACKUP, LEGACY_BACKUP]:
+        try:
+            path.lstat()
+        except FileNotFoundError:
+            continue
+        raise RuntimeError(f"Fresh install requires absent path: {path}; preserve state and stop")
+    if launchd_job_present():
+        raise RuntimeError("Fresh install requires an absent helper job; do not bootout or retry")
+
+
 def install():
-    owner_terminal(); check(sealed=True)
-    if os.path.lexists(INSTALLED):
-        raise RuntimeError("Installed path exists; stop without replacing it")
+    owner_terminal()
+    manifest = check(sealed=True)
+    if manifest.get("installedReplacement") is not None:
+        raise RuntimeError("Replacement package cannot perform a fresh install; prepare a new full review")
+    admit_fresh_install()
+    save("install-started.json", {"fingerprint": fingerprints(SESSION / "Ventilator.app"), "hardwareWritesExecuted": 0})
+    admit_fresh_install()
     for command in [["sudo", "/usr/bin/ditto", str(SESSION / "Ventilator.app"), str(INSTALLED)],
                     ["sudo", "/usr/sbin/chown", "-R", "root:wheel", str(INSTALLED)],
                     ["sudo", "/bin/chmod", "-R", "go-w", str(INSTALLED)]]:
         subprocess.run(command, check=True)
-    installed_check()
-    print("Copied exact signed bundle; registration has not been requested.")
+    seal = installed_check()
+    report = json.loads(output([files(INSTALLED)["applicationSHA256"], "--helper-status"]))
+    if not all(report.get(k) is True for k in ["trustedBundle", "rootOwned", "installedLocation"]) or \
+            report.get("fingerprint") != seal["fingerprint"] or report.get("hardwareControlAvailable") is not False:
+        raise RuntimeError("Installed signed/root-owned bundle not verified; preserve files and stop")
+    save("install-completed.json", {"fingerprint": seal["fingerprint"], "hardwareWritesExecuted": 0})
+    print("Installed exact signed bundle at", INSTALLED, "; registration has not been requested.")
 
 
 def admit_replacement(report, actual, previous, hardware_root_exists):
@@ -344,6 +375,55 @@ def service(command):
     subprocess.run([str(files(INSTALLED)["applicationSHA256"]), command], check=True)
 
 
+def register():
+    owner_terminal()
+    if not check(sealed=True).get("freshInstallation"):
+        service("--register-helper")
+        return
+    seal = installed_check()
+    if os.path.lexists(SESSION / "registration-started.json"):
+        raise RuntimeError("Registration was already attempted; preserve state and diagnose, no retry")
+
+    def report(command):
+        value = json.loads(output([files(INSTALLED)["applicationSHA256"], command], timeout=10))
+        if not all(value.get(k) is True for k in ["trustedBundle", "rootOwned", "installedLocation"]) or \
+                value.get("fingerprint") != seal["fingerprint"] or value.get("hardwareControlAvailable") is not False:
+            raise RuntimeError("Installed identity changed during registration; preserve state and stop")
+        return value
+
+    status = report("--helper-status")
+    if status["registration"] == "enabled":
+        print(json.dumps(status, indent=2))
+        return  # Existing effective consent needs verification, not a new mutation.
+    if status["registration"] not in ["notFound", "notRegistered", "requiresApproval"] or \
+            status.get("error") != "serviceNotEnabled" or status.get("helperVerified") is not False:
+        raise RuntimeError("Fresh registration requires a disabled unstarted helper")
+    def unstarted():
+        try:
+            HARDWARE_ROOT.lstat()
+        except FileNotFoundError:
+            pass
+        else:
+            raise RuntimeError("Runtime state exists; fresh registration repair forbidden")
+        if launchd_job_present():
+            raise RuntimeError("Helper job exists; fresh registration repair forbidden")
+
+    unstarted()
+    save("registration-started.json", {"fingerprint": seal["fingerprint"], "previousStatus": status["registration"], "hardwareWritesExecuted": 0})
+    if status["registration"] == "requiresApproval":
+        status = report("--unregister-helper")
+        if status["registration"] not in ["notFound", "notRegistered"]:
+            raise RuntimeError("Unregister did not clear disabled registration; no retry")
+        unstarted()
+    status = report("--register-helper")
+    if status["registration"] not in ["enabled", "requiresApproval"]:
+        raise RuntimeError("Unexpected registration result; preserve state and stop")
+    save("registration-completed.json", status)
+    print(json.dumps(status, indent=2))
+    if status["registration"] == "requiresApproval":
+        print("Registration created. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.")
+
+
 def ready():
     owner_terminal(); installed_check()
     status = json.loads(output([files(INSTALLED)["applicationSHA256"], "--verify-installed-helper"]))
@@ -380,13 +460,17 @@ def collect():
 
 
 def main():
-    global SESSION, PREVIOUS_SESSION, SIGNED_SESSION
+    global SESSION, PREVIOUS_SESSION, SIGNED_SESSION, FRESH_INSTALL
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["prepare", "check", "sign", "qualify", "install", "replace-installed", "register", "ready", "run", "collect", "unregister"])
     parser.add_argument("--output", type=Path, help="Repository-only prepare/check output under .build")
     parser.add_argument("--previous-session", type=Path, help="Prepare a pinned replacement from a preserved signed package under .build")
     parser.add_argument("--signed-session", type=Path, help="Prepare from a preserved failed signing package under .build without signing again")
+    parser.add_argument("--fresh-install", action="store_true", help="Prepare a new full review from signed source without inheriting its previous-installation pin")
     args = parser.parse_args()
+    if args.fresh_install and (args.command != "prepare" or not args.signed_session or args.previous_session):
+        raise RuntimeError("Fresh install allowed only for prepare with signed source and no previous installation")
+    FRESH_INSTALL = args.fresh_install
     if args.output:
         if ROOT is None or args.command not in ["prepare", "check"] or not args.output.resolve().is_relative_to(ROOT / ".build"):
             raise RuntimeError("Custom output allowed only for offline prepare/check under .build")
@@ -402,7 +486,7 @@ def main():
     if os.geteuid() == 0:
         raise RuntimeError("Run without root; only listed child commands may use owner sudo")
     actions = {"prepare": prepare, "check": lambda: print(json.dumps(package_status(), indent=2)),
-        "sign": sign, "qualify": qualify, "install": install, "replace-installed": replace_installed, "register": lambda: service("--register-helper"), "ready": ready,
+        "sign": sign, "qualify": qualify, "install": install, "replace-installed": replace_installed, "register": register, "ready": ready,
         "run": run, "collect": collect, "unregister": lambda: service("--unregister-helper")}
     actions[args.command]()
 
