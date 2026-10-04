@@ -9,9 +9,10 @@ public enum InstallationError: Error, Equatable {
     case serviceNotEnabled, invalidChallenge, invalidReply, peerIdentity, deadline, pendingRecovery
     case simulationActive, remoteFailure, oversizedReply
     case unsafeRuntimePolicy
+    case registrationAlreadyAttempted
 }
 
-public struct InstallationFingerprint: Codable, Equatable {
+public struct InstallationFingerprint: Codable, Equatable, Sendable {
     public let applicationSHA256: String
     public let helperSHA256: String
     public let launchDaemonSHA256: String

@@ -5,12 +5,18 @@ type: feature
 status: active
 owner: unassigned
 involved_services: [ventilator-app, ventilator-helper]
-client_entries: []
+client_entries: [screen-application]
 api: []
 tags: [macOS, signing, SMAppService, XPC, preparation]
 ---
 
 # Подпись и installed gate
+
+В исходниках добавлен [GUI раздел помощника](../screens/screen-application.md): проверка статуса/XPC вне UI потока, одно explicit register из main actor только после подписанного canonical root-owned process и совпадения fingerprint с прочитанным состоянием. Pending/enabled не вызывают claim/register. Перед register создаётся exclusive/fsynced marker для owner и трёх signed hashes в приватном user Application Support; restart не стирает failed attempt. Файлы аппаратного review/authority не используются. Enabled без bound root verification не показывается как «Помощник доступен». Этот код ещё не установлен в production bundle; положительный GUI registration/root peer на нём требует отдельного owner update.
+
+Owner archive-only continuation завершён: exact signed probe архивирован в новый non-app bundle, installed target отсутствует, текущий status=notRegistered и root job absent. Старые 21 файл и девять protected директорий совпали; registration/unregister не повторялись. [Фактический итог](../research/evidence/registration-probe-archive-result.json).
+
+## История isolated probe
 
 2026-10-04: owner GUI probe подтверждён — после ALLOW status=enabled, root job running; один unregister вернул notRegistered и absent job (113). Архивирование остановилось после CLOSED на живом GUI PID. Подписанная тестовая копия сохранена в /Applications, старые 21 файл/девять protected директорий неизменны. Direct production status после probe всё ещё requiresApproval; production root XPC не подтверждён. [Факты и границы](../research/evidence/registration-probe-result.json).
 
@@ -104,6 +110,7 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 | Noop daemon и отдельная сборка | `Diagnostics/RegistrationProbe/ProbeDaemon.swift`, `scripts/build-registration-probe.py` |
 | Полный owner run и модель | `scripts/registration-probe-session.py`, `scripts/registration-probe-dry-run.py` |
 | Завершение переноса stopped probe без lifecycle повторов | `scripts/registration-probe-archive.py`, `scripts/registration-probe-archive-dry-run.py` |
+| GUI state/registration и per-owner marker | `Sources/Ventilator/HelperSetupView.swift`, `Sources/VentilatorInstallation/HelperSetupModel.swift`, `Sources/VentilatorInstallation/GUIRegistrationAttempt.swift` |
 |---|---|
 | Layout, подписи, root ownership и runtime | `Sources/VentilatorInstallation/SignedBundleInspector.swift` |
 | Путь загруженного executable | `Sources/VentilatorInstallation/CurrentExecutable.swift` |
@@ -436,3 +443,19 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** новый status/absent-job read предшествуют одному mv; старый сеанс и protected файлы сохраняются. Живой GUI, неизвестный status/job, changed binding или существующий archive запрещают перенос; после marker повтор закрыт.
 
 **Automated:** `scripts/registration-probe-archive-dry-run.py`
+
+### Scenario: GUI не перерегистрирует существующий helper
+
+**Дано:** прочитанный статус helper и динамически проверенная установленная app.
+**Когда:** пользователь нажимает подключение, а actual state уже enabled или requiresApproval.
+**Тогда:** claim/register не выполняются; enabled без root peer остаётся «Зарегистрирован», pending требует системного разрешения. Изменённый fingerprint, неканонический/не root-owned bundle или process отказ останавливают действие до ServiceManagement.
+
+**Automated:** `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testGUILeavesEnabledAndPendingRegistrationAloneWithoutClaimOrPeer`, `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testGUIGatesRejectChangedOrUninstalledBundleBeforeFrameworkAndClaim`
+
+### Scenario: GUI сохраняет sole registration attempt перед framework call
+
+**Дано:** trusted installed helper с actual notRegistered/notFound.
+**Когда:** выполняется первое явное подключение.
+**Тогда:** exclusive marker с signed fingerprint сохранён и fsynced до register. Повтор не перезаписывает его; alias/public directory/invalid hashes отказывают, failure сохраняется. UI register выполняется на main thread, refresh — вне него; прочитанный enabled не заменяет root proof.
+
+**Automated:** `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testDurableMarkerSurvivesFailureAndRejectsReplayWithoutOverwriting`, `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testMarkerRefusesAliasesPublicDirectoryAndMalformedHashes`, `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testModelWaitsForExplicitRefreshAndCallsRegisterOnceOnMainThread`, `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testDisplayedReadinessRequiresInstalledTrustEnabledAndBoundPeer`

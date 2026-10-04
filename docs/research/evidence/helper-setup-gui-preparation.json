@@ -1,0 +1,47 @@
+{
+  "scope": "GUI helper state and explicit sole registration; not installed production code",
+  "adHocBundleFilesSHA256": {
+    "Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+    "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+    "Contents/MacOS/Ventilator": "86adab9306d608441203f7b998a243a4f63cbd23b0556364596372c8a848782c",
+    "Contents/MacOS/VentilatorHelper": "40553fa2d3c4c5d238307369bbbf2a1596e9199703035b53db0d837e6e38c684",
+    "Contents/_CodeSignature/CodeResources": "726ad2c032ee8ec5d7540eab4de53a3a3196508666b03aab0963e6f0a0976db3"
+  },
+  "nativeAdHocStatus": {
+    "exitCode": 0,
+    "report": {
+      "error": "appleSignatureRequired",
+      "hardwareControlAvailable": false,
+      "helperVerified": false,
+      "installedLocation": false,
+      "registration": "notQueried",
+      "rootOwned": false,
+      "trustedBundle": false
+    },
+    "stderr": ""
+  },
+  "extraShowArgumentsExit": 78,
+  "verification": {
+    "installationTests": 28,
+    "installationFailures": 0,
+    "fullSwiftTestsBeforePIDField": 116,
+    "fullSwiftFailures": 0,
+    "docsDocuments": 13,
+    "bddScenarios": 103,
+    "docsErrors": 0,
+    "nativePreviewInspected": [
+      "requiresApproval"
+    ],
+    "previewServiceButtonsDisabled": true,
+    "previewQuitConfirmed": true
+  },
+  "protectedDirectoriesMatched": 9,
+  "originalProbeFiles": 21,
+  "completedArchiveFiles": 12,
+  "runtimeAbsent": true,
+  "privateKeyUsed": false,
+  "productionReplaced": false,
+  "productionGUIRegistrationAttempted": false,
+  "productionRootPeerVerified": false,
+  "hardwareWritesExecuted": 0
+}

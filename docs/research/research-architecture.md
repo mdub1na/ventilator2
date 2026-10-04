@@ -8,6 +8,16 @@ date: 2026-10-04
 
 # Исследование
 
+## Probe архивирован; подготовка GUI настройки helper — 2026-10-04
+
+В 15:49:21 +05:00 owner archive-only continuation завершил перенос. Текущий probe status=notRegistered, bounded root lookup=113, installed probe отсутствует. Архив содержит exact пять signed hashes seal, исходные 21 файл и девять protected директорий совпадают. Новый завершённый archive пакет содержит 12 файлов; runtime Ventilator отсутствует, аппаратных записей нет. [Проверенный итог](evidence/registration-probe-archive-result.json).
+
+Чтение исходников: `ApplicationView` всегда пишет «Не установлен», хотя installed CLI знает actual status. GUI не вызывает daemon register; `MonitorStore` опрашивает только основной login item для отключённого переключателя. Решение следующего изменения — отобразить проверенный статус helper, дать явное GUI register только для notRegistered/notFound после прежних signed/canonical/root-owned/dynamic gates и сохранить marker до регистрации. Pending/enabled не перерегистрировать; refresh не мутирует регистрацию; enabled без root handshake не называть готовностью. Регистрация вызывается из GUI main actor, диагностическое чтение/XPC — вне UI потока. Это целевая реализация, ещё не проверенное исправление старой BTM history. [Пример GUI регистрации Apple DTS](https://developer.apple.com/forums/thread/802443), [code](../../Sources/Ventilator/MainWindowView.swift).
+
+GUI source шаг реализован: `HelperSetupModel`/`HelperSetupView` отражают actual trusted registration/peer state, не называют enabled без bound root proof готовностью. `registerFromGUI` на main actor перепроверяет dynamic installed identity и fingerprint до framework state; existing pending/enabled не мутируют регистрацию. Exclusive marker с uid/pid/тремя signed hashes, private directories и fsync записывается до register; failed attempt не стирается. Peer status выполняется вне UI потока. Checked ad hoc bundle всё ещё отвергается до ServiceManagement; preview не конструирует MonitorStore и имеет отключённые actions. `--show-helper-setup` только открывает раздел, не регистрирует службу.
+
+28 installation tests (8 новых) прошли, полная Swift regression до добавления PID в marker — 116 тестов / 0 отказов; 28 targeted повторно прошли после него. Ad hoc build/strict verify и native notQueried/appleSignatureRequired отказ прошли. Pending preview inspected по accessibility и screenshot, кнопки disabled, Quit подтверждён. docs_check: 13 документов / 103 BDD / 0 ошибок. Signed production/frozen bundles сохранены; positive GUI/root/hardware не заявлены. [Точные проверки и hashes](evidence/helper-setup-gui-preparation.json). Следующий полный owner update ещё требуется подготовить до любого запроса ключа/системной замены.
+
 ## Отдельный GUI probe запустился; архивирование остановилось — 2026-10-04
 
 Владелец завершил подпись с mandatory positive revocation и одно GUI register. Первый ответ был error 1 / requiresApproval; после сообщённого ALLOW в 15:30:06 +05:00 native status стал **enabled**, administrative system job — running, PID 18620, exit 0. Один последующий unregister дал **notRegistered**, root lookup — 113. Список аппаратных записей пуст; probe не имеет device transport. Это подтверждает работоспособность нового GUI/administrative bootstrap пути с тем же сертификатом и Team на Mac15,7 / 27.0.1 / 26A434.

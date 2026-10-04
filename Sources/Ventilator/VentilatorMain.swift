@@ -7,6 +7,7 @@ import VentilatorCore
 enum VentilatorMain {
     static func main() {
         guard geteuid() != 0 else { fputs("Ventilator must run without root\n", stderr); exit(78) }
+        if runHelperSetupPreview(Array(CommandLine.arguments.dropFirst())) { return }
         if runHelperServiceCommand(Array(CommandLine.arguments.dropFirst())) { return }
         if runOwnerExperimentCommand(Array(CommandLine.arguments.dropFirst())) { return }
         if CommandLine.arguments.contains("--probe") {
@@ -26,8 +27,10 @@ enum VentilatorMain {
             }
             return
         }
+        let showHelperSetup = CommandLine.arguments.dropFirst().first == "--show-helper-setup"
+        if showHelperSetup && CommandLine.arguments.count != 2 { exit(78) }
         let app = NSApplication.shared
-        let delegate = VentilatorAppDelegate()
+        let delegate = VentilatorAppDelegate(showHelperSetup: showHelperSetup)
         app.delegate = delegate
         app.run()
     }
@@ -42,6 +45,11 @@ private final class VentilatorAppDelegate: NSObject, NSApplicationDelegate, NSWi
     private let store = MonitorStore()
     private var window: NSWindow?
     private var statusItem: StatusItemController?
+
+    init(showHelperSetup: Bool) {
+        super.init()
+        if showHelperSetup { store.selectedSection = .application }
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)

@@ -12,6 +12,12 @@ publishes: [Ventilator.app]
 
 # Приложение
 
+Исходники теперь содержат [GUI настройку помощника](../screens/screen-application.md), actual status вместо фиксированного «Не установлен», явное register и per-owner durable marker. Status/XPC выполняются вне UI потока; регистрация — только по нажатию из main actor после подписанного installed process/fingerprint gate. Pending/enabled не перерегистрируются, settings button открывает системный раздел и не выдаёт разрешение. Подключение helper не открывает RPM controls. Подписанная установленная копия остаётся прежней; новый owner update ещё не выполнен.
+
+Изолированный GUI probe успешно запустился, затем был unregistered и архивирован. Архив/старые сеансы/production hashes сохранены; последняя production проверка всё ещё requiresApproval. [Завершение архивирования](../research/evidence/registration-probe-archive-result.json). Следующий owner план должен заменить только diagnostic GUI bundle с квалифицированной новой подписью; old hardware candidate не расширяется.
+
+## История подготовки до GUI настройки
+
 Следующая диагностическая проверка подготовлена в отдельном приложении с собственными app/service IDs и noop daemon, без production модулей и аппаратного транспорта. Это GUI/consent/bootstrap isolation, не новый runtime Ventilator. Последующий прямой status текущей установки подтвердил requiresApproval; активный переключатель Settings не подтвердил root readiness. [Факт](../research/evidence/post-restart-framework-state.json), [отдельный полный план](../registration-probe-owner.md). До owner подписи/system approval actual probe ещё не запускался.
 
 ## Ответственность
@@ -38,6 +44,7 @@ Post-restart проверка завершена с absent job; семь фай�
 |---|---|
 | Сборка | `Package.swift`, `scripts/build-app.sh` |
 | Подготовленная установка и диагностический XPC | `Sources/VentilatorInstallation/`, `Sources/Ventilator/HelperServiceCLI.swift` |
+| GUI настройка и отключённый предпросмотр | `Sources/Ventilator/HelperSetupView.swift`, `Sources/Ventilator/HelperSetupPreview.swift` |
 | SMC только на чтение | `Sources/CSMCRead/SMCRead.c` |
 | HID NAND и профиль | `Sources/CHIDTemperature/HIDTemperatureRead.c`, `Sources/VentilatorCore/TemperatureSources.swift` |
 | Модель и опрос | `Sources/VentilatorCore/Monitoring.swift` |

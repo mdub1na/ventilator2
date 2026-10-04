@@ -2,9 +2,11 @@ import Combine
 import Foundation
 import ServiceManagement
 import VentilatorCore
+import VentilatorInstallation
 
 @MainActor
 final class MonitorStore: ObservableObject {
+    let helperSetup = HelperSetupModel()
     @Published private(set) var snapshot = MonitorSnapshot.placeholder
     @Published private(set) var loginItemStatus = SMAppService.mainApp.status
     @Published var selectedSection: AppSection = .overview
