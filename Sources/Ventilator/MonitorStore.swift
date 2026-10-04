@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import ServiceManagement
 import VentilatorCore
 import VentilatorInstallation
 
@@ -8,15 +7,11 @@ import VentilatorInstallation
 final class MonitorStore: ObservableObject {
     let helperSetup = HelperSetupModel()
     @Published private(set) var snapshot = MonitorSnapshot.placeholder
-    @Published private(set) var loginItemStatus = SMAppService.mainApp.status
     @Published var selectedSection: AppSection = .overview
-    @Published var settingsError: String?
 
     var onSnapshot: ((MonitorSnapshot) -> Void)?
     private var timer: Timer?
     private var polling = false
-
-    var launchAtLogin: Bool { loginItemStatus == .enabled }
 
     func start() {
         guard timer == nil else { return }
@@ -42,16 +37,6 @@ final class MonitorStore: ObservableObject {
         onSnapshot?(next)
     }
 
-    func setLaunchAtLogin(_ enabled: Bool) {
-        do {
-            if enabled { try SMAppService.mainApp.register() }
-            else { try SMAppService.mainApp.unregister() }
-            settingsError = nil
-        } catch {
-            settingsError = error.localizedDescription
-        }
-        loginItemStatus = SMAppService.mainApp.status
-    }
 }
 
 enum AppSection: String, CaseIterable, Identifiable {

@@ -16,6 +16,8 @@
 
 ## M2 — подготовка единственного опыта
 
+Administrative read завершён: system job absent, четыре scoped BTM records allowed без pending authorization/disallowed; после одного GUI refresh также enabled/connectionFailed. Source поправка удаляет ungated mainApp status и будущие login-item mutations из пока недоступного автозапуска. Build/strict verify и 28 installation tests прошли; installed/frozen пакеты сохранены. Это не доказанный ремонт BTM. Следующий owner сеанс должен связывать qualification новой сборки, штатное отключение старой службы до guarded unregister, exact backup/replacement и одно GUI register; повтор прежнего collect/update исключён. [Снимок](docs/research/evidence/gui-helper-state-result.json), [source verification](docs/research/evidence/mainapp-status-isolation.json).
+
 GUI update PR #34 выполнен владельцем: signed/root-owned replacement совпадает с seal, old backup и десять protected директорий сохранены. Одно GUI register записано; macOS запретила bootstrap до helper startup. Итог CLI — enabled/remoteFailure, system job отсутствует (113), helperVerified=false. Нужен один [administrative read-only снимок](docs/gui-helper-state-owner.md) текущих parent/helper BTM records. Новая подпись, замена, register или OFF/ON сейчас не обоснованы. Подготовлен отдельный pinned collector, 19 workflow models прошли; actual root BTM read требует owner Terminal. Аппаратный M2 остаётся закрытым. [Факты](docs/research/evidence/gui-helper-update-result.json).
 
 ### Предыдущая подготовка GUI update
