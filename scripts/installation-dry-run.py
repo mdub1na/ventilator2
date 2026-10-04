@@ -29,6 +29,13 @@ assert status.returncode == 0, status.stderr
 report = json.loads(status.stdout)
 assert not report["trustedBundle"] and not report["helperVerified"] and not report["hardwareControlAvailable"]
 assert report["error"] == "appleSignatureRequired", report
+assert report["registration"] == "notQueried", report
+inspection = command(app, "--inspect-signed-bundle")
+assert inspection.returncode == 78, inspection.stderr
+static = json.loads(inspection.stdout)
+assert static["registration"] == "notQueried" and static["error"] == "appleSignatureRequired"
+assert not static["trustedBundle"] and not static["helperVerified"] and not static["hardwareControlAvailable"]
+lines.append("Static --inspect-signed-bundle rejected unsigned files with exit 78; status also left registration=notQueried before installed admission.")
 for name in ["--verify-installed-helper", "--register-helper", "--unregister-helper"]:
     result = command(app, name)
     assert result.returncode == 78, (name, result.stdout, result.stderr)
@@ -54,8 +61,9 @@ for argv0 in ["Contents/MacOS/Ventilator", "/tmp/other-app/Ventilator", "arbitra
                                               "helperSHA256": hashlib.sha256(helper.read_bytes()).hexdigest()}
     assert candidate["hardwareWritesExecuted"] == 0
 lines.append("Relative/foreign/opaque argv[0] from cwd=/ used the loaded app/helper path: native layout passed to ad hoc rejection and candidate hashes matched actual binaries. No signing/registration/device.")
-malformed = command(app, "--register-helper", "unexpected")
-assert malformed.returncode == 78 and "invalidChallenge" in malformed.stderr
+for flag in ["--register-helper", "--inspect-signed-bundle"]:
+    malformed = command(app, flag, "unexpected")
+    assert malformed.returncode == 78 and "invalidChallenge" in malformed.stderr
 lines.append("Extra command arguments rejected before service access; no arbitrary path/service supplied by CLI.")
 
 for kind in ["launchArguments", "helperSymlink"]:
@@ -73,6 +81,10 @@ for kind in ["launchArguments", "helperSymlink"]:
         assert result.returncode == 0, result.stderr
         invalid = json.loads(result.stdout)
         assert invalid["error"] == "invalidLayout" and not invalid["helperVerified"], invalid
+        inspected = command(app, "--inspect-signed-bundle", str(copied))
+        assert inspected.returncode == 78, inspected.stderr
+        invalid = json.loads(inspected.stdout)
+        assert invalid["registration"] == "notQueried" and invalid["error"] == "invalidLayout"
         lines.append(f"{kind}: actual bundle inspector rejected layout before service registration.")
 
 symbols = subprocess.check_output(["nm", "-g", str(app)], text=True, timeout=5)

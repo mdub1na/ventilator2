@@ -482,9 +482,13 @@ def replace_installed():
                     ["sudo", "/usr/sbin/chown", "-R", "root:wheel", str(staging)],
                     ["sudo", "/bin/chmod", "-R", "go-w", str(staging)]]:
         subprocess.run(command, check=True)
-    staged = json.loads(output([files(staging)["applicationSHA256"], "--helper-status"]))
+    # Inspect staged files from the pinned source app; never execute the temporary app.
+    staged = json.loads(output([files(SESSION / "Ventilator.app")["applicationSHA256"], "--inspect-signed-bundle", staging]))
     seal = json.loads((SESSION / "sealed.json").read_text())
-    if staged.get("trustedBundle") is not True or staged.get("rootOwned") is not True or staged.get("fingerprint") != seal["fingerprint"]:
+    if (staged.get("trustedBundle") is not True or staged.get("rootOwned") is not True
+            or staged.get("installedLocation") is not False or staged.get("registration") != "notQueried"
+            or staged.get("helperVerified") is not False or staged.get("hardwareControlAvailable") is not False
+            or staged.get("error") is not None or staged.get("fingerprint") != seal["fingerprint"]):
         raise RuntimeError("Staged signed/root-owned bundle not verified")
     verify_previous()
     if launchd_job_present():

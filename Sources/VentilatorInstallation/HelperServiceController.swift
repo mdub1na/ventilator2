@@ -17,19 +17,59 @@ public struct HelperServiceReport: Encodable {
 
 /// Explicit app CLI actions only. No registration during status, GUI launch, signing or build.
 public enum HelperServiceController {
+    /// Checks bundle files only. Never creates an SMAppService or contacts the helper.
+    public static func inspectBundle(_ bundle: URL? = nil) -> HelperServiceReport {
+        inspectBundle(effectiveUID: geteuid(), inspect: {
+            try SignedBundleInspector.inspect(bundle ?? SignedBundleInspector.currentBundleURL())
+        })
+    }
+
     public static func status() -> HelperServiceReport {
-        let service = SMAppService.daemon(plistName: SignedBundleInspector.plistName)
-        var report = HelperServiceReport(registration: name(service.status))
-        do {
-            guard geteuid() != 0 else { throw InstallationError.nonRootApplicationRequired }
-            let proof = try SignedBundleInspector.inspect(SignedBundleInspector.currentBundleURL())
-            report.trustedBundle = true; report.installedLocation = proof.installedLocation
-            report.rootOwned = proof.rootOwned; report.fingerprint = proof.fingerprint
+        status(effectiveUID: geteuid(), inspect: {
+            try SignedBundleInspector.inspect(SignedBundleInspector.currentBundleURL())
+        }, validateProcess: {
             _ = try SignedBundleInspector.requireCurrentProcess(role: .application)
-            guard service.status == .enabled else { throw InstallationError.serviceNotEnabled }
-            _ = try InstalledHelperClient.verify(proof)
+        }, registration: {
+            SMAppService.daemon(plistName: SignedBundleInspector.plistName).status
+        }, verify: {
+            _ = try InstalledHelperClient.verify($0)
+        })
+    }
+
+    internal static func inspectBundle(effectiveUID: uid_t, inspect: () throws -> SignedBundleProof) -> HelperServiceReport {
+        var report = HelperServiceReport(registration: "notQueried")
+        do {
+            guard effectiveUID != 0 else { throw InstallationError.nonRootApplicationRequired }
+            report = bundleReport(try inspect())
+        } catch { report.error = String(describing: error) }
+        return report
+    }
+
+    internal static func status(effectiveUID: uid_t, inspect: () throws -> SignedBundleProof,
+                               validateProcess: () throws -> Void, registration: () -> SMAppService.Status,
+                               verify: (SignedBundleProof) throws -> Void) -> HelperServiceReport {
+        var report = HelperServiceReport(registration: "notQueried")
+        do {
+            guard effectiveUID != 0 else { throw InstallationError.nonRootApplicationRequired }
+            let proof = try inspect()
+            report = bundleReport(proof)
+            // A status query can update BTM's app URL. Admit only the canonical installed process
+            // before even constructing the framework service; staging uses inspectBundle instead.
+            try SignedBundleInspector.requireInstalled(proof)
+            try validateProcess()
+            let state = registration()
+            report.registration = name(state)
+            guard state == .enabled else { throw InstallationError.serviceNotEnabled }
+            try verify(proof)
             report.helperVerified = true
         } catch { report.error = String(describing: error) }
+        return report
+    }
+
+    private static func bundleReport(_ proof: SignedBundleProof) -> HelperServiceReport {
+        var report = HelperServiceReport(registration: "notQueried")
+        report.trustedBundle = true; report.installedLocation = proof.installedLocation
+        report.rootOwned = proof.rootOwned; report.fingerprint = proof.fingerprint
         return report
     }
 

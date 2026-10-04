@@ -16,6 +16,8 @@
 
 ## M2 — подготовка единственного опыта
 
+Контрольная точка 2026-10-04: installed diagnostic сборка требует системного разрешения; завершённый administrative snapshot подтвердил отсутствие root job и уведомления. Причина не установлена. Исправлена независимая ошибка проверки staging: новый статический CLI читает её файлы из pinned исходной app без запуска staging и обращения к ServiceManagement. Status допускает framework только после installed process gates. Installed/frozen owner пакеты сохраняются; 108 Swift-тестов, native file inspection и replacement модели прошли. [Проверки и ограничения](docs/research/evidence/bundle-inspection-isolation.json). Аппаратная проверка M2 и продуктовый M3 остаются открытыми.
+
 - [x] Собрать отдельный прототип помощника и ограниченный симуляционный RPC; проверить anonymous XPC без root.
 - [x] Реализовать десятисекундный lease, binding соединения, маркер до изменения и восстановление на подставном транспорте; проверить файловый журнал после SIGKILL.
 - [x] Подключить файловый журнал и независимый worker к симуляционному XPC-пути; проверить SIGKILL/SIGSTOP помощника, SIGTERM worker и отказ Auto.

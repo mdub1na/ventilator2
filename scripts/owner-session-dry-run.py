@@ -318,12 +318,18 @@ for code, stdout, stderr, expected in [
 lines.append("Launchd repair refused an active PID, foreign bundle and ambiguous errors; accepted only exact missing service or matching inactive job on mocked diagnostic data.")
 
 # Execute the orchestration with fake external commands, including a change during staging.
-for mode in ["inactive-absent", "disabled-job", "changed-after-staging", "job-reappeared"]:
+for mode in ["inactive-absent", "disabled-job", "changed-after-staging", "job-reappeared", "stage-service-queried", "stage-peer-verified", "stage-writable", "stage-wrong-hash", "stage-error"]:
     with tempfile.TemporaryDirectory(prefix="ventilator-replace-", dir=root / ".build") as tmp:
         directory = Path(tmp)
         new = {**previous, "applicationSHA256": "d" * 64}
         (directory / "sealed.json").write_text(json.dumps({"fingerprint": new}))
-        staged = {"trustedBundle": True, "rootOwned": True, "fingerprint": new}
+        staged = {"trustedBundle": True, "rootOwned": True, "fingerprint": new, "installedLocation": False,
+                  "registration": "notQueried", "helperVerified": False, "hardwareControlAvailable": False}
+        if mode == "stage-service-queried": staged["registration"] = "requiresApproval"
+        if mode == "stage-peer-verified": staged["helperVerified"] = True
+        if mode == "stage-writable": staged["rootOwned"] = False
+        if mode == "stage-wrong-hash": staged["fingerprint"] = previous
+        if mode == "stage-error": staged["error"] = "invalidLayout"
         state = {**inactive, "registration": "requiresApproval"} if mode == "disabled-job" else inactive
         second = {**state, "fingerprint": {}} if mode == "changed-after-staging" else state
         outputs = [json.dumps(state), json.dumps(staged), json.dumps(second)]
@@ -335,10 +341,10 @@ for mode in ["inactive-absent", "disabled-job", "changed-after-staging", "job-re
                 patch.object(session, "fingerprints", return_value=previous), \
                 patch.object(session, "installed_check"), patch.object(session.HARDWARE_ROOT.__class__, "lstat", side_effect=FileNotFoundError), \
                 patch.object(session.os.path, "lexists", return_value=False), \
-                patch.object(session, "output", side_effect=outputs), \
+                patch.object(session, "output", side_effect=outputs) as inspections, \
                 patch.object(session, "launchd_job_present", side_effect=jobs), \
                 patch.object(session.subprocess, "run") as commands:
-            if mode in ["changed-after-staging", "job-reappeared"]:
+            if mode in ["changed-after-staging", "job-reappeared"] or mode.startswith("stage-"):
                 try:
                     session.replace_installed()
                     raise AssertionError("Changed installation moved")
@@ -356,7 +362,10 @@ for mode in ["inactive-absent", "disabled-job", "changed-after-staging", "job-re
                     assert commands.call_args_list[0].args[0] == ["sudo", "/bin/launchctl", "bootout", "system/dev.ventilator.helper"]
                 assert operations == expected
             assert (directory / "replacement-started.json").exists()
-lines.append("Replacement orchestration preserved backup order and performed one exact bootout only for a disabled inactive job on mocked commands; changed installation or a reappearing job stopped both moves and retained the marker.")
+            expected_stage_call = [session.files(directory / "Ventilator.app")["applicationSHA256"], "--inspect-signed-bundle", session.REPLACEMENT_STAGE]
+            assert expected_stage_call in [c.args[0] for c in inspections.call_args_list]
+            assert all(c.args[0][0] != session.files(session.REPLACEMENT_STAGE)["applicationSHA256"] for c in inspections.call_args_list)
+lines.append("Replacement orchestration used only static --inspect-signed-bundle for staging, preserved backup order and booted out only one disabled inactive job; service/peer claims, writable/error/changed staged files, changed installation and reappearing job blocked both moves.")
 
 # A failed read must be recorded while the remaining audit/status collection still runs.
 with tempfile.TemporaryDirectory(prefix="ventilator-collect-", dir=root / ".build") as tmp:

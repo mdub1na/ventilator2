@@ -34,6 +34,91 @@ final class InstallationTests: XCTestCase {
         .init(bundleURL: URL(fileURLWithPath: path), teamIdentifier: team, applicationCDHash: cdhash,
               helperCDHash: String(repeating: "b", count: 40), fingerprint: .init(applicationSHA256: "app", helperSHA256: "helper", launchDaemonSHA256: "plist"), rootOwned: rootOwned)
     }
+
+    func testStatusRejectsUnadmittedBundleBeforeServiceOrPeerAccess() {
+        for (path, owned, expected): (String, Bool, InstallationError) in [
+            ("/Applications/Ventilator-profile-staging.app", true, .installedLocationRequired),
+            ("/tmp/Ventilator.app", true, .installedLocationRequired),
+            (SignedBundleInspector.installedPath, false, .rootOwnershipRequired)
+        ] {
+            var calls: [String] = []
+            let report = HelperServiceController.status(effectiveUID: 501, inspect: {
+                calls.append("inspect"); return self.proof(path: path, rootOwned: owned)
+            }, validateProcess: { calls.append("process") }, registration: {
+                calls.append("service"); return .enabled
+            }, verify: { _ in calls.append("peer") })
+            XCTAssertEqual(calls, ["inspect"])
+            XCTAssertEqual(report.registration, "notQueried")
+            XCTAssertEqual(report.error, String(describing: expected))
+            XCTAssertEqual(report.fingerprint, proof().fingerprint)
+            XCTAssertTrue(report.trustedBundle)
+            XCTAssertFalse(report.helperVerified)
+            XCTAssertFalse(report.hardwareControlAvailable)
+        }
+    }
+
+    func testStatusRejectsRootSignatureOrProcessFailureBeforeServiceAccess() {
+        for mode in ["root", "signature", "process"] {
+            var calls: [String] = []
+            let report = HelperServiceController.status(effectiveUID: mode == "root" ? 0 : 501, inspect: {
+                calls.append("inspect")
+                if mode == "signature" { throw InstallationError.appleSignatureRequired }
+                return self.proof()
+            }, validateProcess: {
+                calls.append("process"); throw InstallationError.runtimeIdentityRejected
+            }, registration: { calls.append("service"); return .enabled }, verify: { _ in calls.append("peer") })
+            XCTAssertEqual(calls, mode == "root" ? [] : mode == "signature" ? ["inspect"] : ["inspect", "process"])
+            XCTAssertEqual(report.registration, "notQueried")
+            let expected: InstallationError = mode == "root" ? .nonRootApplicationRequired : mode == "signature" ? .appleSignatureRequired : .runtimeIdentityRejected
+            XCTAssertEqual(report.error, String(describing: expected))
+            XCTAssertFalse(report.helperVerified)
+        }
+    }
+
+    func testStatusQueriesOnlyAdmittedProcessAndVerifiesOnlyEnabledPeer() {
+        for state: SMAppService.Status in [.enabled, .requiresApproval, .notRegistered, .notFound] {
+            var calls: [String] = []
+            let report = HelperServiceController.status(effectiveUID: 501, inspect: {
+                calls.append("inspect"); return self.proof()
+            }, validateProcess: { calls.append("process") }, registration: {
+                calls.append("service"); return state
+            }, verify: { inspected in
+                calls.append("peer"); XCTAssertEqual(inspected.fingerprint, self.proof().fingerprint)
+            })
+            XCTAssertEqual(calls, ["inspect", "process", "service"] + (state == .enabled ? ["peer"] : []))
+            XCTAssertEqual(report.helperVerified, state == .enabled)
+            XCTAssertEqual(report.error, state == .enabled ? nil : "serviceNotEnabled")
+            XCTAssertNotEqual(report.registration, "notQueried")
+            XCTAssertFalse(report.hardwareControlAvailable)
+        }
+        let failedPeer = HelperServiceController.status(effectiveUID: 501, inspect: { self.proof() },
+            validateProcess: {}, registration: { .enabled }, verify: { _ in throw InstallationError.peerIdentity })
+        XCTAssertEqual(failedPeer.registration, "enabled")
+        XCTAssertEqual(failedPeer.error, "peerIdentity")
+        XCTAssertFalse(failedPeer.helperVerified)
+    }
+
+    func testStaticInspectionReportsFilesWithoutInstalledAdmission() {
+        let inspected = proof(path: "/Applications/Ventilator-profile-staging.app", rootOwned: false)
+        let report = HelperServiceController.inspectBundle(effectiveUID: 501, inspect: { inspected })
+        XCTAssertTrue(report.trustedBundle)
+        XCTAssertEqual(report.fingerprint, inspected.fingerprint)
+        XCTAssertEqual(report.registration, "notQueried")
+        XCTAssertFalse(report.installedLocation)
+        XCTAssertFalse(report.rootOwned)
+        XCTAssertFalse(report.helperVerified)
+        XCTAssertFalse(report.hardwareControlAvailable)
+        XCTAssertNil(report.error)
+        let root = HelperServiceController.inspectBundle(effectiveUID: 0, inspect: {
+            XCTFail("Root must not inspect files"); return inspected
+        })
+        XCTAssertEqual(root.error, "nonRootApplicationRequired")
+        let invalid = HelperServiceController.inspectBundle(effectiveUID: 501, inspect: { throw InstallationError.invalidLayout })
+        XCTAssertFalse(invalid.trustedBundle)
+        XCTAssertEqual(invalid.registration, "notQueried")
+        XCTAssertEqual(invalid.error, "invalidLayout")
+    }
+
     private func reply(nonce: UUID? = nil, pending: Bool = false, phase: String = "idle") -> HelperInstallationReply {
         let proof = proof()
         return .init(nonce: nonce ?? self.nonce, processIdentifier: 42, effectiveUID: 0, teamIdentifier: proof.teamIdentifier,

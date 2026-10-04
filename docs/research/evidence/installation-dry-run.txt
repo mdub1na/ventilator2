@@ -1,14 +1,15 @@
-Installation gate verification: 2026-10-03T14:50:26+05:00
+Installation gate verification: 2026-10-04T12:38:37+05:00
 UID=501; ad hoc bundle, no SMAppService registration, private-key access, root or hardware writes.
+Static --inspect-signed-bundle rejected unsigned files with exit 78; status also left registration=notQueried before installed admission.
 --verify-installed-helper: refused before registration/removal; hardware remains unavailable.
 --register-helper: refused before registration/removal; hardware remains unavailable.
 --unregister-helper: refused before registration/removal; hardware remains unavailable.
-Status is not readiness: ad hoc signature rejected; service registration state remained notFound.
+Status is not readiness: ad hoc signature rejected; service registration state remained notQueried.
 Relative/foreign/opaque argv[0] from cwd=/ used the loaded app/helper path: native layout passed to ad hoc rejection and candidate hashes matched actual binaries. No signing/registration/device.
 Extra command arguments rejected before service access; no arbitrary path/service supplied by CLI.
 launchArguments: actual bundle inspector rejected layout before service registration.
 helperSymlink: actual bundle inspector rejected layout before service registration.
 GUI still links no native experiment open/write symbols despite adding the installation/XPC client.
 This ad hoc suite does not positively qualify Apple-issued signatures or test root-owned installation, privileged XPC and SMAppService approval.
-SHA-256 of tested helper: 5e287756e358debbc4514797d2c4e13af26c700762c7683ea19c09110243d32a
-SHA-256 of tested application: 79d0bc12992a1dfed748155b77bcea64d74879a008442ee53d77873c687fd35f
+SHA-256 of tested helper: 8fe3ad61dfba73ff5a5fa48e941ad1cbe680f238ec842c32fbaf8baf32bae287
+SHA-256 of tested application: e1a2b0e3ed68e7c2dc152f92af35ce6cdfb0e1d6eb4d6f367d43e03c226ff39d
