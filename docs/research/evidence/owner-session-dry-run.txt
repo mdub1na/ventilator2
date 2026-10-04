@@ -1,4 +1,154 @@
-Owner session dry-run: 2026-10-04T00:36:04+05:00
+Signing complete for app and helper. No install or SMC writes.
+Next: qualify (public certificate only, no private key). Do not sign again.
+Installed exact signed bundle at /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-fresh-install-ic9emtf0/INSTALLED ; registration has not been requested.
+{
+  "fingerprint": {
+    "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "helperSHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "trustedBundle": true,
+  "rootOwned": true,
+  "installedLocation": true,
+  "hardwareControlAvailable": false,
+  "helperVerified": false,
+  "error": "serviceNotEnabled",
+  "registration": "requiresApproval"
+}
+Registration awaits system approval. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.
+{
+  "fingerprint": {
+    "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "helperSHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "trustedBundle": true,
+  "rootOwned": true,
+  "installedLocation": true,
+  "hardwareControlAvailable": false,
+  "helperVerified": false,
+  "error": "serviceNotEnabled",
+  "registration": "requiresApproval"
+}
+Registration awaits system approval. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.
+{
+  "fingerprint": {
+    "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "helperSHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "trustedBundle": true,
+  "rootOwned": true,
+  "installedLocation": true,
+  "hardwareControlAvailable": false,
+  "helperVerified": false,
+  "error": "serviceNotEnabled",
+  "registration": "requiresApproval"
+}
+Registration awaits system approval. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.
+{
+  "fingerprint": {
+    "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "helperSHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "trustedBundle": true,
+  "rootOwned": true,
+  "installedLocation": true,
+  "hardwareControlAvailable": false,
+  "helperVerified": false,
+  "error": "serviceNotEnabled",
+  "registration": "enabled"
+}
+{
+  "fingerprint": {
+    "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "helperSHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "trustedBundle": true,
+  "rootOwned": true,
+  "installedLocation": true,
+  "hardwareControlAvailable": false,
+  "helperVerified": false,
+  "error": "serviceNotEnabled",
+  "registration": "requiresApproval"
+}
+Registration awaits system approval. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.
+{
+  "fingerprint": {
+    "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "helperSHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "trustedBundle": true,
+  "rootOwned": true,
+  "installedLocation": true,
+  "hardwareControlAvailable": false,
+  "helperVerified": false,
+  "error": "serviceNotEnabled",
+  "registration": "requiresApproval"
+}
+Registration awaits system approval. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.
+{
+  "fingerprint": {
+    "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "helperSHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "trustedBundle": true,
+  "rootOwned": true,
+  "installedLocation": true,
+  "hardwareControlAvailable": false,
+  "helperVerified": false,
+  "error": "serviceNotEnabled",
+  "registration": "requiresApproval"
+}
+Registration awaits system approval. Approve Ventilator's system notification with administrator authentication, then follow PLAN.md.
+{
+  "fingerprint": {
+    "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "helperSHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "trustedBundle": true,
+  "rootOwned": true,
+  "installedLocation": true,
+  "hardwareControlAvailable": false,
+  "helperVerified": false,
+  "error": "serviceNotEnabled",
+  "registration": "enabled"
+}
+Setup paused for system approval. Do not repeat setup/register; follow PLAN.md.
+Replaced exact disabled unstarted bundle; old signed app preserved at /Applications/Ventilator-before-helper-path-fix.app
+Replaced exact disabled unstarted bundle; old signed app preserved at /Applications/Ventilator-before-helper-path-fix.app
+Saved /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-collect-o_4l_4v5/result.json. Pending retained; no qualification or retry authorized.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-106y2yqu/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-106y2yqu/resumed. No signing, install, sudo or hardware writes.
+Signed and public certificate qualified; no install or SMC writes. Review SHA-256: f33937ee02b9ee9358084691c50401277c0c038bb5831e152af93fe39752923b
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-6bzaa38n/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-6bzaa38n/resumed. No signing, install, sudo or hardware writes.
+Signed and public certificate qualified; no install or SMC writes. Review SHA-256: f33937ee02b9ee9358084691c50401277c0c038bb5831e152af93fe39752923b
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-m1i9p4y6/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-m1i9p4y6/resumed. No signing, install, sudo or hardware writes.
+Signed and public certificate qualified; no install or SMC writes. Review SHA-256: f33937ee02b9ee9358084691c50401277c0c038bb5831e152af93fe39752923b
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-a4zxae0h/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-a4zxae0h/resumed. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-1qyida3h/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-1qyida3h/resumed. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-dh0v23je/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-dh0v23je/resumed. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-mci7cib3/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-mci7cib3/resumed. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-wfokvrr0/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-wfokvrr0/resumed. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-n0rp74ga/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-sign-resume-n0rp74ga/resumed. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-source-refusal-_bnlqotg/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-source-refusal-cpt3kay_/source. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-source-refusal-9maukixp/source. No signing, install, sudo or hardware writes.
+/Users/mdub1na/IdeaProjects/ventilator2/docs/research/evidence/owner-session-dry-run.txt
+Owner session dry-run: 2026-10-04T11:38:16+05:00
 Non-root offline files and anonymous model only; no private key, signing, sudo, installation or native writes.
 Underlying qualification stderr is preserved in STOP diagnostics.
 Mocked signing completed after exactly two codesign + two strict verify calls, without public qualification; subsequent qualification failure retained signature=complete and repeated sign invoked no external command.

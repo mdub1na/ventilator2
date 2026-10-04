@@ -144,4 +144,96 @@ with tempfile.TemporaryDirectory(prefix="ventilator-readonly-package-model-", di
             raise AssertionError("Hardware review in read-only package admitted")
         except RuntimeError: pass
 print("Real copied package/CLI: fixture qualification creates only seal; hardware review and eight disallowed commands refused; update requires owner TTY.")
+
+# Preserve a stopped, signature-complete source. Model signatures only; public proof is a fixture.
+with tempfile.TemporaryDirectory(prefix="ventilator-readonly-resume-model-", dir=root / ".build") as directory:
+    import shutil
+    base = Path(directory)
+    previous_package, stopped, resumed = base / "previous", base / "stopped", base / "resumed"
+    previous_package.mkdir()
+    shutil.copytree(root / ".build/Ventilator.app", previous_package / "Ventilator.app")
+    hashes = session.fingerprints(previous_package / "Ventilator.app")
+    (previous_package / "sealed.json").write_text(json.dumps({"certificateSHA1": session.CERTIFICATE,
+        "teamIdentifier": session.TEAM, "positiveRevocation": True, "fingerprint": hashes}))
+    with patch.object(session, "SESSION", stopped), patch.object(session, "PREVIOUS_SESSION", previous_package), \
+            patch.object(session, "SIGNED_SESSION", None), patch.object(session, "READ_ONLY_UPDATE", True), \
+            patch.object(session, "current_machine", return_value=session.READ_ONLY_MACHINE):
+        session.prepare()
+        session.save("update-started.json", {"previous": hashes, "hardwareWritesExecuted": 0})
+        session.save("sign-started.json", {"certificateSHA1": session.CERTIFICATE, "hardwareWritesExecuted": 0})
+        session.save("signature-ready.json", {"fingerprint": hashes, "hardwareWritesExecuted": 0})
+        session.save("qualification-started.json", {"fingerprint": hashes, "hardwareWritesExecuted": 0})
+    with patch.object(session, "SESSION", resumed), patch.object(session, "PREVIOUS_SESSION", previous_package), \
+            patch.object(session, "SIGNED_SESSION", stopped), patch.object(session, "READ_ONLY_UPDATE", True), \
+            patch.object(session, "current_machine", return_value=session.READ_ONLY_MACHINE), \
+            patch.object(session, "candidate", side_effect=AssertionError("Hardware candidate called")):
+        before = session.read_only_source_files()
+        with patch.object(session.sys, "argv", [str(root / "scripts/owner-session.py"), "prepare", "--read-only-update",
+                "--previous-session", str(previous_package), "--signed-session", str(stopped), "--output", str(resumed)]):
+            session.main()
+        manifest = session.check()
+        assert manifest["signatureReady"] and manifest["resumedFrom"]["filesSHA256"] == before
+        assert manifest["fingerprint"] == hashes and manifest["installedReplacement"] == hashes
+        assert not (resumed / "signature-ready.json").exists()
+        assert "Developer public certificate" in session.package_status()["nextStep"]
+        with patch.object(session, "owner_terminal"), patch.object(session, "output") as external, \
+                patch("builtins.input") as action, patch.object(session, "sign") as signing:
+            try:
+                session.update_read_only()
+                raise AssertionError("Unqualified resume reached owner actions")
+            except RuntimeError as error: assert "Developer public certificate" in str(error)
+            external.assert_not_called(); action.assert_not_called(); signing.assert_not_called()
+            assert not (resumed / "update-started.json").exists()
+        with patch.object(session, "owner_terminal"), patch.object(session.subprocess, "run") as external:
+            try:
+                session.sign()
+                raise AssertionError("Imported package re-signed")
+            except RuntimeError as error: assert "already signed" in str(error)
+            external.assert_not_called()
+        proof = {"certificateSHA1": session.CERTIFICATE, "teamIdentifier": session.TEAM, "positiveRevocation": True,
+                 "notarizationClaimed": False, "fingerprint": hashes}
+        with patch.object(session, "output", return_value=json.dumps(proof)) as external:
+            session.qualify()
+            assert external.call_count == 1
+            try:
+                session.qualify()
+                raise AssertionError("Qualification repeated")
+            except RuntimeError: pass
+            assert external.call_count == 1
+        assert session.check(sealed=True)["readOnlyUpdate"]
+        assert session.read_only_source_files() == before
+        assert not any((resumed / n).exists() for n in ["candidate.json", "review.json", "review.sha256"])
+        with patch.object(session, "READ_ONLY_UPDATE", False):
+            try:
+                session.signed_source()
+                raise AssertionError("Read-only source became hardware source")
+            except RuntimeError as error: assert "cannot become a hardware package" in str(error)
+        mutations = [
+            (stopped / "signature-ready.json", json.dumps({"fingerprint": {}, "hardwareWritesExecuted": 0}).encode()),
+            (stopped / "qualification-started.json", json.dumps({"fingerprint": hashes, "hardwareWritesExecuted": 1}).encode()),
+            (stopped / "update-started.json", json.dumps({"previous": {}, "hardwareWritesExecuted": 0}).encode()),
+            (stopped / "PLAN.md", b"changed plan"),
+            (stopped / "Ventilator.app/Contents/MacOS/VentilatorHelper", b"changed executable"),
+            (stopped / "removal-started.json", b"{}"),
+            (stopped / "candidate.json", b"{}"),
+        ]
+        for path, content in mutations:
+            original = path.read_bytes() if path.exists() else None
+            path.write_bytes(content)
+            try:
+                session.signed_source()
+                raise AssertionError("Changed source admitted: " + path.name)
+            except RuntimeError: pass
+            finally:
+                if original is None: path.unlink()
+                else: path.write_bytes(original)
+        with patch.object(session, "SESSION", base / "copy-race"), \
+                patch.object(session, "read_only_source_files", side_effect=[before, {}]):
+            try:
+                session.prepare()
+                raise AssertionError("Changed source while copying admitted")
+            except RuntimeError as error: assert "changed while copying" in str(error)
+            assert not (base / "copy-race/manifest.json").exists()
+        assert session.read_only_source_files() == before
+print("Signed read-only resume: exact source preserved; unqualified owner command and re-sign refused; one public seal; hardware conversion, seven source mutations and copy race rejected.")
 print("Read-only update dry-run passed; no actual signature, sudo, installation, service mutation or SMC writes.")

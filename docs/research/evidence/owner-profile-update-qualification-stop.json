@@ -1,0 +1,110 @@
+{
+  "actualNewInstallation": false,
+  "actualNewRootPeerVerified": false,
+  "files": {
+    "PLAN.md": "a16c8d6848139a641a0901048f89721c0858ef3cc54521531ccc62a12b682c41",
+    "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+    "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+    "Ventilator.app/Contents/MacOS/Ventilator": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+    "Ventilator.app/Contents/MacOS/VentilatorHelper": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+    "Ventilator.app/Contents/_CodeSignature/CodeResources": "e7a4e6cd967b9c0bca58b89cb3bab152a66ef19ee6f0d545837624887445f20a",
+    "manifest.json": "5f2489819f5d29ee84336b2785d485bf1e81203b0ffa45d0526265dba4295481",
+    "qualification-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+    "session.py": "65bef82f5bc6c45f05484284db6de93a6d337c710ce1d59088eef25ce542793f",
+    "sign-started.json": "0da1a54a45d82b68a2c430f9a711f9c63f4a67750da9f81c6bd5bd7b7775a7f7",
+    "signature-ready.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+    "update-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38"
+  },
+  "hardwareWritesExecuted": 0,
+  "installedFingerprint": {
+    "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+    "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+    "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+  },
+  "markers": {
+    "manifest.json": {
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "fingerprint": {
+        "applicationSHA256": "0b6055bcd6b34b42df8ac08cad97486269c008d35c548c407576bfe5e5c65f71",
+        "helperSHA256": "e144c5e41ee2e752a71b0b2482bcf5c3f92a4b0b686babf216bb303e0e13af9d",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareWritesExecuted": 0,
+      "installedReplacement": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "packageFiles": {
+        "PLAN.md": "a16c8d6848139a641a0901048f89721c0858ef3cc54521531ccc62a12b682c41",
+        "session.py": "65bef82f5bc6c45f05484284db6de93a6d337c710ce1d59088eef25ce542793f"
+      },
+      "readOnlyMachine": {
+        "build": "26A434",
+        "model": "Mac15,7",
+        "version": "27.0.1"
+      },
+      "readOnlyUpdate": true,
+      "schema": 1,
+      "signed": false,
+      "teamIdentifier": "4659S5GD6X"
+    },
+    "qualification-started.json": {
+      "fingerprint": {
+        "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+        "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareWritesExecuted": 0
+    },
+    "sign-started.json": {
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "hardwareWritesExecuted": 0
+    },
+    "signature-ready.json": {
+      "fingerprint": {
+        "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+        "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareWritesExecuted": 0
+    },
+    "update-started.json": {
+      "hardwareWritesExecuted": 0,
+      "previous": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      }
+    }
+  },
+  "observedFailure": {
+    "OFFPromptReached": false,
+    "certificateRevokedProven": false,
+    "exitCode": 78,
+    "keychainPromptReported": false,
+    "osStatus": -67635,
+    "secondUpdateAttempt": "exclusive update-started.json refused before mutations",
+    "stage": "publicCertificateQualification",
+    "underlyingReason": "unable to verify revocation"
+  },
+  "paths": {
+    "/Applications/Ventilator-before-profile-fix.bundle-backup": false,
+    "/Applications/Ventilator-profile-staging.app": false,
+    "/Library/Application Support/Ventilator": false
+  },
+  "physicalAutoVerified": false,
+  "staticSignatureVerification": [
+    {
+      "exitCode": 0,
+      "path": "/Users/mdub1na/IdeaProjects/ventilator2/.build/owner-profile-update/Ventilator.app/Contents/MacOS/VentilatorHelper",
+      "stderr": ""
+    },
+    {
+      "exitCode": 0,
+      "path": "/Users/mdub1na/IdeaProjects/ventilator2/.build/owner-profile-update/Ventilator.app",
+      "stderr": ""
+    }
+  ],
+  "userOutputSHA256": "7843f8558cd31b89d2b23cda4f75bb99961399e4d98de89e16421238064c6d34"
+}
