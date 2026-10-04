@@ -1,0 +1,150 @@
+{
+  "purpose": "Record completed owner read-only notification inspection and administrative snapshot; no additional collection or lifecycle action",
+  "actualCollection": true,
+  "actualNewRootPeerVerified": false,
+  "ownerAction": {
+    "reportedAt": "2026-10-04T12:18:32+05:00",
+    "action": "NONE",
+    "hardwareWritesExecuted": 0
+  },
+  "result": {
+    "startedAt": "2026-10-04T12:17:58+05:00",
+    "installedFingerprint": {
+      "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "scriptSHA256": "028a5e1967826e409b410b8fe1cbdc631c83d2401c868c256bad01049b55a350",
+    "planSHA256": "751d1e0ae1e4886ac3a13c2c68b83c74a19bdcf6897422fbe450a0f4459c2f99",
+    "runtimeBefore": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    },
+    "hardwareWritesExecuted": 0,
+    "steps": {
+      "launchd": {
+        "exitCode": 113,
+        "completedAt": "2026-10-04T12:18:39+05:00",
+        "alarmExpired": false,
+        "stdout": ""
+      },
+      "btm": {
+        "exitCode": 0,
+        "completedAt": "2026-10-04T12:18:39+05:00",
+        "alarmExpired": false,
+        "records": [
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, disallowed, not notified] (pending authorization) (0x10)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "36",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F",
+              "Name": "VentilatorHelper",
+              "Developer Name": "(null)",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "daemon (0x10)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[enabled, allowed, not notified] (0x3)",
+              "Identifier": "16.dev.ventilator.helper",
+              "URL": "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist",
+              "Executable Path": "Contents/MacOS/VentilatorHelper",
+              "Generation": "2474",
+              "Last Use": "2026-10-04 11:47:10+05:00",
+              "Parent Identifier": "2.dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 0,
+            "fields": {
+              "UUID": "BACD812D-ACFD-4C47-9C6A-D6161F076D49",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, notified] (0xa)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "1",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 501,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, not notified] (pending authorization) (0x12)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "22",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          }
+        ],
+        "rawOtherApplicationsSaved": false,
+        "complete": true,
+        "formatRecognized": true
+      }
+    },
+    "ownerActionReported": "NONE",
+    "runtimeAfter": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    },
+    "helperVerified": false,
+    "outcome": "systemApprovalPending"
+  },
+  "packagePath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/helper-read-only-approval",
+  "packageFilesSHA256": {
+    "PLAN.md": "751d1e0ae1e4886ac3a13c2c68b83c74a19bdcf6897422fbe450a0f4459c2f99",
+    "btm.json": "15d166e663f241644a222dfa13f65a48423dade2b0938050c7ebb98cd6ac9edd",
+    "launchd.json": "10923fca5c6668895327282fcfa6eb083ea9fc3ce3e9f74fde8159d9f010e4d9",
+    "manifest.json": "addf4d3ed34e91bc5e04fd4ede4e408f3aab6e604bdd68d47b9b305e59442caa",
+    "owner-action.json": "931295c3a04bd9944d3b0f4987cf78d9a2ba6753d2254a35f19b1e1e01aae944",
+    "result.json": "a856cd2332116aa44723e56905820f6f22021aba6b1eb15b8aa237ff5e84e707",
+    "snapshot.py": "028a5e1967826e409b410b8fe1cbdc631c83d2401c868c256bad01049b55a350",
+    "started.json": "f953503049fcc085ce19a6e948222427f5d543f5f3e903b71d2ae764e819d3ef"
+  },
+  "preservation": {
+    "stoppedUpdateFiles": 17,
+    "stoppedUpdateUnchanged": true,
+    "backupFiles": 5,
+    "backupUnchanged": true,
+    "installedFingerprintUnchanged": true
+  },
+  "comparison": {
+    "btmRecordsEqualPreviousSnapshot": true,
+    "rootLaunchdLookupWasAdministrative": true,
+    "conditionalNativeVerificationExecuted": false
+  },
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "interpretation": {
+    "rootJobAbsent": true,
+    "systemAuthorizationUnresolved": true,
+    "exactCauseEstablished": false,
+    "notificationAbsent": "Owner report NONE, not an independent notification-center capture"
+  },
+  "stop": "Preserve the completed packet. Do not repeat collection/setup/register/ready."
+}
