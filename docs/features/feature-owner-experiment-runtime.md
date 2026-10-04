@@ -12,7 +12,9 @@ tags: [macOS, approval, XPC, broker, preparation]
 
 # Runtime владельческого опыта
 
-Подготовленный source candidate теперь **schema4 / Mac15,7 / 27.0.1 / 26A434**. Старые schema3 binaries/reviews/seals сохранены; legacy profile/schema3 review отвергаются новой версией. Fresh read-only data подтверждают exact metadata/ranges, но запись/physical Auto не подтверждены. Новый [полный owner сеанс](../current-hardware-owner.md) связывает qualification/backup/update, empty root state audit, signed full review и отдельные TTY APPROVE/START. Без receipt устройство не открывается; GUI controls остаются false. Actual installed root helper пока прежний и по-прежнему сообщает unsupportedMachine; новую сборку/опыт агент не устанавливает и не запускает. [Source verification](../research/evidence/current-experiment-source.json).
+Owner сеанс schema4 завершён до запуска: exact signing/positive qualification, installed/root XPC и full review import прошли. Ввод APPROVE в A и START в B отклонён до start/approveLocally. Saved root audit содержит только challenge, без approval/ledger/outcome; hardware writes=0. Предыдущий wrapper не повторять. Подготовлено [продолжение установленной signed сборки](../current-hardware-continuation.md) с fresh audit/expired challenge и отдельными точными вводами B → A. Native подсказки уточнены в source, installed binaries пока прежние; новый полный PLAN объясняет их ввод. [Actual evidence](../research/evidence/current-hardware-declined-result.json).
+
+Подготовленный source candidate теперь **schema4 / Mac15,7 / 27.0.1 / 26A434**. Старые schema3 binaries/reviews/seals сохранены; legacy profile/schema3 review отвергаются новой версией. Fresh read-only data подтверждают exact metadata/ranges, но запись/physical Auto не подтверждены. Новый [полный owner сеанс](../current-hardware-owner.md) связывает qualification/backup/update, empty root state audit, signed full review и отдельные TTY APPROVE/START. Без receipt устройство не открывается; GUI controls остаются false. На момент source подготовки installed helper был прежним и сообщал unsupportedMachine; последующий owner update описан выше. [Source verification](../research/evidence/current-experiment-source.json).
 
 Owner сеанс новой identity завершён 2026-10-04 в 20:11:31 +05:00: **enabled, helperVerified=true, running root job PID 66079**, `readOnlyHelperVerified=true`. Owner сообщил ON и ALLOW; exact installed подпись/positive qualification и bound root XPC подтверждены. Сохранены 30 файлов completed пакета, old backup, 14 protected директорий и два прежних GUI marker; новый marker — третий. Staging/root runtime отсутствуют. Hardware status отдельно подтвердил **unsupportedMachine**, аппаратных записей 0, physicalAutoVerified=false. Завершённый run/register/ready не повторять. [Actual result](../research/evidence/gui-helper-identity-result.json).
 
@@ -20,7 +22,7 @@ Owner сеанс новой identity завершён 2026-10-04 в 20:11:31 +05
 
 ## Admission и процессы
 
-Историческая source версия до schema4 оставляла diagnostics на 27.0.1 доступной и hardware runtime nil; именно эта signed версия пока установлена. Новая source версия использует отдельный schema4 candidate текущей ОС. Anonymous unsupported модели теперь проверяют legacy 27.0.0/26A428, чужой build и неизвестную модель: authority/device не создаются. [Новая подготовка](../current-hardware-owner.md).
+Историческая source версия до schema4 оставляла diagnostics на 27.0.1 доступной и hardware runtime nil; эта signed версия была установлена до последующего owner update schema4. Новая source версия использует отдельный schema4 candidate текущей ОС. Anonymous unsupported модели теперь проверяют legacy 27.0.0/26A428, чужой build и неизвестную модель: authority/device не создаются. [Новая подготовка](../current-hardware-owner.md).
 
 Signed daemon создаёт `ExperimentSessionRuntime.hardware()` только после root/installed/code-signature/profile/SMAppService enabled gates. Connection owner генерируется сервером для каждого XPC соединения и возвращается в preparation. Root TTY issuer из [протокола одобрения](feature-experiment-protocol.md) должен выдать receipt именно этому owner, plan и полному review; XPC не выдаёт одобрение.
 
@@ -44,7 +46,7 @@ Signed daemon создаёт `ExperimentSessionRuntime.hardware()` только 
 
 ## Границы
 
-Native signed/root-owned installed/root XPC и administrative approval текущей read-only версии подтверждены; новый schema4 root runtime, hardware calls, actual sleep и физический Auto ещё не проверены. Owner CLI и [новый единый сеанс schema4](../current-hardware-owner.md) подготовлены. Исправленная сборка требует подписи/замены владельцем. `readyForOwnerApproval=false` в offline candidate сохраняется. Сценарии ниже проходят на non-root модели и не заменяют аппаратное одобрение.
+Native signed/root-owned installed/root XPC и administrative approval текущей read-only версии подтверждены; schema4 root runtime/import теперь подтверждены; hardware calls, actual sleep и физический Auto ещё не проверены. Owner CLI и [новый единый сеанс schema4](../current-hardware-owner.md) подготовлены. Исправленная сборка требует подписи/замены владельцем. `readyForOwnerApproval=false` в offline candidate сохраняется. Сценарии ниже проходят на non-root модели и не заменяют аппаратное одобрение.
 
 ## Клиент владельца и пакет сеанса
 
@@ -66,6 +68,7 @@ Native signed/root-owned installed/root XPC и administrative approval теку�
 | Broker и private hardware entries | `Sources/VentilatorHelper/ExperimentRecoveryBroker.swift`, `Sources/VentilatorHelper/HelperMain.swift` |
 | Native child и recovery | `Sources/VentilatorExperiment/ScopedExperimentChild.swift`, `Sources/VentilatorExperiment/BrokerRestartRecovery.swift` |
 | Клиент/публичный сертификат | `Sources/Ventilator/OwnerExperimentCLI.swift`, `Sources/VentilatorInstallation/InstalledHelperClient.swift`, `Sources/VentilatorInstallation/CertificateQualification.swift` |
+| Terminal input и unstarted continuation | `Sources/VentilatorInstallation/OwnerExperimentTerminal.swift`, `scripts/current-hardware-continuation.py`, `scripts/current-hardware-continuation-dry-run.py` |
 | Full review и owner package | `Sources/VentilatorControl/LocalApprovalReview.swift`, `Sources/VentilatorControl/LocalReviewFile.swift`, `Sources/VentilatorHelper/LocalApprovalCLI.swift`, `scripts/owner-session.py`, `scripts/owner-session-dry-run.py` |
 | Process/XPC проверка | `Sources/VentilatorHelper/SessionRuntimeCheck.swift`, `scripts/session-runtime-dry-run.py` |
 
@@ -156,3 +159,19 @@ Native signed/root-owned installed/root XPC и administrative approval теку�
 **Тогда:** STOP сохраняет exit и причину; collect сохраняет ошибку конкретного чтения и продолжает status/audit. Нет автоматического повторения или аппаратного запуска.
 
 **Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Ввод из другого окна не запрашивает аппаратный start
+
+**Дано:** Terminal A ожидает адресную START строку; Terminal B показывает полный review/confirmation.
+**Когда:** в A вводится APPROVE, bare START либо неполный/неверный UUID, или в B вводится START/bare APPROVE.
+**Тогда:** A отвергает ввод до start RPC; B отвергает до сохранения approval. Нет ledger/device. Native source сообщает отсутствие start запроса отдельно от возможного отказа уже отправленного RPC; успешный B печатает полную START строку для A.
+
+**Automated:** `Tests/VentilatorInstallationTests/OwnerExperimentTerminalTests.swift::testOnlyCompleteStartLineProducesChallengeForRPC`, `Tests/VentilatorExperimentTests/LocalApprovalIssuerTests.swift::testDeclineEOFAndPartialConsentNeverApprove`
+
+### Scenario: Продолжение допускает только истёкший запрос без одобрения и запуска
+
+**Дано:** exact installed qualified signed файлы, completed32/protected16/privateGUI4/full review и current boot.
+**Когда:** владелец запускает новый отдельный wrapper.
+**Тогда:** fresh root audit обязан совпасть с прежним challenge, уже истёкшим по continuous clock; approval/ledger/outcome/другой boot/challenge блокируют review import и client. Подпись/lifecycle не повторяются. Client failure сохраняет audit; replay не запускает клиент повторно.
+
+**Automated:** `scripts/current-hardware-continuation-dry-run.py`

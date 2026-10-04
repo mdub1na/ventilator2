@@ -1,0 +1,244 @@
+{
+  "observedAt": "2026-10-04T21:40:02.148268+05:00",
+  "sessionPath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/current-hardware-owner",
+  "completedFilesSHA256": {
+    "PLAN.md": "04f1ea3c1fa82bc4ea19dfef1b0de6404ff5a7402b2a0a54b145a25e5a4bf040",
+    "after-hardware-command.json": "73f95bbdc244a87f9b2a6bf065bbb5395f3f6fc859ae8b0b592b6f24f46aad22",
+    "before-hardware-review.json": "5873ff944a35047de8874f82f937a62f6022e7062519fa7c919a964d97a99b76",
+    "gui-open-started.json": "eea7d4c5007511881cc11ca61c3aace096757490d00197901525c8c2e298286d",
+    "hardware-command-started.json": "54befb060eb39312c3b1d53fd0f7a9b11467daa7c6d481b306012091a1e774d2",
+    "installed-peer.json": "d983b5168bf1e95933601debbae39dfaa9e9b9a7870207cd4f00407d1689fd74",
+    "job-after-gui.json": "054fd71f0225715479fb5ab5bfb095ee5be8889766a064062afe15fc9184a06c",
+    "job-after-removal.json": "7940e24053f88f3842c46f1ff72a8694e16a16df088644656ca8b3e9ed5715bc",
+    "job-before-removal.json": "94d86bf845fd9c448e59ac09156260a5501ee7be61510b4cd117d754eeea541e",
+    "manifest.json": "97dabd517e91c43be5abc683ec8c8e639c9a98a9bb9489ed7daea37f5549cd49",
+    "owner-on.json": "530fb4c725e4e31d2c5d3ef9814843f6c147e5a9f8ec6b3f2ed2a4413eef3e5d",
+    "payload.app/Contents/Info.plist": "3a3b7afdc2e6c2e73b024be1ede9f85c1db06c245ccc360afc5b42e69b92a2f2",
+    "payload.app/Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b",
+    "payload.app/Contents/MacOS/Ventilator": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+    "payload.app/Contents/MacOS/VentilatorHelper": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7",
+    "payload.app/Contents/_CodeSignature/CodeResources": "cb8aa78556f016e977f962eaeaf5cd402af611336bbcedc3fc50e5c7931110d1",
+    "previous-installed.bundle/Contents/Info.plist": "3a3b7afdc2e6c2e73b024be1ede9f85c1db06c245ccc360afc5b42e69b92a2f2",
+    "previous-installed.bundle/Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b",
+    "previous-installed.bundle/Contents/MacOS/Ventilator": "2e89de19d44c98a63d526d02abac534802b750ea4bd9a0c6729b36e215fa3c75",
+    "previous-installed.bundle/Contents/MacOS/VentilatorHelper": "4e1aeb1d5ffff20f735cb9dae1ca2529ae0c44657a87887b965be8b35bc6e548",
+    "previous-installed.bundle/Contents/_CodeSignature/CodeResources": "da2d44b42185f5d931a04703a1e104c2cdd8411c41f1cb39308de234f4b9c3b5",
+    "removal-completed.json": "2b845b6bd3f702ab0f54e27eb62d2db650572719377910ccc1955921aea2b3a2",
+    "removal-started.json": "ca8cb2ce72e45e0e494c0943e27e7ebdd38076f985e97b8a5e555149aeac1eb4",
+    "replacement-started.json": "eea7d4c5007511881cc11ca61c3aace096757490d00197901525c8c2e298286d",
+    "result.json": "7d8bc5820f1813e8f50d0312589100f8c76fefd8c64d8e00f881fa6b30f0dbbd",
+    "review-import-completed.json": "3486f6a580a45de597ccdb2c35bc11aac6d8adb2b56503bbba3d15fb146c449d",
+    "review.json": "4c6b1a43186a6619f7d1fe78b27624e9758c0e58b5aa60642e13046aac41a0f9",
+    "review.sha256": "bf704fb5dfc4e5dd4e29ca50c414cb40234539edb2a722e297001b1c61d2a698",
+    "run-started.json": "78f6c1f69032feca2b7ae2bc9d09150be0894e0ec98be0ff6a2638c69a149f4c",
+    "sealed.json": "fed7c74dd14bbc76a4d3b452eb53ba28d483072238fffb9bb078dc684264ac8c",
+    "session.py": "b08c2a1b8000bf423f547acefec8b208972f404c2af07cf9c68e898b2e910658",
+    "signature-ready.json": "eea7d4c5007511881cc11ca61c3aace096757490d00197901525c8c2e298286d"
+  },
+  "qualifiedSeal": {
+    "filesSHA256": {
+      "Contents/Info.plist": "3a3b7afdc2e6c2e73b024be1ede9f85c1db06c245ccc360afc5b42e69b92a2f2",
+      "Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b",
+      "Contents/MacOS/Ventilator": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+      "Contents/MacOS/VentilatorHelper": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7",
+      "Contents/_CodeSignature/CodeResources": "cb8aa78556f016e977f962eaeaf5cd402af611336bbcedc3fc50e5c7931110d1"
+    },
+    "fingerprint": {
+      "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+      "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7",
+      "launchDaemonSHA256": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b"
+    },
+    "qualification": {
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "fingerprint": {
+        "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+        "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7",
+        "launchDaemonSHA256": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b"
+      },
+      "notarizationClaimed": false,
+      "positiveRevocation": true,
+      "teamIdentifier": "4659S5GD6X"
+    },
+    "positiveRevocation": true,
+    "candidate": {
+      "blockers": [
+        "localApprovalIssuerHardwarePathUnverified",
+        "installedSignedHelperUnverified",
+        "ownerSessionExecutionPending",
+        "physicalRecoveryUnverified",
+        "realSleepDeliveryUnverified"
+      ],
+      "hardwareWritesExecuted": 0,
+      "plan": {
+        "binaries": {
+          "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+          "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7"
+        },
+        "fans": [
+          {
+            "index": 0,
+            "maximumRPM": 5349,
+            "minimumRPM": 1350
+          },
+          {
+            "index": 1,
+            "maximumRPM": 5777,
+            "minimumRPM": 1458
+          }
+        ],
+        "fixedObservationDeadlineSeconds": 5,
+        "fixedWrites": [
+          {
+            "dataType": "ui8 ",
+            "key": "Ftst",
+            "maximumAttempts": 1,
+            "payloadHex": "01",
+            "prerequisite": "approvedPreflightAndArmedRecovery"
+          },
+          {
+            "dataType": "ui8 ",
+            "key": "F0Md",
+            "maximumAttempts": 1,
+            "payloadHex": "01",
+            "prerequisite": "threeSecondWaitAndValidLease"
+          },
+          {
+            "dataType": "ui8 ",
+            "key": "F1Md",
+            "maximumAttempts": 1,
+            "payloadHex": "01",
+            "prerequisite": "precedingWriteSucceededAndValidLease"
+          },
+          {
+            "dataType": "flt ",
+            "key": "F0Tg",
+            "maximumAttempts": 1,
+            "payloadHex": "00401c45",
+            "prerequisite": "bothFansObservedManualAndValidLease"
+          },
+          {
+            "dataType": "flt ",
+            "key": "F1Tg",
+            "maximumAttempts": 1,
+            "payloadHex": "00401c45",
+            "prerequisite": "precedingWriteSucceededAndValidLease"
+          }
+        ],
+        "heartbeatSeconds": 2,
+        "leaseSeconds": 10,
+        "macOSBuild": "26A434",
+        "macOSVersion": "27.0.1",
+        "maximumFixedRuns": 1,
+        "maximumOwnerRecoveryRuns": 1,
+        "maximumRestoreRuns": 1,
+        "modelIdentifier": "Mac15,7",
+        "operationDeadlineSeconds": 0.5,
+        "readyForOwnerApproval": false,
+        "restartPolicy": "closeFixed;requireDeviceLifetimeLock;continueUnattemptedAuto;keepOriginalDeadline;noCrossBoot;ambiguousAutoKeepsPending",
+        "restorationDeadlineSeconds": 8,
+        "restoreWrites": [
+          {
+            "dataType": "ui8 ",
+            "key": "F0Md",
+            "maximumAttempts": 1,
+            "payloadHex": "00",
+            "prerequisite": "pendingRecordAndWriterExited"
+          },
+          {
+            "dataType": "ui8 ",
+            "key": "F1Md",
+            "maximumAttempts": 1,
+            "payloadHex": "00",
+            "prerequisite": "writerExitedEvenIfOtherFanFailed"
+          },
+          {
+            "dataType": "flt ",
+            "key": "F0Tg",
+            "maximumAttempts": 1,
+            "payloadHex": "00000000",
+            "prerequisite": "fanZeroObservedNonManual"
+          },
+          {
+            "dataType": "flt ",
+            "key": "F1Tg",
+            "maximumAttempts": 1,
+            "payloadHex": "00000000",
+            "prerequisite": "fanOneObservedNonManual"
+          },
+          {
+            "dataType": "ui8 ",
+            "key": "Ftst",
+            "maximumAttempts": 1,
+            "payloadHex": "00",
+            "prerequisite": "bothFansObservedNonManual"
+          }
+        ],
+        "schemaVersion": 4,
+        "stage": "candidate-unapproved",
+        "targetRPM": 2500,
+        "unlockWaitSeconds": 3,
+        "writerQuiescenceDeadlineSeconds": 1
+      },
+      "planSHA256": "0cca75356929b7d09ac325381449af584211fcc01fca8caafee949344bf7de80"
+    },
+    "reviewSHA256": "309333335aaa9f288d0498ddc617e0e536f8771c812634ec93cfe0df9f9b40d3"
+  },
+  "installedPeer": {
+    "fingerprint": {
+      "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+      "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7",
+      "launchDaemonSHA256": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": true,
+    "installedLocation": true,
+    "registration": "enabled",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "beforeHardwareReview": {
+    "currentBootSession": "277D8B80-F202-4926-9318-BDE81F25C8E0",
+    "hardwareControlAvailable": false,
+    "physicalAutoVerified": false,
+    "readOnlyAudit": true
+  },
+  "afterHardwareCommand": {
+    "authority": {
+      "challenge": {
+        "binaries": {
+          "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+          "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7"
+        },
+        "bootSession": "277D8B80-F202-4926-9318-BDE81F25C8E0",
+        "connectionOwner": "B9F05AA9-5A4E-4A1A-93CC-809F9C4B9533",
+        "expiresAt": 29090.106854875,
+        "id": "1ACDE9AB-924F-44DD-8A29-7202E5A44229",
+        "issuedAt": 28790.106854875,
+        "ownerReviewSHA256": "309333335aaa9f288d0498ddc617e0e536f8771c812634ec93cfe0df9f9b40d3",
+        "planSHA256": "0cca75356929b7d09ac325381449af584211fcc01fca8caafee949344bf7de80"
+      }
+    },
+    "currentBootSession": "277D8B80-F202-4926-9318-BDE81F25C8E0",
+    "hardwareControlAvailable": false,
+    "physicalAutoVerified": false,
+    "readOnlyAudit": true
+  },
+  "clientError": "Command '['/Applications/Ventilator.app/Contents/MacOS/Ventilator', '--run-owner-experiment', '309333335aaa9f288d0498ddc617e0e536f8771c812634ec93cfe0df9f9b40d3']' returned non-zero exit status 78.",
+  "ownerReportedTerminalOutput": [
+    "APPROVE -> Owner experiment: invalidChallenge",
+    "START -> VentilatorHelper: declined"
+  ],
+  "approvalPresent": false,
+  "consumedLedgerPresent": false,
+  "outcomePresent": false,
+  "hardwareWritesExecuted": 0,
+  "interpretation": "Saved root audit has only an unapproved challenge. Client rejected input before client.start; issuer rejected input before approveLocally. No hardware begin or broker was requested. Do not replay this completed wrapper.",
+  "protectedDirectoryCount": 15,
+  "privateGUIFilesSHA256": {
+    "2e89de19d44c98a63d526d02abac534802b750ea4bd9a0c6729b36e215fa3c75-4e1aeb1d5ffff20f735cb9dae1ca2529ae0c44657a87887b965be8b35bc6e548-e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b.json": "570b1f7a5629d5e802b0e4da153696fad031fdf32b344f58d1c0b585f2fe0d7c",
+    "56f5e3b1317d045899a7c1f2c65df86c478d07f87ad9f66c2aeb6f913f9a6efb-c03f8e10021af0199669bdb2c2e17d76a9e4d1455d774d521c619c2a5e94999d-f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f.json": "bbf21f41e3b20e63157f0a19a1dab0f0e3554277701cbc6e153e66ccfb1b8cf7",
+    "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c-105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7-e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b.json": "6749f3d7131fd3a9712408e09de81bc413c11e0a61c22366ea25bacafab29830",
+    "cf2b98b36f52a1c112dac327ae0ab5807c9db3721810fbe57c4e278667bd7157-445228b93de5ef2903799c2837887bc670ab3a937e33ed9a1470ce440f1b4971-f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f.json": "95a6ad73fb65f3647e95c83aeafcb195743cd02bed8b9c2b74a70dfbf0c6654a"
+  },
+  "physicalAutoVerified": false
+}

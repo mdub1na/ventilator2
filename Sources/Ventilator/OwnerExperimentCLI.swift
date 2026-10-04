@@ -6,6 +6,7 @@ import VentilatorInstallation
 /// Explicit Terminal command only. The GUI never constructs this session or starts hardware.
 func runOwnerExperimentCommand(_ arguments: [String]) -> Bool {
     guard let command = arguments.first, ["--run-owner-experiment", "--owner-experiment-status", "--qualify-owner-signature"].contains(command) else { return false }
+    var startRequested = false
     do {
         if command == "--qualify-owner-signature" {
             guard arguments.count == 3 else { throw InstallationError.invalidChallenge }
@@ -28,14 +29,16 @@ func runOwnerExperimentCommand(_ arguments: [String]) -> Bool {
         let prepared = try client.prepare()
         guard prepared.errorCode == nil, let p = prepared.preparation, p.runtimePrepared,
               p.planSHA256 == planSHA, let owner = p.connectionOwner else { throw InstallationError.invalidReply }
-        print("Keep this Terminal open. No experiment has begun. In a second Terminal, run:")
+        print("ТЕРМИНАЛ A — запуск пока не запрашивался. Оставьте это окно открытым.")
+        print("1. Откройте второе окно Terminal (B). Скопируйте туда всю следующую команду:")
         print("sudo /Applications/Ventilator.app/Contents/MacOS/VentilatorHelper --approve-local-hardware \(owner.uuidString) \(planSHA) \(arguments[1])")
-        print("After reviewing and approving there, enter START followed by that challenge UUID here.")
+        print("2. В B прочитайте план и скопируйте полную строку APPROVE с UUID и двумя хешами. Одного слова APPROVE недостаточно.")
+        print("3. Только после «Approval saved» в B скопируйте оттуда полную строку START с UUID в это окно A.")
+        print("ТЕРМИНАЛ A — ожидаю START <challenge UUID>. APPROVE вводится только в B; CANCEL отменяет.")
         fflush(stdout)
-        guard let line = readLine(), line.hasPrefix("START "), let challenge = UUID(uuidString: String(line.dropFirst(6))) else {
-            throw InstallationError.invalidChallenge
-        }
+        let challenge = try OwnerExperimentTerminal.startChallenge(from: readLine())
         let started = InstalledHelperClient.clock()
+        startRequested = true // A failed/late RPC can already have consumed the receipt; never claim otherwise.
         let initial = try client.start(challenge: challenge, planSHA256: planSHA)
         guard initial.errorCode == nil, let first = initial.hardwareExperiment, let session = first.sessionID else {
             try printOwnerReply(initial); throw InstallationError.invalidReply
@@ -61,9 +64,14 @@ func runOwnerExperimentCommand(_ arguments: [String]) -> Bool {
         }
         throw InstallationError.deadline
     } catch {
-        let detail = command == "--run-owner-experiment" ?
-            "Connection closed; an active broker retains its independent Auto duty. Do not retry Fixed or erase pending. Follow the owner-session stop plan." :
-            "No experiment was started by this diagnostic command. Follow the owner-session stop plan."
+        let detail: String
+        if command == "--run-owner-experiment" {
+            detail = startRequested ?
+                "Connection closed; if a broker started, it retains its independent Auto duty. Do not retry Fixed or erase pending. Follow the owner-session stop plan." :
+                "Аппаратный запуск не запрашивался. Terminal A принимает полную START <challenge UUID> после одобрения в B. Сеанс закрыт; ничего не повторяйте, сообщите разработчику."
+        } else {
+            detail = "No experiment was started by this diagnostic command. Follow the owner-session stop plan."
+        }
         fputs("Owner experiment: \(error). \(detail)\n", stderr)
         exit(78)
     }

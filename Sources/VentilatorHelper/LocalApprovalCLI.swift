@@ -2,6 +2,7 @@ import Darwin
 import Foundation
 import VentilatorControl
 import VentilatorExperiment
+import VentilatorInstallation
 
 let hardwareExperimentDirectory = URL(fileURLWithPath: "/Library/Application Support/Ventilator/Experiment", isDirectory: true)
 
@@ -54,7 +55,20 @@ func runLocalApproval(domain: ExperimentDomain, directory: URL, owner: UUID,
     print(String(decoding: try prompt.review.candidate.canonicalJSON(), as: UTF8.self))
     print("Owner: \(owner.uuidString); challenge: \(prompt.challenge.id.uuidString); approval window: 300 seconds.")
     print("To approve exactly this plan and review, type:\n\(prompt.confirmation)")
+    if domain == .hardware {
+        print("ТЕРМИНАЛ B — скопируйте полную строку APPROVE выше, включая UUID и оба хеша, сюда. START вводится позднее в A; CANCEL отменяет.")
+    }
     fflush(stdout)
-    try issuer.confirm(prompt, response: readLine(strippingNewline: true), now: HelperClock.now())
+    do {
+        try issuer.confirm(prompt, response: readLine(strippingNewline: true), now: HelperClock.now())
+    } catch LocalApprovalError.declined {
+        if domain == .hardware {
+            fputs("Одобрение не сохранено: нужна полная строка APPROVE с UUID и двумя хешами. Эта команда не запускает опыт. Не повторяйте; сообщите разработчику.\n", stderr)
+        }
+        throw LocalApprovalError.declined
+    }
     print("Approval saved for challenge \(prompt.challenge.id.uuidString). No experiment started; only this connection may consume the receipt.")
+    if domain == .hardware {
+        print("Вернитесь в ТЕРМИНАЛ A и скопируйте туда всю строку:\n\(OwnerExperimentTerminal.startLine(challenge: prompt.challenge.id))")
+    }
 }

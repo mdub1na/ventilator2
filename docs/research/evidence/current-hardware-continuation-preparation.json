@@ -1,0 +1,131 @@
+{
+  "preparedAt": "2026-10-04T21:56:06.358496+05:00",
+  "sessionPath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/current-hardware-continuation",
+  "packageFilesSHA256": {
+    "PLAN.md": "d4eac0b60e6479e18b79ed5376d529614b542565e66f9b484e88ba25b10ed76f",
+    "manifest.json": "354b341bff0cccb5f11080ad7ae746b949894a0af6ebc6535242a57d2006a196",
+    "review.json": "a0be6d93014fd40bfb16c6872cd0a423dbe8246af55e5d99928ac43073b843d0",
+    "session.py": "c9c70ca365a373d325f078deb07e9ec150a89c47031b9b78dc55845fac218e93"
+  },
+  "planSHA256": "d4eac0b60e6479e18b79ed5376d529614b542565e66f9b484e88ba25b10ed76f",
+  "scriptSHA256": "c9c70ca365a373d325f078deb07e9ec150a89c47031b9b78dc55845fac218e93",
+  "reviewSHA256": "e6cf1e24d9c6ba83c739399d4f681b5c7d709cccf85f8e3be035f4648e75b29a",
+  "candidateSHA256": "0cca75356929b7d09ac325381449af584211fcc01fca8caafee949344bf7de80",
+  "installedFingerprint": {
+    "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+    "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7",
+    "launchDaemonSHA256": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b"
+  },
+  "machine": {
+    "model": "Mac15,7",
+    "version": "27.0.1",
+    "build": "26A434"
+  },
+  "bootUUID": "277d8b80-f202-4926-9318-bde81f25c8e0",
+  "hardwareWrites": [
+    {
+      "dataType": "ui8 ",
+      "key": "Ftst",
+      "maximumAttempts": 1,
+      "payloadHex": "01",
+      "prerequisite": "approvedPreflightAndArmedRecovery"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "F0Md",
+      "maximumAttempts": 1,
+      "payloadHex": "01",
+      "prerequisite": "threeSecondWaitAndValidLease"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "F1Md",
+      "maximumAttempts": 1,
+      "payloadHex": "01",
+      "prerequisite": "precedingWriteSucceededAndValidLease"
+    },
+    {
+      "dataType": "flt ",
+      "key": "F0Tg",
+      "maximumAttempts": 1,
+      "payloadHex": "00401c45",
+      "prerequisite": "bothFansObservedManualAndValidLease"
+    },
+    {
+      "dataType": "flt ",
+      "key": "F1Tg",
+      "maximumAttempts": 1,
+      "payloadHex": "00401c45",
+      "prerequisite": "precedingWriteSucceededAndValidLease"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "F0Md",
+      "maximumAttempts": 1,
+      "payloadHex": "00",
+      "prerequisite": "pendingRecordAndWriterExited"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "F1Md",
+      "maximumAttempts": 1,
+      "payloadHex": "00",
+      "prerequisite": "writerExitedEvenIfOtherFanFailed"
+    },
+    {
+      "dataType": "flt ",
+      "key": "F0Tg",
+      "maximumAttempts": 1,
+      "payloadHex": "00000000",
+      "prerequisite": "fanZeroObservedNonManual"
+    },
+    {
+      "dataType": "flt ",
+      "key": "F1Tg",
+      "maximumAttempts": 1,
+      "payloadHex": "00000000",
+      "prerequisite": "fanOneObservedNonManual"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "Ftst",
+      "maximumAttempts": 1,
+      "payloadHex": "00",
+      "prerequisite": "bothFansObservedNonManual"
+    }
+  ],
+  "protectedDirectoryCount": 16,
+  "privateGUIFileCount": 4,
+  "verification": {
+    "tests": {
+      "products": [
+        30,
+        57,
+        10,
+        23
+      ],
+      "total": 120,
+      "failures": 0
+    },
+    "continuationOrderingModels": 14,
+    "adHocBuildAndStrictVerify": "passed",
+    "frozenCheck": "passed",
+    "headlessExitCode": 78,
+    "headlessDiagnostic": "STOP: Use the owner's ordinary non-root Terminal, without outer sudo. Preserve all packages/root state. Do not repeat either session, APPROVE, START, register, ready or hardware commands; follow PLAN.md.",
+    "headlessPackageUnchanged": true,
+    "headlessStartedMarker": false,
+    "instructionsUTF8Bytes": 10561,
+    "reviewBytes": 13698,
+    "continuousClock": 29907.26845158333,
+    "previousChallengeExpiresAt": 29090.106854875,
+    "freshRootAuditStillRequired": true,
+    "docs": 13,
+    "bdd": 116,
+    "docsErrors": 0
+  },
+  "improvedNativePromptsInstalled": false,
+  "ownerContinuationRun": false,
+  "ownerHardwareApprovalIssued": false,
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false
+}
