@@ -12,6 +12,10 @@ publishes: [Ventilator.app]
 
 # Приложение
 
+Actual GUI update выполнен владельцем: установлена новая signed/root-owned сборка с HelperSetupView, saved marker связывает одно register с её fingerprint. macOS отказала в bootstrap; late CLI enabled/remoteFailure при absent system job не доказывает root readiness. Следующий [administrative read-only collector](../../scripts/gui-helper-state.py) не запускает приложение/helper и не вызывает ServiceManagement/XPC. Он сохраняет current parent/helper BTM records без данных других приложений, с replay guard и прежними package/installed/GUI/boot pins. [Факты](../research/evidence/gui-helper-update-result.json), [одна owner последовательность](../gui-helper-state-owner.md).
+
+## История подготовки GUI update
+
 Для installed испытания нового GUI подготовлен отдельный [owner update](../gui-helper-owner-update.md): квалификация новой подписи до root staging/removal, exact non-app backup/замена, открытие canonical helper section и только явный GUI register. Old frozen sessions/user markers сохраняются; after-GUI snapshot различает actual peer readiness и факт GUI attempt. Actual подпись/замена/root positive требуют владельца, аппаратных команд в этом mode нет. [Проверки/привязки](../research/evidence/gui-helper-update-preparation.json).
 
 Исходники теперь содержат [GUI настройку помощника](../screens/screen-application.md), actual status вместо фиксированного «Не установлен», явное register и per-owner durable marker. Status/XPC выполняются вне UI потока; регистрация — только по нажатию из main actor после подписанного installed process/fingerprint gate. Pending/enabled не перерегистрируются, settings button открывает системный раздел и не выдаёт разрешение. Подключение helper не открывает RPM controls. Подписанная установленная копия остаётся прежней; новый owner update ещё не выполнен.

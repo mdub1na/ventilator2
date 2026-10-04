@@ -12,6 +12,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
+Owner GUI update завершён: installed/payload совпадают с новой квалифицированной подписью, прежняя копия сохранена. Exclusive marker подтверждает одно GUI register; системный журнал фиксирует disallowed/bootstrap error 1 до first light. Поздний CLI report enabled/remoteFailure и отсутствующий system job не подтверждают root helper. Следующий [пакет только чтения](../gui-helper-state-owner.md) проверяет completed update/installed/GUI hashes, owner/machine/boot и private marker до административного чтения launchd/BTM; framework status, XPC, registration и аппаратный runtime не вызываются. [Actual result](../research/evidence/gui-helper-update-result.json).
+
 Подготовлен отдельный полный [GUI owner update](../gui-helper-owner-update.md). Новая подпись/positive qualification и root-owned staging/static inspection выполняются до conditional guarded unregister прежней копии; old bytes сохраняются в non-app backup. Root job после removal должен отсутствовать до mv. Новая GUI app открывается только canonical, сама не регистрирует helper; один explicit click сохраняет user marker. После ALLOW/NONE читаются actual status/job; успешный root peer отдельно от GUI attempt и только затем unsupportedMachine diagnostic status. CLI register, OFF/ON, hardware review/approval/start не вызываются. Replay, unknown/changed runtime/job/hash/marker/native reply останавливаются с сохранением путей. Actual owner update ещё не выполнен. [Подготовка/проверки](../research/evidence/gui-helper-update-preparation.json).
 
 В исходниках добавлен [GUI раздел помощника](../screens/screen-application.md): проверка статуса/XPC вне UI потока, одно explicit register из main actor только после подписанного canonical root-owned process и совпадения fingerprint с прочитанным состоянием. Pending/enabled не вызывают claim/register. Перед register создаётся exclusive/fsynced marker для owner и трёх signed hashes в приватном user Application Support; restart не стирает failed attempt. Файлы аппаратного review/authority не используются. Enabled без bound root verification не показывается как «Помощник доступен». Этот код ещё не установлен в production bundle; положительный GUI registration/root peer на нём требует отдельного owner update.
@@ -108,13 +110,14 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 ## Code anchors
 
 | Компонент | Code |
+|---|---|
+| Одно административное чтение после завершённого GUI update | `scripts/gui-helper-state.py`, `scripts/gui-helper-state-dry-run.py` |
 | Изолированный GUI probe, static/process/owner gates | `Diagnostics/RegistrationProbe/ProbeApp.swift`, `Diagnostics/RegistrationProbe/ProbeBundle.swift` |
 | Noop daemon и отдельная сборка | `Diagnostics/RegistrationProbe/ProbeDaemon.swift`, `scripts/build-registration-probe.py` |
 | Полный owner run и модель | `scripts/registration-probe-session.py`, `scripts/registration-probe-dry-run.py` |
 | Завершение переноса stopped probe без lifecycle повторов | `scripts/registration-probe-archive.py`, `scripts/registration-probe-archive-dry-run.py` |
 | GUI state/registration и per-owner marker | `Sources/Ventilator/HelperSetupView.swift`, `Sources/VentilatorInstallation/HelperSetupModel.swift`, `Sources/VentilatorInstallation/GUIRegistrationAttempt.swift` |
 | Полный diagnostic GUI update | `scripts/gui-helper-update.py`, `scripts/gui-helper-update-dry-run.py` |
-|---|---|
 | Layout, подписи, root ownership и runtime | `Sources/VentilatorInstallation/SignedBundleInspector.swift` |
 | Путь загруженного executable | `Sources/VentilatorInstallation/CurrentExecutable.swift` |
 | XPC peer, nonce, fingerprint и срок | `Sources/VentilatorInstallation/InstalledHelperClient.swift`, `Sources/VentilatorControl/HelperProtocol.swift` |
@@ -126,6 +129,22 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 | Диагностическое обновление неподтверждённого профиля | `scripts/read-only-update-dry-run.py`, `Sources/VentilatorHelper/SessionRuntimeCheck.swift` |
 | Снимок system job / BTM и один owner цикл системного разрешения | `scripts/helper-registration-diagnostics.py`, `scripts/helper-registration-diagnostics-dry-run.py` |
 | Проверки | `Tests/VentilatorInstallationTests/InstallationTests.swift`, `scripts/installation-dry-run.py` |
+
+### Scenario: Administrative read сохраняет расхождение регистрации и root job
+
+**Дано:** completed GUI update с enabled/remoteFailure, сохранёнными signed hashes и private GUI attempt.
+**Когда:** владелец один раз запускает pinned collect в своём обычном Terminal.
+**Тогда:** читаются только system job и BTM; сохраняются только parent/helper records Ventilator вместе с UID. Absent job даёт rootJobAbsent, loaded job — rootPeerUnverified; registrationStatus остаётся null, nativeVerificationAttempted/helperVerified=false. Аппаратных записей нет.
+
+**Automated:** `scripts/gui-helper-state-dry-run.py`
+
+### Scenario: Неизвестное состояние и повтор административного чтения останавливаются
+
+**Дано:** changed package/installed/GUI/boot, unsafe marker, failed qualification, неполный read или уже созданный started.
+**Когда:** выполняется collect.
+**Тогда:** admission failures не доходят до root read, replay не повторяет root read; read failures сохраняют diagnosticIncomplete, изменение во время чтения останавливает следующий read. Framework/registration/XPC и прежние файлы не мутируются.
+
+**Automated:** `scripts/gui-helper-state-dry-run.py`
 
 ### Scenario: Ad hoc bundle не устанавливает helper
 

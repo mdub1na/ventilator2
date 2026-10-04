@@ -16,6 +16,10 @@
 
 ## M2 — подготовка единственного опыта
 
+GUI update PR #34 выполнен владельцем: signed/root-owned replacement совпадает с seal, old backup и десять protected директорий сохранены. Одно GUI register записано; macOS запретила bootstrap до helper startup. Итог CLI — enabled/remoteFailure, system job отсутствует (113), helperVerified=false. Нужен один [administrative read-only снимок](docs/gui-helper-state-owner.md) текущих parent/helper BTM records. Новая подпись, замена, register или OFF/ON сейчас не обоснованы. Подготовлен отдельный pinned collector, 19 workflow models прошли; actual root BTM read требует owner Terminal. Аппаратный M2 остаётся закрытым. [Факты](docs/research/evidence/gui-helper-update-result.json).
+
+### Предыдущая подготовка GUI update
+
 GUI source шаг объединён в PR #33. Подготовлен следующий полный [owner GUI update](docs/gui-helper-owner-update.md): новая подпись/qualification до root действий, conditional removal/exact backup/replacement, explicit GUI register, один status/job snapshot и conditional unsupportedMachine status. Cold diagnostic startup теперь не создаёт отсутствующее simulation storage. 19 workflow models и native anonymous XPC/loopback прошли; actual подпись/замена/root positive ещё требуют владельца. Аппаратный M2 остаётся закрытым. [Подготовка](docs/research/evidence/gui-helper-update-preparation.json).
 
 Probe cleanup завершён: exact signed тестовое приложение архивировано, его current state=notRegistered, system job absent; старые пакеты/production копия сохранены. Реализуется следующий source шаг — GUI состояние и sole helper register с persistent marker; positive production GUI/root result ещё не подтверждён. После проверки/merge исходников нужен отдельный полный owner update с новой подписью до системных изменений. [Архив](docs/research/evidence/registration-probe-archive-result.json), [экран](docs/screens/screen-application.md).
