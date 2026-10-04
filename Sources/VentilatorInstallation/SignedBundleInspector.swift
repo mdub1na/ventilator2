@@ -33,9 +33,10 @@ public struct SignedBundleProof {
 
 /// Static signatures plus exact launch layout; this proves neither registration nor a running daemon.
 public enum SignedBundleInspector {
+    public static let applicationIdentifier = "dev.ventilator.app"
     public static let installedPath = "/Applications/Ventilator.app"
-    public static let plistName = "dev.ventilator.helper.plist"
-    public static let machService = "dev.ventilator.helper"
+    public static let plistName = "dev.ventilator.app.helper.plist"
+    public static let machService = "dev.ventilator.app.helper"
     // checkTrustedAnchors is rejected by validation on this macOS (errSecCSInvalidFlags).
     // Apple anchoring is required by the explicit requirement; expiry/network policy stays enforced.
     internal static let offlineFlags: SecCSFlags = [.considerExpiration, .noNetworkAccess]
@@ -53,13 +54,15 @@ public enum SignedBundleInspector {
         let helper = bundle.appendingPathComponent("Contents/MacOS/VentilatorHelper")
         let plist = bundle.appendingPathComponent("Contents/Library/LaunchDaemons/\(plistName)")
         let info = bundle.appendingPathComponent("Contents/Info.plist")
+        let daemonFiles = try FileManager.default.contentsOfDirectory(atPath: plist.deletingLastPathComponent().path)
+        guard Set(daemonFiles) == [plistName] else { throw InstallationError.invalidLayout }
         for file in [app, helper, plist, info] {
             guard file.resolvingSymlinksInPath().path == file.path,
                   (try file.resourceValues(forKeys: [.isRegularFileKey])).isRegularFile == true else { throw InstallationError.invalidLayout }
         }
         let launchData = try boundedData(plist, maximum: 16_384), infoData = try boundedData(info, maximum: 16_384)
         try validateLayout(launchData: launchData, infoData: infoData)
-        let applicationInfo = try signature(bundle, identifier: "dev.ventilator.macos")
+        let applicationInfo = try signature(bundle, identifier: applicationIdentifier)
         let helperInfo = try signature(helper, identifier: machService, team: applicationInfo.team)
         return .init(bundleURL: bundle, teamIdentifier: applicationInfo.team,
             applicationCDHash: applicationInfo.cdhash, helperCDHash: helperInfo.cdhash,
@@ -76,7 +79,7 @@ public enum SignedBundleInspector {
               let services = launch["MachServices"] as? [String: Any], Set(services.keys) == [machService],
               let enabled = services[machService] as? NSNumber, CFGetTypeID(enabled) == CFBooleanGetTypeID(), enabled.boolValue,
               let info = try PropertyListSerialization.propertyList(from: infoData, format: nil) as? [String: Any],
-              info["CFBundleIdentifier"] as? String == "dev.ventilator.macos",
+              info["CFBundleIdentifier"] as? String == applicationIdentifier,
               info["CFBundleExecutable"] as? String == "Ventilator", info["CFBundlePackageType"] as? String == "APPL" else {
             throw InstallationError.invalidLayout
         }
@@ -106,7 +109,7 @@ public enum SignedBundleInspector {
         let hash = role == .application ? proof.applicationCDHash : proof.helperCDHash
         guard validTeam(proof.teamIdentifier), [40, 64].contains(hash.utf8.count),
               hash.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }) else { throw InstallationError.runtimeIdentityRejected }
-        let identifier = role == .application ? "dev.ventilator.macos" : machService
+        let identifier = role == .application ? applicationIdentifier : machService
         return "anchor apple generic and identifier \"\(identifier)\" and certificate leaf[subject.OU] = \"\(proof.teamIdentifier)\" and cdhash H\"\(hash)\""
     }
 

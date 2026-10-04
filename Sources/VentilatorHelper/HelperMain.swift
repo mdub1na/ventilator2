@@ -9,7 +9,7 @@ import VentilatorInstallation
 enum HelperMain {
     static func main() {
         let arguments = Array(CommandLine.arguments.dropFirst())
-        let startupLog = Logger(subsystem: "dev.ventilator.helper", category: "startup")
+        let startupLog = Logger(subsystem: SignedBundleInspector.machService, category: "startup")
         var startupStage = "command"
         do {
             if arguments == ["--hardware-broker"] { try runPreparedHardwareBroker(); return }
@@ -142,7 +142,7 @@ enum HelperMain {
             let server = try HelperServer(acceptance: .signedApplication(proof: proof),
                                           directory: URL(fileURLWithPath: "/Library/Application Support/Ventilator/HelperSimulation", isDirectory: true))
             startupStage = "listener"
-            let listener = NSXPCListener(machServiceName: "dev.ventilator.helper")
+            let listener = NSXPCListener(machServiceName: SignedBundleInspector.machService)
             listener.delegate = server
             listener.resume()
             startupLog.notice("Daemon listener ready")

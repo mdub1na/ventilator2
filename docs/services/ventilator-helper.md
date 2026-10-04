@@ -12,6 +12,8 @@ publishes: [VentilatorHelper]
 
 # Помощник
 
+Реализована новая compiled identity `dev.ventilator.app` / `dev.ventilator.app.helper` с одноимённым plist; Apple anchor/Team/CDHash и root peer gates сохранены. Старые identities и лишний legacy plist отвергаются до signature/framework. 29 installation/setup tests, strict ad hoc build и anonymous XPC/runtime models прошли. Это **source verification**, installed версия ещё прежняя. Полный [owner сеанс новой identity](../gui-helper-identity-owner.md) проверяет гипотезу сохранённой истории: positive qualification до lifecycle, pending/absent-only old removal, exact backup, sole GUI register и раздельные CONNECTED → ON → ALLOW/NONE. Hardware writes=[], actual новая регистрация пока не выполнена. [Source evidence](../research/evidence/helper-identity-source-preparation.json).
+
 После owner включения actual AX ON независимо подтверждён; единственный native status в 19:13:33 +05:00 остался **requiresApproval/serviceNotEnabled**, helperVerified=false. CLI exit 0 означает завершение диагностики. Frozen continuation4, completed reconnect30, protected12, installed5 и private GUI2 сохранены; runtime отсутствует, hardware writes 0. ON не привёл к root positive. Повтор статуса/регистрации не выполняется; исследуется системный допуск. [Actual result](../research/evidence/gui-helper-enable-result.json).
 
 Владелец подтвердил, что после последнего register пропустил ON. Подготовлено [продолжение только с включением фоновой активности](../gui-helper-enable-owner.md): существующая установка/регистрация сохраняются, после owner ON агент независимо проверяет переключатель и делает один bounded native status. Повтор signing/reconnect/register не нужен. ON/positive root пока не подтверждены, hardware writes 0.
@@ -40,7 +42,7 @@ SwiftPM собирает отдельный исполняемый файл и �
 
 `scripts/build-app.sh` собирает оба бинарника, помещает plist, подписывает helper и bundle, проверяет каждую подпись. По умолчанию ad hoc. `VENTILATOR_SIGN_IDENTITY` позволяет использовать уже настроенную identity; самостоятельно сертификаты скрипт не создаёт.
 
-Обычный режим демона требует root, текущий signed/root-owned `/Applications/Ventilator.app`, точный app/helper/LaunchDaemon layout и динамическую подпись helper по CDHash. Перед приёмом сообщений требует Apple anchor, identifier `dev.ventilator.macos`, тот же Team ID и CDHash конкретного app. При отсутствии условий — exit 78. Происхождение от launchd отдельно не проверяется; клиент дополнительно подтверждает живой root peer через bound XPC. Реальные подписи/root-owned installed app gate и защищённая замена подтверждены. Первая framework регистрация создала BTM record и вернула error 1 до административного одобрения; read-only status=requiresApproval. **Положительный privileged XPC не проверен**. Team `4659S5GD6X`; [фактическое состояние](../research/evidence/owner-helper-approval-pending.json). [Gate и его границы](../features/feature-helper-installation.md).
+Обычный режим демона требует root, текущий signed/root-owned `/Applications/Ventilator.app`, точный app/helper/LaunchDaemon layout и динамическую подпись helper по CDHash. Перед приёмом сообщений требует Apple anchor, identifier `dev.ventilator.app`, тот же Team ID и CDHash конкретного app. При отсутствии условий — exit 78. Происхождение от launchd отдельно не проверяется; клиент дополнительно подтверждает живой root peer через bound XPC. Реальные подписи/root-owned installed app gate и защищённая замена подтверждены. Первая framework регистрация создала BTM record и вернула error 1 до административного одобрения; read-only status=requiresApproval. **Положительный privileged XPC не проверен**. Team `4659S5GD6X`; [фактическое состояние](../research/evidence/owner-helper-approval-pending.json). [Gate и его границы](../features/feature-helper-installation.md).
 
 `--loopback-check` использует приватный anonymous listener и клиента в том же непривилегированном процессе; его acceptance обход относится только к симуляционному anonymous listener. Публичный daemon listener эту политику не использует. Подход anonymous listener для начального XPC рекомендует [Apple DTS](https://developer.apple.com/forums/thread/799910).
 
@@ -121,6 +123,7 @@ Dry-run проверяет настоящий обмен XPC, binding соеди
 | Installed signature/lifecycle/XPC | `Sources/VentilatorInstallation/`, `Sources/Ventilator/HelperServiceCLI.swift`, `scripts/installation-dry-run.py` |
 | Режимы запуска | `Sources/VentilatorHelper/HelperMain.swift` |
 | Локальное одобрение и restart | `Sources/VentilatorHelper/LocalApprovalCLI.swift`, `Sources/VentilatorExperiment/LocalApprovalIssuer.swift`, `Sources/VentilatorExperiment/BrokerRestartRecovery.swift`, `scripts/local-approval-restart-dry-run.py` |
-| Plist и сборка | `Resources/dev.ventilator.helper.plist`, `scripts/build-app.sh` |
+| Fresh identity orchestration | `scripts/gui-helper-identity.py`, `scripts/gui-helper-identity-dry-run.py` |
+| Plist и сборка | `Resources/dev.ventilator.app.helper.plist`, `scripts/build-app.sh` |
 
 См. [подставные сценарии](../features/feature-control-simulation.md) и [архитектуру](../research/research-architecture.md).

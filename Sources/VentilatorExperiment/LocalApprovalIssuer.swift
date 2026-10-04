@@ -39,7 +39,7 @@ public final class LocalApprovalIssuer {
         }
         guard ExperimentMachine.current() == .candidate else { throw NativeExperimentError.unsupportedMachine }
         guard trustedHelperAndApplication() else { throw NativeExperimentError.untrustedSignature }
-        guard SMAppService.daemon(plistName: "dev.ventilator.helper.plist").status == .enabled else {
+        guard SMAppService.daemon(plistName: SignedBundleInspector.plistName).status == .enabled else {
             throw LocalApprovalError.installationNotEnabled
         }
         guard let boot = currentBootSession() else { throw NativeExperimentError.wrongBootSession }

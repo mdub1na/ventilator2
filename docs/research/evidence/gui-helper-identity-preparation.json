@@ -1,0 +1,55 @@
+{
+  "preparedAt": "2026-10-04T19:59:16.979603+05:00",
+  "sessionPath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/gui-helper-identity-owner",
+  "packageFilesSHA256": {
+    "PLAN.md": "24f540637570eba34cc339c4451811575448ec9e46f664e71cef6aab524597cc",
+    "manifest.json": "0b7ceb41a2241ac37a93bf630331ea31492f58be304feaee296ea973ca12dac5",
+    "payload.app/Contents/Info.plist": "3a3b7afdc2e6c2e73b024be1ede9f85c1db06c245ccc360afc5b42e69b92a2f2",
+    "payload.app/Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b",
+    "payload.app/Contents/MacOS/Ventilator": "8cc0713f543b54074f5b5999b18a220cbc6502a0fde26c941687bbffc0528bff",
+    "payload.app/Contents/MacOS/VentilatorHelper": "8e6bac7c589002a442d1cd72621af712e016546234c8f812d1b3398705f9eaf4",
+    "payload.app/Contents/_CodeSignature/CodeResources": "9ddc9c441df3c56f3bfa572f41fbd0e917bec2126cfa1017907e7a01bdcd787a",
+    "session.py": "07a841a2d5dc53252628d49ba9c8271533857cb96235fa875ff75e3ad4d01093"
+  },
+  "planSHA256": "24f540637570eba34cc339c4451811575448ec9e46f664e71cef6aab524597cc",
+  "scriptSHA256": "07a841a2d5dc53252628d49ba9c8271533857cb96235fa875ff75e3ad4d01093",
+  "machine": {
+    "model": "Mac15,7",
+    "version": "27.0.1",
+    "build": "26A434"
+  },
+  "bootUUID": "277d8b80-f202-4926-9318-bde81f25c8e0",
+  "identities": {
+    "previousApplication": "dev.ventilator.macos",
+    "previousHelper": "dev.ventilator.helper",
+    "application": "dev.ventilator.app",
+    "helper": "dev.ventilator.app.helper"
+  },
+  "certificate": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+  "team": "4659S5GD6X",
+  "previousFingerprint": {
+    "applicationSHA256": "cf2b98b36f52a1c112dac327ae0ab5807c9db3721810fbe57c4e278667bd7157",
+    "helperSHA256": "445228b93de5ef2903799c2837887bc670ab3a937e33ed9a1470ce440f1b4971",
+    "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+  },
+  "protectedDirectoryCount": 14,
+  "previousInstalledFileCount": 5,
+  "previousPrivateGUIFileCount": 2,
+  "verification": {
+    "frozenCheck": "passed",
+    "headlessRun": "owner TTY refused before marker/actions; original eight files unchanged",
+    "compositionModels": 25,
+    "preservedBaseModels": 19,
+    "docs": 13,
+    "bddScenarios": 111,
+    "docsErrors": 0,
+    "sourceEvidence": "docs/research/evidence/helper-identity-source-preparation.json"
+  },
+  "ownerSigningPerformed": false,
+  "installationPerformed": false,
+  "registrationPerformed": false,
+  "hardwareWrites": [],
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "actualNewHelperVerified": false
+}
