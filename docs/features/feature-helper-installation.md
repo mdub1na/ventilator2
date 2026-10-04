@@ -26,6 +26,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 ## Проверки и границы
 
+`prepare-after-restart` связывает новый frozen сеанс с завершённым NONE/absent-job snapshot и текущим boot UUID. Collector допускает только другую загрузку на той же owner/machine, без нового notification/toggle prompt. Before-marker gates сохраняют installed/source/backup/runtime; два bounded read и одна conditional peer проверка используют прежний diagnostic path. Это проверка гипотезы согласования состояния после перезапуска, а не обещание исправления consent. [Полный порядок](../helper-after-restart.md); аппаратных/registration/signing действий в нём нет. [Frozen пакет и 11 model paths](../research/evidence/after-restart-preparation.json) проверены, actual reboot/root peer остаются действиями владельца.
+
 `--inspect-signed-bundle [absolute-bundle-path]` проверяет только файлы указанного либо текущего bundle и возвращает registration=notQueried, helperVerified=false, hardwareControlAvailable=false. Ошибка подписи/layout даёт JSON с error и exit 78; relative/лишние arguments отвергаются до inspection. Этот путь не создаёт SMAppService и не связывается с XPC; canonical location/root ownership отражаются в отчёте, но не являются обязательными для статической диагностики. Replacement запускает pinned исходную app для чтения staging файлов, временная копия не исполняется. До обоих mv требуются trusted/root-owned exact fingerprint, installedLocation=false, notQueried, отсутствие error и peer/hardware claims.
 
 `--helper-status` допускает ServiceManagement только после non-root, статической подписи, canonical installed/root-owned bundle и динамической identity текущего процесса. При отказе registration остаётся notQueried; после допуска framework state читается один раз, peer проверяется только при enabled. Это предотвращает обновление BTM appURL диагностической временной копией; успех системного consent этим не заявляется. Frozen пакеты прежних сеансов и текущие signed installed binaries не изменяются при обновлении исходников.
@@ -348,6 +350,22 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** только SMAppServiceErrorDomain/code 1 с requiresApproval допускает diagnostic response; другие domain/code/status остаются ошибками без retry.
 
 **Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testRegistrationErrorNeedsActualPendingApprovalState`
+
+### Scenario: Проверка после перезапуска требует другой загрузки
+
+**Дано:** frozen пакет с prepared boot UUID и точными файлами завершённого NONE/absent-job snapshot, stopped update, installed и backup.
+**Когда:** подготовка либо collect выполняется при changed files/owner/machine/runtime или в прежней загрузке.
+**Тогда:** подготовка/допуск отказывает, same boot и existing runtime не создают marker и не вызывают sudo; новый collector не возобновляет старые пакеты и не предлагает UI цикл.
+
+**Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
+
+### Scenario: Новая загрузка не объявляет helper готовым без bound ответа
+
+**Дано:** другая загрузка на pinned неподтверждённой машине.
+**Когда:** collector выполняет два scoped administrative read и условную native peer проверку.
+**Тогда:** absent job остаётся systemApprovalPending; sudo/alarm/неизвестный BTM format запрещает peer; runtime appearance пропускает peer; timeout/плохой ответ остаётся unverified. Только exact bound positive даёт readOnlyHelperVerified, без hardware claim; повторы ничего не вызывают.
+
+**Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
 
 ### Scenario: Status временной или непроверенной копии не обращается к службе
 

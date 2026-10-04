@@ -1,0 +1,131 @@
+{
+  "purpose": "Prepared one boot-bound owner read-only inspection; reconciliation after restart remains a hypothesis",
+  "fullPlan": "docs/helper-after-restart.md",
+  "packagePath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/helper-after-restart",
+  "packageFilesSHA256": {
+    "PLAN.md": "b210eb4b7fd3205ca3ad046ffa610ec1e8e74fff564abec21e5c6044e8085850",
+    "manifest.json": "e580e64aec76b653dd7f934ccf4f4206ac02120d1e87f1912c6905f2678e8814",
+    "snapshot.py": "353089b3ecac98ff4a6096e13152690cb15bc165fb656bfa214de5ec8c03a499"
+  },
+  "manifest": {
+    "preparedAt": "2026-10-04T12:56:30+05:00",
+    "purpose": "readOnlyAfterRestartInspection",
+    "ownerUID": 501,
+    "ownerSource": "owner-profile-update-resume",
+    "ownerFilesSHA256": {
+      "PLAN.md": "1398cb5c17610d5bb9d75789b8d1d41505a1dda223011e164c83b1767a4037b1",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Ventilator.app/Contents/MacOS/Ventilator": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e7a4e6cd967b9c0bca58b89cb3bab152a66ef19ee6f0d545837624887445f20a",
+      "manifest.json": "97e91a491c1ecc904bcf05ca22a42deac7ec8919e36b6a32e8426a1f3fe01be3",
+      "qualification-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+      "registration-completed.json": "53c91e37554326945f707a236bc3aec825200fdd2b601c7cc69af08c84c6e24b",
+      "registration-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+      "removal-completed.json": "f3ddd594d48c0fad2f9fa2b53d4607c0b0dbc952e1c44c0bec0dd2607ba94411",
+      "removal-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38",
+      "replacement-completed.json": "8e5a07923399c65fdb765d1c0a4a8ba1034ce65d7c27ea7123c97dc0d15684f5",
+      "replacement-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38",
+      "sealed.json": "cbe21c549c2272806da821724572bb700717b5bd207fa7c0acf17a64e50aac28",
+      "session.py": "ab3b4bdd526850f535bc75c706c5ff3184cef9d9460080cabba2aa65b1b7db16",
+      "update-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38"
+    },
+    "installedFingerprint": {
+      "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "backupFilesSHA256": {
+      "Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb"
+    },
+    "scriptSHA256": "353089b3ecac98ff4a6096e13152690cb15bc165fb656bfa214de5ec8c03a499",
+    "planSHA256": "b210eb4b7fd3205ca3ad046ffa610ec1e8e74fff564abec21e5c6044e8085850",
+    "commands": {
+      "launchd": [
+        "/usr/bin/sudo",
+        "--",
+        "/usr/bin/perl",
+        "-e",
+        "alarm 5; exec \"/bin/launchctl\", \"print\", \"system/dev.ventilator.helper\"; die \"exec failed\\n\";"
+      ],
+      "btm": [
+        "/usr/bin/sudo",
+        "--",
+        "/usr/bin/perl",
+        "-e",
+        "alarm 20; exec \"/usr/bin/sfltool\", \"dumpbtm\"; die \"exec failed\\n\";"
+      ]
+    },
+    "readOnlyMachine": {
+      "model": "Mac15,7",
+      "version": "27.0.1",
+      "build": "26A434"
+    },
+    "hardwareWritesExecuted": 0,
+    "preparedBootUUID": "bd3b89ca-d3ae-493e-adc0-b532fe8a2f69",
+    "previousSnapshot": "helper-read-only-approval",
+    "previousSnapshotFilesSHA256": {
+      "PLAN.md": "751d1e0ae1e4886ac3a13c2c68b83c74a19bdcf6897422fbe450a0f4459c2f99",
+      "btm.json": "15d166e663f241644a222dfa13f65a48423dade2b0938050c7ebb98cd6ac9edd",
+      "launchd.json": "10923fca5c6668895327282fcfa6eb083ea9fc3ce3e9f74fde8159d9f010e4d9",
+      "manifest.json": "addf4d3ed34e91bc5e04fd4ede4e408f3aab6e604bdd68d47b9b305e59442caa",
+      "owner-action.json": "931295c3a04bd9944d3b0f4987cf78d9a2ba6753d2254a35f19b1e1e01aae944",
+      "result.json": "a856cd2332116aa44723e56905820f6f22021aba6b1eb15b8aa237ff5e84e707",
+      "snapshot.py": "028a5e1967826e409b410b8fe1cbdc631c83d2401c868c256bad01049b55a350",
+      "started.json": "f953503049fcc085ce19a6e948222427f5d543f5f3e903b71d2ae764e819d3ef"
+    }
+  },
+  "ownerSequence": [
+    "Save open work",
+    "Restart macOS once using the Apple menu",
+    "Log into the same owner account",
+    "Run the single frozen collect command in ordinary Terminal",
+    "Authenticate sudo if requested, then stop and report"
+  ],
+  "ownerCommand": "python3 /Users/mdub1na/IdeaProjects/ventilator2/.build/helper-after-restart/snapshot.py collect",
+  "actualCollection": false,
+  "actualNewRootPeerVerified": false,
+  "actualRebootPerformed": false,
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "preservation": {
+    "allUnchanged": true,
+    "fileCounts": {
+      "backup": 5,
+      "helper-read-only-approval": 8,
+      "helper-registration-approval": 8,
+      "helper-registration-diagnostics": 7,
+      "installed": 5,
+      "owner-profile-update": 12,
+      "owner-profile-update-resume": 17,
+      "owner-session": 15
+    }
+  },
+  "verification": {
+    "dryRun": "docs/research/evidence/after-restart-dry-run.txt",
+    "modelPaths": 11,
+    "actualNoTTY": {
+      "exitCode": 1,
+      "markerCreated": false,
+      "privilegedReadExecuted": false,
+      "message": "Run this one explicit action in the owner's non-root Terminal, without sudo"
+    },
+    "preparedPackageFiles": 3,
+    "docsCheck": {
+      "documents": 13,
+      "bddScenarios": 97,
+      "errors": 0
+    }
+  },
+  "hypothesis": {
+    "systemServiceStateMayReconcileAfterNormalRestart": true,
+    "established": false,
+    "restartGrantsAdministrativeConsent": false
+  },
+  "stop": "One boot-bound check only; preserve old/current packages. No setup/register/ready, signing, installation, OFF/ON or hardware experiment."
+}

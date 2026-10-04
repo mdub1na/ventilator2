@@ -1,0 +1,6 @@
+Post-restart dry-run: model fixtures only; no actual UI, root command, registration or installed app execution.
+Real non-root exec timer: sleeping utility terminated by SIGALRM; no sudo.
+Scoped BTM fixture: preserves UID/parent disposition, rejects unrelated/lookalike records and embedded numbering.
+Post-restart real preparation/check: completed source snapshot, installed copy, backup and prepared boot pinned; changed files and repeated preparation refused.
+Post-restart collection model: 11 boot/pending/peer/timeout/sudo/format/runtime/source-change paths; same boot and existing state refused before marker, no UI action, at most two bounded reads and one conditional peer check, replay blocked.
+Registration diagnostics dry-run passed; no registration, actual UI cycle, installed app execution, root commands or SMC.
