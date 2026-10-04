@@ -12,6 +12,8 @@ tags: [macOS, approval, XPC, broker, preparation]
 
 # Runtime владельческого опыта
 
+Owner сеанс новой identity завершён 2026-10-04 в 20:11:31 +05:00: **enabled, helperVerified=true, running root job PID 66079**, `readOnlyHelperVerified=true`. Owner сообщил ON и ALLOW; exact installed подпись/positive qualification и bound root XPC подтверждены. Сохранены 30 файлов completed пакета, old backup, 14 protected директорий и два прежних GUI marker; новый marker — третий. Staging/root runtime отсутствуют. Hardware status отдельно подтвердил **unsupportedMachine**, аппаратных записей 0, physicalAutoVerified=false. Завершённый run/register/ready не повторять. [Actual result](../research/evidence/gui-helper-identity-result.json).
+
 Подключена подготовленная experimental связка XPC → локальный receipt → отдельный broker. **Положительный hardware запуск не выполнялся.** Обычный GUI, `hardwareControlAvailable` и физическая квалификация остаются закрытыми. Этот документ описывает код и модельную проверку; он не разрешает запись на Mac15,7.
 
 ## Admission и процессы

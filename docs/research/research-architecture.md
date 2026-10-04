@@ -8,6 +8,14 @@ date: 2026-10-04
 
 # Исследование
 
+## Новая identity получила системное одобрение и root XPC — 2026-10-04
+
+Владелец завершил полный frozen сеанс в 20:11:31 +05:00. Positive qualification новой подписи прошла до lifecycle. New/old job lookups до removal дали 113, old guarded unregister — notRegistered; точная старая копия сохранена. Новый GUI register PID 65881 записал durable marker, owner отдельно подтвердил ON и **ALLOW**. Final actual report — **enabled/helperVerified=true/error absent**, installed/root-owned/trusted и fingerprint совпадают с seal. Административный launchd report показывает running root job `dev.ventilator.app.helper`, PID 66079, parent `dev.ventilator.app`, новый BTM UUID, runs=1, last exit never. Bound peer acceptance обеспечена прежними XPC PID/UID/nonce/Team/CDHash/fingerprint gates; отдельный launchd PID не подставляется вместо handshake.
+
+Сохранены 30 completed файлов, 14 protected директорий, old backup5 и old private GUI2; с новым marker private GUI содержит три файла. Script/PLAN/manifest неизменны, installed/payload совпадают с qualified seal. Staging и whole root runtime отсутствуют. Дополнительный уже выполненный owner status вернул unsupportedMachine/simulation idle, hardwareControlAvailable=false, hardwareExperiment absent. Hardware writes=0, physicalAutoVerified=false; аппаратный review/receipt/start не выполнялись. Перед replacement сообщения Bad request / job not found были ожидаемыми absent-job gates, не финальной ошибкой. [Полный результат](evidence/gui-helper-identity-result.json).
+
+Изолированная новая identity при том же сертификате/Team/current OS прошла admin/root путь. Это подтверждает выбранное решение и поддерживает гипотезу history-specific authorization; конкретная внутренняя причина старого BTM refusal **не доказана**. Lifecycle/ON/ready этого завершённого сеанса не повторяем. Далее нужен отдельный план текущего аппаратного профиля с повторным read-only preflight, сборкой/восстановлением, точными writes/hash и отдельным явным owner одобрением; работающее соединение helper такого разрешения не выдаёт. Immutable старый plan/profile не расширяется молча.
+
 ## Решение следующей проверки: отдельная app/helper identity — 2026-10-04
 
 Actual ON + stored child allowed при effective disallowed/LWCR=true исключают простое объяснение «переключатель не включён». Old child UUID пережил несколько штатных unregister/replacements. По Apple DTS unregister сохраняет response/history; в то же время отдельный owner GUI probe с новым app/helper identifier на этом Mac уже дал admin ALLOW и running root job при том же сертификате/Team. История старой identity является **проверяемой гипотезой**, а не установленным диагнозом; поздний source mainApp fix не объяснил отказ после ON.
