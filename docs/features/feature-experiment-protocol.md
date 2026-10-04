@@ -32,6 +32,8 @@ GUI не зависит от `VentilatorExperiment`/`CSMCExperiment`; CLI зав
 
 Timestamp берётся **до** первого чтения. Бюджет чтения — 0,5 с по `mach_continuous_time`; обратный/невалидный clock и медленный возврат отвергают снимок. Этот бюджет не отменяет синхронный IOKit; подготовленный общий broker получает снимки из отдельного reader процесса. Thermal pressure остаётся явным входом preflight, не скрывается отсутствием CPU/GPU-атрибуции.
 
+Read-only observer отдельно принимает диагностический профиль 27.0.1/26A434 и сохраняет actual version/build; writer/candidate/issuer/runtime остаются на 27.0.0/26A428. Смена профиля в середине чтения запрещена, включая переход между двумя разрешёнными read-only profiles. [Fresh observation](../research/evidence/current-profile-preflight.json).
+
 `--experiment-read-only` запускает только этот наблюдатель без root/одобрения и выводит снимок/результат preflight. Чтение на текущем Mac выполнено без sudo; [результат](../research/evidence/experiment-read-only.json). Успешный кандидатный preflight не разрешает аппаратные записи.
 
 ## Свежий ответ восстановителя
@@ -359,3 +361,11 @@ CLI `--approve-local-model <directory> <ownerUUID> <planSHA> <reviewSHA>` тре
 **Тогда:** restart отвергнут до closure и device доступа; попытки не изменены.
 
 **Automated:** `Tests/VentilatorExperimentTests/BrokerRestartRecoveryTests.swift::testWrongBootHashOrSessionCannotCloseOrRestore`
+
+### Scenario: Диагностический профиль не подставляется вместо аппаратного candidate
+
+**Дано:** Mac15,7/27.0.1/26A434 с проверенными ui8/flt read-only ключами.
+**Когда:** observer получает независимый снимок либо профиль меняется между началом и концом чтения.
+**Тогда:** успешный snapshot содержит actual version/build и не проходит прежний candidate preflight; изменившийся профиль отвергает весь снимок. Writer/approval/runtime guards не расширяются.
+
+**Automated:** `Tests/VentilatorExperimentTests/ReadOnlyExperimentObserverTests.swift::testDiagnosticProfileKeepsActualIdentityAndCannotPassCandidatePreflight`

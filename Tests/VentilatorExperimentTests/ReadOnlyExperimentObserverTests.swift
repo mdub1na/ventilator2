@@ -68,6 +68,21 @@ final class ReadOnlyExperimentObserverTests: XCTestCase {
         }
     }
 
+    func testDiagnosticProfileKeepsActualIdentityAndCannotPassCandidatePreflight() throws {
+        let source = Source(), context = Context()
+        context.machine = .diagnosticProfile
+        let observation = try observer(source, context).sample().observation
+        XCTAssertEqual(observation.snapshot.modelIdentifier, "Mac15,7")
+        XCTAssertEqual(observation.snapshot.macOSVersion, "27.0.1")
+        XCTAssertEqual(observation.snapshot.macOSBuild, "26A434")
+        XCTAssertEqual(observation.snapshot.fans.map(\.modeCode), [3, 3])
+        XCTAssertEqual(ExperimentVerification.preflight(observation.snapshot, now: context.date, thermalPressure: .nominal), .wrongMachine)
+        source.afterRead = { context.machine = .candidate }
+        XCTAssertThrowsError(try observer(source, context).sample()) {
+            XCTAssertEqual($0 as? ExperimentObservationError, .unsupportedMachine)
+        }
+    }
+
     func testWrongTypeOrSizeDoesNotUseAnIntelFallback() throws {
         let source = Source(), context = Context()
         source.values[.actualZero] = .init(type: 0x66706532, bytes: [0, 0])

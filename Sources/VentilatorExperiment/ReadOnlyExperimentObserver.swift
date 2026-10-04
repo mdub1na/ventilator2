@@ -10,6 +10,9 @@ public struct ExperimentMachine: Codable, Equatable, Sendable {
     public let build: String
     public init(model: String, version: String, build: String) { self.model = model; self.version = version; self.build = build }
     public static let candidate = ExperimentMachine(model: "Mac15,7", version: "27.0.0", build: "26A428")
+    /// Diagnostic reads only. This profile grants no hardware authority or candidate approval.
+    public static let diagnosticProfile = ExperimentMachine(model: "Mac15,7", version: "27.0.1", build: "26A434")
+    fileprivate var allowsDiagnosticRead: Bool { self == .candidate || self == .diagnosticProfile }
 
     public static func current() -> ExperimentMachine {
         let version = ProcessInfo.processInfo.operatingSystemVersion
@@ -80,7 +83,7 @@ public final class ReadOnlyExperimentObserver {
     }
 
     public static func native() throws -> ReadOnlyExperimentObserver {
-        guard ExperimentMachine.current() == .candidate else { throw ExperimentObservationError.unsupportedMachine }
+        guard ExperimentMachine.current().allowsDiagnosticRead else { throw ExperimentObservationError.unsupportedMachine }
         return try .init(source: NativeExperimentReadSource(), machine: ExperimentMachine.current,
                          clock: ExperimentMonotonicClock.now, date: Date.init, pressure: {
             switch ProcessInfo.processInfo.thermalState {
@@ -92,7 +95,8 @@ public final class ReadOnlyExperimentObserver {
     }
 
     public func sample() throws -> TimedExperimentObservation {
-        guard machine() == .candidate else { throw ExperimentObservationError.unsupportedMachine }
+        let observedMachine = machine()
+        guard observedMachine.allowsDiagnosticRead else { throw ExperimentObservationError.unsupportedMachine }
         let start = clock(), sampledAt = date()
         guard start.isFinite, start >= 0 else { throw ExperimentObservationError.invalidClock }
         var previous = start
@@ -130,10 +134,10 @@ public final class ReadOnlyExperimentObserver {
         }
         let thermal = pressure()
         try checkTime()
-        guard machine() == .candidate else { throw ExperimentObservationError.unsupportedMachine }
+        guard machine() == observedMachine else { throw ExperimentObservationError.unsupportedMachine }
         try checkTime() // Include the final identity check in the sample budget.
-        let snapshot = MonitorSnapshot(modelIdentifier: ExperimentMachine.candidate.model,
-            macOSVersion: ExperimentMachine.candidate.version, macOSBuild: ExperimentMachine.candidate.build,
+        let snapshot = MonitorSnapshot(modelIdentifier: observedMachine.model,
+            macOSVersion: observedMachine.version, macOSBuild: observedMachine.build,
             sampledAt: sampledAt, fans: fans, temperatures: [], smcAvailable: true)
         return .init(observation: .init(snapshot: snapshot, thermalPressure: thermal, testModeCode: testMode),
                      readSeconds: previous - start)

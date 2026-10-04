@@ -8,6 +8,12 @@ date: 2026-10-04
 
 # Исследование
 
+## Read-only preflight текущего профиля — 2026-10-04
+
+После подтверждённого root helper следующий независимый reader старой signed сборки отказал unsupportedMachine **до SMC open**: observer тоже ограничен прежним candidate 27.0.0/26A428. Это source blocker для исследования, а не отказ управления на оборудовании. [Actual refusal](evidence/current-profile-preflight.json).
+
+Решение — отдельный диагностический профиль Mac15,7/27.0.1/26A434 только для `ReadOnlyExperimentObserver`. Writer/runtime/local issuer/candidate/native C guards остаются прежними. Snapshot обязан нести actual профиль, а не прежние candidate constants, и повторно проверять неизменность профиля после чтения; переход даже между двумя допустимыми read-only профилями запрещён. Поэтому diagnostic sample не может пройти прежний candidate preflight/approval. Разрешение на чтение не считается аппаратной квалификацией. Проверка выполнена: 24 targeted tests без ошибок, build/strict verify; один успешный bounded non-root reader новой ad hoc research сборки дал current actual профиль, Ftst=0, mode3/mode3, actual/target=0, прежние exact ranges, thermalPressure=nominal и readSeconds=0.0037753. Preflight остался wrongMachine; это fresh observation, не write approval. Первая sandboxed попытка отказала connectionUnavailable; bounded non-root read вне sandbox прошёл, поэтому sandbox отказ не записывается как аппаратная несовместимость. Installed signed helper и completed пакеты не меняются.
+
 ## Новая identity получила системное одобрение и root XPC — 2026-10-04
 
 Владелец завершил полный frozen сеанс в 20:11:31 +05:00. Positive qualification новой подписи прошла до lifecycle. New/old job lookups до removal дали 113, old guarded unregister — notRegistered; точная старая копия сохранена. Новый GUI register PID 65881 записал durable marker, owner отдельно подтвердил ON и **ALLOW**. Final actual report — **enabled/helperVerified=true/error absent**, installed/root-owned/trusted и fingerprint совпадают с seal. Административный launchd report показывает running root job `dev.ventilator.app.helper`, PID 66079, parent `dev.ventilator.app`, новый BTM UUID, runs=1, last exit never. Bound peer acceptance обеспечена прежними XPC PID/UID/nonce/Team/CDHash/fingerprint gates; отдельный launchd PID не подставляется вместо handshake.
