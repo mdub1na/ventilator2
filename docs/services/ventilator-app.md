@@ -12,6 +12,8 @@ publishes: [Ventilator.app]
 
 # Приложение
 
+Следующая диагностическая проверка подготовлена в отдельном приложении с собственными app/service IDs и noop daemon, без production модулей и аппаратного транспорта. Это GUI/consent/bootstrap isolation, не новый runtime Ventilator. Последующий прямой status текущей установки подтвердил requiresApproval; активный переключатель Settings не подтвердил root readiness. [Факт](../research/evidence/post-restart-framework-state.json), [отдельный полный план](../registration-probe-owner.md). До owner подписи/system approval actual probe ещё не запускался.
+
 ## Ответственность
 
 Текущий Mac обновлён до **27.0.1/26A434**. Обычный read-only probe прочитал два вентилятора с прежними диапазонами и mode=3, без подмены неподтверждённых температур. Аппаратные gates остаются на immutable candidate **27.0.0/26A428**. Отдельный `update-read-only` пакет меняет только диагностическую сборку с one-shot owner sequence/sign/qualification/backup; hardware review и команды опыта в нём исключены. Installed root peer новой сборки ещё не проверен. [Новые факты](../research/evidence/owner-system-approval-result.json), [подготовка](../research/evidence/owner-profile-update-package.json).
