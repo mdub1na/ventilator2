@@ -8,6 +8,16 @@ date: 2026-10-04
 
 # Исследование
 
+## Отдельный аппаратный candidate v4 для 26A434 — 2026-10-04
+
+Fresh non-root independent reader подтвердил на текущем Mac actual profile, exact ui8/flt metadata, Ftst0/mode3, прежние ranges и nominal pressure. Вместе с qualified signed/root-installed XPC это снимает preparatory blockers; **возможность записи и physical Auto всё ещё не проверены**. Решение — новый candidate **schema4 / Mac15,7 / 27.0.1 / 26A434**, а не расширение сохранённого schema3 плана. Все старые signed binaries, PLAN/review/seals/receipts остаются immutable в protected пакетах. Новая версия отвергает прежний профиль и schema3 review; никаких general macOS ranges или wildcard model/build не добавляется.
+
+Пять Fixed + пять Auto steps/bytes, lease10/heartbeat2/restore8 и device lifetime lock остаются прежними. Candidate-unapproved/readyForOwnerApproval=false, GUI hardware controls=false и mandatory installed/current-signature/root/local full-review receipt/boot/hash/preflight/recovery guards сохраняются. Source constructor/preflight/authority/monitoring/native C/model fixtures переключаются согласованно на единственный новый candidate. Legacy profile остаётся отдельным read-only profile; его snapshot не проходит новый preflight. Перед первым аппаратным действием нужны build/tests/restoration models и полный owner PLAN с signed hashes, точными десятью writes, stop/contingency и одним explicit TTY APPROVE.
+
+Source v4 проверен: 119 unit tests без ошибок; anonymous XPC matrix отвергает legacy 27.0.0/26A428, current version с неверным build и unknown model. Два session и два startup recovery models прошли; десять native packet descriptions совпадают с candidate, loopback/strict signature прошли, non-root broker/preflight отказали 78 до аппаратного доступа. Это проверка реализации, не actual root runtime новой версии. [Source evidence](evidence/current-experiment-source.json).
+
+Подготовлен единый private frozen owner пакет из восьми файлов: полный PLAN SHA-256 `04f1ea3c1fa82bc4ea19dfef1b0de6404ff5a7402b2a0a54b145a25e5a4bf040`, десять chronological writes, 15 protected директорий, installed5/private GUI3/current boot pins. Frozen check прошёл; headless run отказал 78 до started marker и сохранил пакет. 28 composition models проверили отмены, отказ подписи, old/new peer/job guards, cold authority, review import через реальный TTY, итоговый audit при отказе клиента и отсутствие повторов. Два неисполненных draft пакета сохранены. PLAN занимает 12000 UTF-8 bytes, полный review до подписи — 15132, оба помещаются в native limits. Сеанс ещё **не запускался**: новой owner signing/installation/root-runtime/approval и hardware writes нет, physical Auto не квалифицирован. Installed/protected/private GUI файлы неизменны, whole root runtime отсутствует. [Полный owner PLAN](../current-hardware-owner.md), [preparation evidence](evidence/current-hardware-preparation.json).
+
 ## Read-only preflight текущего профиля — 2026-10-04
 
 После подтверждённого root helper следующий независимый reader старой signed сборки отказал unsupportedMachine **до SMC open**: observer тоже ограничен прежним candidate 27.0.0/26A428. Это source blocker для исследования, а не отказ управления на оборудовании. [Actual refusal](evidence/current-profile-preflight.json).

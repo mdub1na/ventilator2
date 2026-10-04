@@ -38,7 +38,7 @@ static int identity_matches(void) {
     size_t modelSize = sizeof(model), buildSize = sizeof(build);
     return sysctlbyname("hw.model", model, &modelSize, NULL, 0) == 0 &&
            sysctlbyname("kern.osversion", build, &buildSize, NULL, 0) == 0 &&
-           strcmp(model, "Mac15,7") == 0 && strcmp(build, "26A428") == 0;
+           strcmp(model, "Mac15,7") == 0 && strcmp(build, "26A434") == 0;
 }
 
 int32_t SMCExperimentDescribeStep(uint32_t step, SMCExperimentStep *description) {

@@ -4,9 +4,9 @@ import VentilatorExperiment
 
 /// Real anonymous XPC routes into the same session proxy, with immutable simulation authority.
 func sessionRuntimeCheck() throws {
-    for machine in [ExperimentMachine(model: "Mac15,7", version: "27.0.1", build: "26A434"),
-                    ExperimentMachine(model: "Mac15,7", version: "27.0.0", build: "other"),
-                    ExperimentMachine(model: "unknown", version: "27.0.0", build: "26A428")] {
+    for machine in [ExperimentMachine(model: "Mac15,7", version: "27.0.0", build: "26A428"),
+                    ExperimentMachine(model: "Mac15,7", version: "27.0.1", build: "other"),
+                    ExperimentMachine(model: "unknown", version: "27.0.1", build: "26A434")] {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ventilator-unsupported-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
         let server = try HelperServer(acceptance: .anonymousUnsupportedMachineModel(machine: machine), directory: directory)

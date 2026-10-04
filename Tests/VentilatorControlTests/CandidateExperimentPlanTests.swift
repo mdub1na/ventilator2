@@ -37,6 +37,19 @@ final class CandidateExperimentPlanTests: XCTestCase {
         }
     }
 
+    func testLegacySchemaAndProfileCannotAuthorizeCurrentCandidate() throws {
+        let current = CandidateExperimentPlan(binaries: binaries)
+        XCTAssertEqual(current.schemaVersion, 4)
+        XCTAssertEqual(current.macOSVersion, "27.0.1")
+        XCTAssertEqual(current.macOSBuild, "26A434")
+        var old = try XCTUnwrap(JSONSerialization.jsonObject(with: current.canonicalJSON()) as? [String: Any])
+        old["schemaVersion"] = 3; old["macOSVersion"] = "27.0.0"; old["macOSBuild"] = "26A428"
+        let legacy = try JSONDecoder().decode(CandidateExperimentPlan.self, from: JSONSerialization.data(withJSONObject: old))
+        XCTAssertNotEqual(try legacy.sha256(), try current.sha256())
+        XCTAssertFalse(legacy.matchesCandidate(binaries: binaries, observation: try SimulatedFanTransport().read(at: date), now: date))
+        XCTAssertThrowsError(try LocalApprovalReview(domain: .hardware, candidate: legacy, ownerInstructions: "legacy review"))
+    }
+
     func testCanonicalHashSurvivesSerializationOrderAndCandidateListsAllWrites() throws {
         let original = CandidateExperimentPlan(binaries: binaries)
         let decoded = try JSONDecoder().decode(CandidateExperimentPlan.self, from: JSONEncoder().encode(original))

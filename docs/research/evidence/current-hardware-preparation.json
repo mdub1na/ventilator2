@@ -1,0 +1,137 @@
+{
+  "preparedAt": "2026-10-04T21:29:37.178351+05:00",
+  "sessionPath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/current-hardware-owner",
+  "packageFilesSHA256": {
+    "PLAN.md": "04f1ea3c1fa82bc4ea19dfef1b0de6404ff5a7402b2a0a54b145a25e5a4bf040",
+    "manifest.json": "97dabd517e91c43be5abc683ec8c8e639c9a98a9bb9489ed7daea37f5549cd49",
+    "payload.app/Contents/Info.plist": "3a3b7afdc2e6c2e73b024be1ede9f85c1db06c245ccc360afc5b42e69b92a2f2",
+    "payload.app/Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b",
+    "payload.app/Contents/MacOS/Ventilator": "6f94b5508e6010a84f02d81d623907503daecf67a1c0a2e7df271b7c5df9b6e9",
+    "payload.app/Contents/MacOS/VentilatorHelper": "632e58c43c7161877f2cfc1ef4160ce6b98fc98e21440793912cab4c59add503",
+    "payload.app/Contents/_CodeSignature/CodeResources": "05df5fb8dfd6810bc7ba0f1cf834bed62df8a6e7d6f161dcff350a1afb4c6b53",
+    "session.py": "b08c2a1b8000bf423f547acefec8b208972f404c2af07cf9c68e898b2e910658"
+  },
+  "planSHA256": "04f1ea3c1fa82bc4ea19dfef1b0de6404ff5a7402b2a0a54b145a25e5a4bf040",
+  "scriptSHA256": "b08c2a1b8000bf423f547acefec8b208972f404c2af07cf9c68e898b2e910658",
+  "machine": {
+    "model": "Mac15,7",
+    "version": "27.0.1",
+    "build": "26A434"
+  },
+  "bootUUID": "277d8b80-f202-4926-9318-bde81f25c8e0",
+  "hardwareWrites": [
+    {
+      "dataType": "ui8 ",
+      "key": "Ftst",
+      "maximumAttempts": 1,
+      "payloadHex": "01",
+      "prerequisite": "approvedPreflightAndArmedRecovery"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "F0Md",
+      "maximumAttempts": 1,
+      "payloadHex": "01",
+      "prerequisite": "threeSecondWaitAndValidLease"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "F1Md",
+      "maximumAttempts": 1,
+      "payloadHex": "01",
+      "prerequisite": "precedingWriteSucceededAndValidLease"
+    },
+    {
+      "dataType": "flt ",
+      "key": "F0Tg",
+      "maximumAttempts": 1,
+      "payloadHex": "00401c45",
+      "prerequisite": "bothFansObservedManualAndValidLease"
+    },
+    {
+      "dataType": "flt ",
+      "key": "F1Tg",
+      "maximumAttempts": 1,
+      "payloadHex": "00401c45",
+      "prerequisite": "precedingWriteSucceededAndValidLease"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "F0Md",
+      "maximumAttempts": 1,
+      "payloadHex": "00",
+      "prerequisite": "pendingRecordAndWriterExited"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "F1Md",
+      "maximumAttempts": 1,
+      "payloadHex": "00",
+      "prerequisite": "writerExitedEvenIfOtherFanFailed"
+    },
+    {
+      "dataType": "flt ",
+      "key": "F0Tg",
+      "maximumAttempts": 1,
+      "payloadHex": "00000000",
+      "prerequisite": "fanZeroObservedNonManual"
+    },
+    {
+      "dataType": "flt ",
+      "key": "F1Tg",
+      "maximumAttempts": 1,
+      "payloadHex": "00000000",
+      "prerequisite": "fanOneObservedNonManual"
+    },
+    {
+      "dataType": "ui8 ",
+      "key": "Ftst",
+      "maximumAttempts": 1,
+      "payloadHex": "00",
+      "prerequisite": "bothFansObservedNonManual"
+    }
+  ],
+  "protectedDirectoryCount": 15,
+  "previousPrivateGUIFileCount": 3,
+  "sourceEvidence": "docs/research/evidence/current-experiment-source.json",
+  "verification": {
+    "frozenCheck": "passed",
+    "noTTYExitCode": 78,
+    "noTTYDiagnostic": "STOP: Use the owner's ordinary non-root Terminal, without outer sudo. Preserve all packages/root state. Do not repeat run/register/ready or hardware commands; follow PLAN.md.",
+    "noTTYMarkerCreated": false,
+    "packageUnchanged": true,
+    "compositionModels": 28,
+    "docs": 13,
+    "bdd": 114,
+    "docsErrors": 0,
+    "instructionsUTF8Bytes": 12000,
+    "reviewImportBytesBeforeSigning": 15132
+  },
+  "ownerSigningPerformed": false,
+  "ownerInstallationPerformed": false,
+  "ownerHardwareApprovalIssued": false,
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "unexecutedDraftsPreserved": {
+    "/Users/mdub1na/IdeaProjects/ventilator2/.build/current-hardware-owner-unexecuted-draft": {
+      "PLAN.md": "04f1ea3c1fa82bc4ea19dfef1b0de6404ff5a7402b2a0a54b145a25e5a4bf040",
+      "manifest.json": "061fae133f24d274602d78e097e89850a53bf59c54df416d20978146bc0cb5bc",
+      "payload.app/Contents/Info.plist": "3a3b7afdc2e6c2e73b024be1ede9f85c1db06c245ccc360afc5b42e69b92a2f2",
+      "payload.app/Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b",
+      "payload.app/Contents/MacOS/Ventilator": "59e18cab2631747495a7e28a8d21c0435fd97d4d3794e3e10ecb75e6e4459986",
+      "payload.app/Contents/MacOS/VentilatorHelper": "7e433fa2ed23fc6cf3651dc475207724c6a672e1fae0ccdaf0fb28b1d93635ad",
+      "payload.app/Contents/_CodeSignature/CodeResources": "b9eefda16a8b9c68249c6b5caa3f3972a3107887b65ea2deffc369d328cf1bb3",
+      "session.py": "e042c7f16f674bb1a053798943aff0598c2dbb6ceba405636e4cac892ee6019b"
+    },
+    "/Users/mdub1na/IdeaProjects/ventilator2/.build/current-hardware-owner-unexecuted-matrix-draft": {
+      "PLAN.md": "04f1ea3c1fa82bc4ea19dfef1b0de6404ff5a7402b2a0a54b145a25e5a4bf040",
+      "manifest.json": "aac234276cbd816c9d8c1727e9c23a486feb6e68a957b773aef36f9d5dcb1d30",
+      "payload.app/Contents/Info.plist": "3a3b7afdc2e6c2e73b024be1ede9f85c1db06c245ccc360afc5b42e69b92a2f2",
+      "payload.app/Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b",
+      "payload.app/Contents/MacOS/Ventilator": "59e18cab2631747495a7e28a8d21c0435fd97d4d3794e3e10ecb75e6e4459986",
+      "payload.app/Contents/MacOS/VentilatorHelper": "7e433fa2ed23fc6cf3651dc475207724c6a672e1fae0ccdaf0fb28b1d93635ad",
+      "payload.app/Contents/_CodeSignature/CodeResources": "b9eefda16a8b9c68249c6b5caa3f3972a3107887b65ea2deffc369d328cf1bb3",
+      "session.py": "b08c2a1b8000bf423f547acefec8b208972f404c2af07cf9c68e898b2e910658"
+    }
+  }
+}

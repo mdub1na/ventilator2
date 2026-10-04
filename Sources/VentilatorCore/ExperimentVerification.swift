@@ -29,8 +29,8 @@ public enum ExperimentVerification {
         thermalPressure: ThermalPressure
     ) -> PreflightFailure? {
         guard snapshot.modelIdentifier == "Mac15,7",
-              snapshot.macOSVersion == "27.0.0",
-              snapshot.macOSBuild == "26A428" else { return .wrongMachine }
+              snapshot.macOSVersion == "27.0.1",
+              snapshot.macOSBuild == "26A434" else { return .wrongMachine }
         guard snapshot.smcAvailable else { return .smcUnavailable }
         guard thermalPressure == .nominal else { return .thermalPressure }
         guard now.timeIntervalSince(snapshot.sampledAt) >= 0,
