@@ -9,6 +9,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import uuid
 from datetime import datetime
 
 
@@ -28,6 +29,7 @@ BTM_FIELDS = {"UUID", "Name", "Developer Name", "Team Identifier", "Type", "Flag
               "Identifier", "URL", "Executable Path", "Generation", "Last Use", "Parent Identifier", "Bundle Identifier"}
 READ_ONLY_SOURCE = "owner-profile-update-resume"
 READ_ONLY_SNAPSHOT = "helper-read-only-approval"
+AFTER_RESTART_SNAPSHOT = "helper-after-restart"
 READ_ONLY_BACKUP = Path("/Applications/Ventilator-before-profile-fix.bundle-backup")
 READ_ONLY_MACHINE = {"model": "Mac15,7", "version": "27.0.1", "build": "26A434"}
 
@@ -53,6 +55,10 @@ def machine():
     commands = {"model": ["/usr/sbin/sysctl", "-n", "hw.model"],
                 "version": ["/usr/bin/sw_vers", "-productVersion"], "build": ["/usr/bin/sw_vers", "-buildVersion"]}
     return {key: subprocess.check_output(command, text=True, timeout=5).strip() for key, command in commands.items()}
+
+
+def boot_session():
+    return str(uuid.UUID(subprocess.check_output(["/usr/sbin/sysctl", "-n", "kern.bootsessionuuid"], text=True, timeout=5).strip()))
 
 
 def save(path, value):
@@ -225,13 +231,53 @@ def prepare_read_only(repo, installed=Path("/Applications/Ventilator.app")):
     print(f"Prepared owner read-only consent inspection: {package}")
 
 
+def prepare_after_restart(repo, installed=Path("/Applications/Ventilator.app")):
+    if os.geteuid() == 0:
+        raise RuntimeError("Prepare as the ordinary developer, without sudo")
+    source = repo / ".build" / READ_ONLY_SNAPSHOT
+    previous = check(source, installed=installed)
+    source_files = tree_files(source)
+    expected = {"snapshot.py", "PLAN.md", "manifest.json", "started.json", "owner-action.json", "launchd.json", "btm.json", "result.json"}
+    result = json.loads((source / "result.json").read_text())
+    if (set(source_files) != expected or previous.get("purpose") != "readOnlyApprovalInspection" or
+            result.get("outcome") != "systemApprovalPending" or result.get("helperVerified") is not False or
+            result.get("hardwareWritesExecuted") != 0 or result.get("installedFingerprint") != previous["installedFingerprint"] or
+            result.get("scriptSHA256") != previous["scriptSHA256"] or result.get("planSHA256") != previous["planSHA256"] or
+            set(result.get("steps", {})) != {"launchd", "btm"} or
+            result.get("runtimeBefore", {}).get("lstatErrno") != 2 or result.get("runtimeAfter", {}).get("lstatErrno") != 2 or
+            result.get("ownerActionReported") != "NONE" or
+            json.loads((source / "owner-action.json").read_text()).get("action") != "NONE" or
+            result.get("steps", {}).get("launchd", {}).get("exitCode") != 113 or
+            result.get("steps", {}).get("btm", {}).get("complete") is not True or
+            result["steps"]["btm"].get("formatRecognized") is not True or
+            any(json.loads((source / f"{name}.json").read_text()) != result["steps"][name] for name in ["launchd", "btm"])):
+        raise RuntimeError("Completed unchanged NONE/absent-job read-only snapshot required")
+    if runtime_metadata().get("lstatErrno") != 2:
+        raise RuntimeError("Runtime must remain absent before preparing the restart check")
+    prepared_boot = boot_session()
+    package = repo / ".build" / AFTER_RESTART_SNAPSHOT
+    package.mkdir(mode=0o700)
+    shutil.copyfile(Path(__file__), package / "snapshot.py")
+    shutil.copyfile(repo / "docs/helper-after-restart.md", package / "PLAN.md")
+    manifest = {**previous, "preparedAt": now(), "purpose": "readOnlyAfterRestartInspection",
+                "preparedBootUUID": prepared_boot, "previousSnapshot": READ_ONLY_SNAPSHOT,
+                "previousSnapshotFilesSHA256": source_files,
+                "scriptSHA256": digest(package / "snapshot.py"), "planSHA256": digest(package / "PLAN.md")}
+    save(package / "manifest.json", manifest)
+    check(package, installed=installed)
+    if boot_session() != prepared_boot:
+        raise RuntimeError("Boot changed while preparing; preserve package")
+    print(f"Prepared one post-restart read-only check: {package}")
+
+
 def check(package, installed=Path("/Applications/Ventilator.app")):
     manifest = json.loads((package / "manifest.json").read_text())
     if digest(package / "snapshot.py") != manifest["scriptSHA256"] or digest(package / "PLAN.md") != manifest["planSHA256"]:
         raise RuntimeError("Diagnostic script/plan changed")
     if manifest["commands"] != COMMANDS or manifest["hardwareWritesExecuted"] != 0:
         raise RuntimeError("Diagnostic scope changed")
-    read_only = manifest.get("purpose") == "readOnlyApprovalInspection"
+    after_restart = manifest.get("purpose") == "readOnlyAfterRestartInspection"
+    read_only = after_restart or manifest.get("purpose") == "readOnlyApprovalInspection"
     if read_only and (manifest.get("ownerSource") != READ_ONLY_SOURCE or manifest.get("ownerUID") != os.getuid() or
                       manifest.get("readOnlyMachine") != READ_ONLY_MACHINE or machine() != READ_ONLY_MACHINE):
         raise RuntimeError("Read-only diagnostic owner/machine binding changed")
@@ -257,6 +303,11 @@ def check(package, installed=Path("/Applications/Ventilator.app")):
             raise RuntimeError("Previous backup changed")
     elif manifest.get("purpose", "readOnlySnapshot") != "readOnlySnapshot":
         raise RuntimeError("Unknown diagnostic purpose")
+    if after_restart:
+        uuid.UUID(manifest["preparedBootUUID"])
+        if (manifest.get("previousSnapshot") != READ_ONLY_SNAPSHOT or
+                tree_files(package.parent / READ_ONLY_SNAPSHOT) != manifest["previousSnapshotFilesSHA256"]):
+            raise RuntimeError("Completed previous snapshot changed")
     return manifest
 
 
@@ -269,7 +320,11 @@ def collect(package):
     owner_terminal()
     manifest = check(package)
     approval = manifest.get("purpose") == "oneSystemApprovalCycle"
-    read_only = manifest.get("purpose") == "readOnlyApprovalInspection"
+    after_restart = manifest.get("purpose") == "readOnlyAfterRestartInspection"
+    read_only = after_restart or manifest.get("purpose") == "readOnlyApprovalInspection"
+    current_boot = boot_session() if after_restart else None
+    if after_restart and current_boot == manifest["preparedBootUUID"]:
+        raise RuntimeError("macOS has not restarted since preparation; no marker or sudo command requested")
     if approval:
         unstarted_job_absent()
     if read_only and runtime_metadata().get("lstatErrno") != 2:
@@ -286,7 +341,11 @@ def collect(package):
             raise RuntimeError("Owner cycle not confirmed; no administrative snapshot requested")
         report["ownerActionReported"] = "One off/on cycle of Ventilator; authentication if prompted"
         save(package / "owner-action.json", {"reportedAt": now(), "action": report["ownerActionReported"], "hardwareWritesExecuted": 0})
-    if read_only:
+    if after_restart:
+        report["preparedBootUUID"] = manifest["preparedBootUUID"]
+        report["observedBootUUID"] = current_boot
+        report["purpose"] = manifest["purpose"]
+    elif read_only:
         answer = input("Inspect only Ventilator's Background Items Added notification. ALLOW after Allow/admin confirmation; NONE if absent; anything else cancels: ")
         if answer not in ("ALLOW", "NONE"):
             raise RuntimeError("Inspection cancelled; no administrative snapshot or helper request")
@@ -307,6 +366,9 @@ def collect(package):
             step["stdout"] = result.stdout
         report["steps"][name] = step
         save(package / f"{name}.json", step)
+        if after_restart and name == "btm" and not step["formatRecognized"]:
+            report["stoppedAt"] = "btmFormat"
+            break
         if result.returncode not in ((0, 113) if name == "launchd" else (0,)):
             report["stoppedAt"] = name
             break
@@ -353,14 +415,16 @@ def collect(package):
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("prepare", "prepare-approval", "prepare-read-only", "collect"):
+    if len(sys.argv) != 2 or sys.argv[1] not in ("prepare", "prepare-approval", "prepare-read-only", "prepare-after-restart", "collect"):
         raise RuntimeError("Use prepare from the repository or collect from the frozen diagnostic package")
     source = Path(__file__).absolute()
     if sys.argv[1] in ("prepare", "prepare-approval"):
         prepare(source.parent.parent, approval=sys.argv[1] == "prepare-approval")
     elif sys.argv[1] == "prepare-read-only":
         prepare_read_only(source.parent.parent)
-    elif source.parent.name in ("helper-registration-diagnostics", "helper-registration-approval", READ_ONLY_SNAPSHOT):
+    elif sys.argv[1] == "prepare-after-restart":
+        prepare_after_restart(source.parent.parent)
+    elif source.parent.name in ("helper-registration-diagnostics", "helper-registration-approval", READ_ONLY_SNAPSHOT, AFTER_RESTART_SNAPSHOT):
         collect(source.parent)
     else:
         raise RuntimeError("Collect only from the prepared .build/helper-registration-diagnostics/snapshot.py")

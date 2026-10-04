@@ -8,6 +8,14 @@ date: 2026-10-04
 
 # Исследование
 
+## Гипотеза для одной проверки после перезапуска macOS — 2026-10-04
+
+Read-only `sysctl kern.boottime kern.bootsessionuuid` вне sandbox вернул 2026-10-02 12:46:33 +05:00 и BD3B89CA-D3AE-493E-ADC0-B532FE8A2F69: после последней установки 4 октября macOS не перезапускалась. При запросе внутри sandbox было Operation not permitted, это не отказ владельцу. [Наблюдение загрузки](evidence/bundle-inspection-isolation.json).
+
+Гипотеза: обычный перезапуск может согласовать состояние системных служб с сохранённой регистрацией. Причина текущего отказа и успех этой гипотезы не установлены; перезапуск не выдаёт административное разрешение. [Apple register](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29) требует admin approval для bootstrap daemon; неподтверждённое разрешение нельзя трактовать как готовность только из-за новой загрузки.
+
+Реализован отдельный режим `prepare-after-restart` и [единый порядок владельца](../helper-after-restart.md): один обычный перезапуск, затем один owner Terminal collect из нового frozen пакета. Связаны boot UUID при подготовке, восемь файлов завершённого NONE/absent-job snapshot, stopped update/installed/backup и owner/machine. Same boot запрещён до marker/sudo; старые пакеты не возобновляются. Два bounded read и один conditional bound peer check сохраняют diagnostic scope, runtime/hash/owner/profile changes и partial/format failures останавливают зависимые действия. Аппаратных записей/одобрения, signing/install/register/OFF/ON нет. 11 model paths прошли вместе с прежними regression; actual frozen no-TTY отказал до marker, три подготовленных файла проверены. Все protected пакеты/installed/backup сохранены. Actual post-restart outcome ещё не проверен; следующий шаг требует одного обычного перезапуска владельцем. [Подготовка и проверки](evidence/after-restart-preparation.json).
+
 ## Разделение проверки файлов и службы — исследование 2026-10-04
 
 В `HelperServiceController.status()` создание `SMAppService.daemon` и чтение status выполнялись до проверки подписи, canonical installed path и process identity. `scripts/owner-session.py::replace_installed` использовал этот status для staging bundle. Scoped log в [снимке установки](evidence/owner-read-only-update-installed-pending.json) подтверждает временную смену BTM appURL на staging при таком запуске. Причинная связь с текущим отказом разрешения не установлена.

@@ -324,4 +324,112 @@ with tempfile.TemporaryDirectory(prefix="ventilator-readonly-consent-bindings-",
                 if substitution == "advanced-source": (source / "result.json").unlink()
         assert snapshot.tree_files(source) == before
 print("Real read-only package preparation/check: stopped source and backup preserved; changed source/installed/backup, owner, machine and advanced source refused.")
+
+old_boot, new_boot = "11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"
+
+
+def restart_fixture(base):
+    owner = base / ".build" / snapshot.READ_ONLY_SOURCE
+    source = base / ".build" / snapshot.READ_ONLY_SNAPSHOT
+    installed, backup = base / "installed", base / "backup"
+    for path in [owner, source, installed, backup, base / "docs"]: path.mkdir(parents=True)
+    (base / "docs/helper-after-restart.md").write_bytes((root / "docs/helper-after-restart.md").read_bytes())
+    (owner / "retained-file").write_text("model stopped update")
+    for name in snapshot.INSTALLED_FILES.values():
+        for parent in [installed, backup]:
+            target = parent / name; target.parent.mkdir(parents=True, exist_ok=True); target.write_text(str(parent.name) + name)
+    (source / "snapshot.py").write_text("model frozen previous script")
+    (source / "PLAN.md").write_text("model previous full plan")
+    fingerprint = {key: snapshot.digest(installed / name) for key, name in snapshot.INSTALLED_FILES.items()}
+    manifest = {"purpose": "readOnlyApprovalInspection", "ownerUID": os.getuid(), "ownerSource": snapshot.READ_ONLY_SOURCE,
+                "ownerFilesSHA256": snapshot.tree_files(owner), "backupFilesSHA256": snapshot.tree_files(backup),
+                "installedFingerprint": fingerprint, "scriptSHA256": snapshot.digest(source / "snapshot.py"),
+                "planSHA256": snapshot.digest(source / "PLAN.md"), "commands": snapshot.COMMANDS,
+                "readOnlyMachine": snapshot.READ_ONLY_MACHINE, "hardwareWritesExecuted": 0}
+    steps = {"launchd": {"exitCode": 113}, "btm": {"exitCode": 0, "complete": True, "formatRecognized": True}}
+    result = {"outcome": "systemApprovalPending", "helperVerified": False, "hardwareWritesExecuted": 0,
+              "runtimeBefore": {"lstatErrno": 2}, "runtimeAfter": {"lstatErrno": 2}, "ownerActionReported": "NONE",
+              "installedFingerprint": fingerprint, "scriptSHA256": manifest["scriptSHA256"], "planSHA256": manifest["planSHA256"], "steps": steps}
+    for name, value in {"manifest.json": manifest, "result.json": result, "owner-action.json": {"action": "NONE"},
+                        "started.json": {"hardwareWritesExecuted": 0}, "launchd.json": steps["launchd"], "btm.json": steps["btm"]}.items():
+        snapshot.save(source / name, value)
+    with patch.object(snapshot, "READ_ONLY_BACKUP", backup), patch.object(snapshot, "machine", return_value=snapshot.READ_ONLY_MACHINE), \
+            patch.object(snapshot, "runtime_metadata", return_value={"lstatErrno": 2}), patch.object(snapshot, "boot_session", return_value=old_boot):
+        snapshot.prepare_after_restart(base, installed=installed)
+    return base / ".build" / snapshot.AFTER_RESTART_SNAPSHOT, installed, backup, source
+
+
+with tempfile.TemporaryDirectory(prefix="ventilator-restart-bindings-", dir=root / ".build") as directory:
+    package, installed, backup, source = restart_fixture(Path(directory))
+    with patch.object(snapshot, "READ_ONLY_BACKUP", backup), patch.object(snapshot, "machine", return_value=snapshot.READ_ONLY_MACHINE):
+        manifest = snapshot.check(package, installed=installed)
+        assert manifest["preparedBootUUID"] == old_boot and manifest["previousSnapshotFilesSHA256"] == snapshot.tree_files(source)
+        for path in [source / "result.json", installed / snapshot.INSTALLED_FILES["helperSHA256"], backup / snapshot.INSTALLED_FILES["applicationSHA256"]]:
+            original = path.read_bytes(); path.write_bytes(original + b" altered")
+            try:
+                snapshot.check(package, installed=installed)
+                raise AssertionError("Changed restart binding admitted")
+            except RuntimeError: pass
+            path.write_bytes(original)
+        try:
+            with patch.object(snapshot, "boot_session", return_value=old_boot), patch.object(snapshot, "runtime_metadata", return_value={"lstatErrno": 2}):
+                snapshot.prepare_after_restart(Path(directory), installed=installed)
+            raise AssertionError("Existing restart package overwritten")
+        except FileExistsError: pass
+print("Post-restart real preparation/check: completed source snapshot, installed copy, backup and prepared boot pinned; changed files and repeated preparation refused.")
+
+for mode in ["same-boot", "pending", "verified", "bad-peer", "verification-timeout", "sudo-denied", "alarm", "btm-format", "runtime-present", "runtime-appeared", "source-changed"]:
+    with tempfile.TemporaryDirectory(prefix="ventilator-restart-collection-", dir=root / ".build") as directory:
+        package, installed, backup, source = restart_fixture(Path(directory))
+        manifest = json.loads((package / "manifest.json").read_text())
+        calls, runtime_calls = [], []
+        reply = {"registration": "enabled", "helperVerified": mode != "bad-peer", "fingerprint": manifest["installedFingerprint"],
+                 "trustedBundle": True, "rootOwned": True, "installedLocation": True, "hardwareControlAvailable": False}
+
+        def metadata():
+            runtime_calls.append(1)
+            return {"exists": True, "uid": 0} if mode == "runtime-present" or (mode == "runtime-appeared" and len(runtime_calls) >= 3) else {"lstatErrno": 2}
+
+        def command(argv, **kwargs):
+            calls.append(argv)
+            if argv == snapshot.COMMANDS["launchd"]:
+                code = 113 if mode == "pending" else 1 if mode == "sudo-denied" else -signal.SIGALRM if mode == "alarm" else 0
+                return subprocess.CompletedProcess(argv, code, "model job")
+            if argv == snapshot.COMMANDS["btm"]:
+                if mode == "source-changed": (source / "result.json").write_text("changed during read")
+                return subprocess.CompletedProcess(argv, 0, "unrecognized" if mode == "btm-format" else "Records for UID -2 :\n #1:\n Identifier: 16.dev.ventilator.helper\n")
+            assert argv == ["/Applications/Ventilator.app/Contents/MacOS/Ventilator", "--verify-installed-helper"]
+            assert kwargs["timeout"] == 10
+            if mode == "verification-timeout": raise subprocess.TimeoutExpired(argv, 10)
+            return subprocess.CompletedProcess(argv, 78 if mode == "bad-peer" else 0, json.dumps(reply), "")
+
+        original_check = snapshot.check
+        with patch.object(snapshot, "READ_ONLY_BACKUP", backup), patch.object(snapshot, "machine", return_value=snapshot.READ_ONLY_MACHINE), \
+                patch.object(snapshot, "check", side_effect=lambda p: original_check(p, installed=installed)), \
+                patch.object(snapshot, "owner_terminal"), patch.object(snapshot, "boot_session", return_value=old_boot if mode == "same-boot" else new_boot), \
+                patch.object(snapshot, "runtime_metadata", side_effect=metadata), patch.object(snapshot.subprocess, "run", side_effect=command), \
+                patch("builtins.input", side_effect=AssertionError("No UI/toggle confirmation permitted after restart")):
+            if mode in ["same-boot", "runtime-present", "source-changed"]:
+                try:
+                    snapshot.collect(package)
+                    raise AssertionError("Restart admission/change ignored")
+                except RuntimeError: pass
+                assert not (package / "result.json").exists()
+                assert bool(calls) == (mode == "source-changed")
+                assert (package / "started.json").exists() == (mode == "source-changed")
+                if mode == "source-changed": assert len(calls) == 2
+            else:
+                snapshot.collect(package)
+                result = json.loads((package / "result.json").read_text())
+                expected = "systemApprovalPending" if mode == "pending" else "readOnlyHelperVerified" if mode == "verified" else "diagnosticIncomplete" if mode in ["sudo-denied", "alarm", "btm-format"] else "runtimeStatePresent" if mode == "runtime-appeared" else "rootPeerUnverified"
+                assert result["outcome"] == expected and result["helperVerified"] == (mode == "verified")
+                assert result["preparedBootUUID"] == old_boot and result["observedBootUUID"] == new_boot and result["hardwareWritesExecuted"] == 0
+                assert len(calls) == (1 if mode in ["sudo-denied", "alarm"] else 2 if mode in ["pending", "btm-format", "runtime-appeared"] else 3)
+                previous_calls = list(calls)
+                try:
+                    snapshot.collect(package)
+                    raise AssertionError("Completed restart check repeated")
+                except (FileExistsError, RuntimeError): pass
+                assert calls == previous_calls
+print("Post-restart collection model: 11 boot/pending/peer/timeout/sudo/format/runtime/source-change paths; same boot and existing state refused before marker, no UI action, at most two bounded reads and one conditional peer check, replay blocked.")
 print("Registration diagnostics dry-run passed; no registration, actual UI cycle, installed app execution, root commands or SMC.")

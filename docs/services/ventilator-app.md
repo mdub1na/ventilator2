@@ -28,6 +28,8 @@ Wrapper поддерживает installed continuation полного owner rev
 
 ## Code anchors
 
+Диагностический wrapper также готовит отдельный post-restart пакет: completed snapshot/owner/machine/installed/backup и прежний boot связаны с frozen script/PLAN; collect до нового boot отказывает. Он не вызывает registration/installation/signing или UI цикл, conditional root peer остаётся read-only. [Порядок и границы](../helper-after-restart.md). Actual post-restart outcome пока не проверен.
+
 | Компонент | Code |
 |---|---|
 | Сборка | `Package.swift`, `scripts/build-app.sh` |

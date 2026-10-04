@@ -16,6 +16,8 @@
 
 ## M2 — подготовка единственного опыта
 
+Следующее действие владельца: один обычный перезапуск macOS, затем отдельный boot-bound read-only collect по [полному порядку](docs/helper-after-restart.md). Mac не перезапускался после последней установки; проверяем гипотезу согласования системного состояния, успех не заявлен. Frozen пакет и 11 model paths готовы, прежние сеансы/installed/backup сохранены; подпись, установка, регистрация, UI цикл и аппаратный опыт исключены. [Подготовка](docs/research/evidence/after-restart-preparation.json).
+
 Контрольная точка 2026-10-04: installed diagnostic сборка требует системного разрешения; завершённый administrative snapshot подтвердил отсутствие root job и уведомления. Причина не установлена. Исправлена независимая ошибка проверки staging: новый статический CLI читает её файлы из pinned исходной app без запуска staging и обращения к ServiceManagement. Status допускает framework только после installed process gates. Installed/frozen owner пакеты сохраняются; 108 Swift-тестов, native file inspection и replacement модели прошли. [Проверки и ограничения](docs/research/evidence/bundle-inspection-isolation.json). Аппаратная проверка M2 и продуктовый M3 остаются открытыми.
 
 - [x] Собрать отдельный прототип помощника и ограниченный симуляционный RPC; проверить anonymous XPC без root.
