@@ -12,6 +12,8 @@ source: Sources/Ventilator
 
 # Приложение
 
+После owner включения actual AX ON независимо подтверждён; единственный native status в 19:13:33 +05:00 остался **requiresApproval/serviceNotEnabled**, helperVerified=false. CLI exit 0 означает завершение диагностики. Frozen continuation4, completed reconnect30, protected12, installed5 и private GUI2 сохранены; runtime отсутствует, hardware writes 0. ON не привёл к root positive. Повтор статуса/регистрации не выполняется; исследуется системный допуск. [Actual result](../research/evidence/gui-helper-enable-result.json).
+
 Владелец подтвердил, что после последнего register пропустил ON. Подготовлено [продолжение только с включением фоновой активности](../gui-helper-enable-owner.md): существующая установка/регистрация сохраняются, после owner ON агент независимо проверяет переключатель и делает один bounded native status. Повтор signing/reconnect/register не нужен. ON/positive root пока не подтверждены, hardware writes 0.
 
 Последний installed reconnect завершён в 18:33:33 +05:00: GUI PID 49998 остаётся в requiresApproval, «Подключить помощник» disabled, «Открыть настройки macOS» и «Проверить состояние» доступны. Чтение экрана агентом не повторяет framework status/register. Строка автозапуска показывает «Пока недоступно» в новой установленной версии. Отдельное чтение Settings показывает Ventilator OFF; сообщение NONE само по себе не подтверждает ON. Владелец затем подтвердил пропуск ON; следующий план продолжает только это включение и одну проверку агентом. [Факты](../research/evidence/gui-helper-reconnect-result.json).

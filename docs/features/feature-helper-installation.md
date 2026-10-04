@@ -12,6 +12,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
+После owner включения actual AX ON независимо подтверждён; единственный native status в 19:13:33 +05:00 остался **requiresApproval/serviceNotEnabled**, helperVerified=false. CLI exit 0 означает завершение диагностики. Frozen continuation4, completed reconnect30, protected12, installed5 и private GUI2 сохранены; runtime отсутствует, hardware writes 0. ON не привёл к root positive. Повтор статуса/регистрации не выполняется; исследуется системный допуск. [Actual result](../research/evidence/gui-helper-enable-result.json).
+
 Владелец подтвердил, что после последнего register пропустил ON. Подготовлено [продолжение только с включением фоновой активности](../gui-helper-enable-owner.md): существующая установка/регистрация сохраняются, после owner ON агент независимо проверяет переключатель и делает один bounded native status. Повтор signing/reconnect/register не нужен. ON/positive root пока не подтверждены, hardware writes 0.
 
 Owner [guarded reconnect](../gui-helper-reconnect-owner.md) завершён: qualification и root staging предшествовали OFF, actual requiresApproval и два absent-job gates допустили прежний guarded unregister; exact backup/replacement и одно новое GUI register выполнены. Итог требует системного одобрения, root job отсутствует; текущий Settings switch **OFF**, owner NONE не подтверждает фактический ON. Source без mainApp startup query установлен, но этого оказалось недостаточно в достигнутом состоянии. Владелец затем подтвердил пропуск ON; повтор lifecycle не требуется, следующий план продолжает только это включение. Hardware review/start отсутствуют, Mac остаётся read-only. [Actual result](../research/evidence/gui-helper-reconnect-result.json).
