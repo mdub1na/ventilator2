@@ -1,0 +1,58 @@
+{
+  "observedAt": "2026-10-04T20:23:33.648517+05:00",
+  "command": [
+    "/Applications/Ventilator.app/Contents/MacOS/VentilatorHelper",
+    "--experiment-read-only"
+  ],
+  "exitCode": 78,
+  "stdout": "",
+  "stderr": "VentilatorHelper: unsupportedMachine\n",
+  "hardwareWritesExecuted": 0,
+  "helperRegistrationInvoked": false,
+  "newDiagnosticReader": {
+    "observedAt": "2026-10-04T20:36:39.816322+05:00",
+    "argv": [
+      "/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app/Contents/MacOS/VentilatorHelper",
+      "--experiment-read-only"
+    ],
+    "exitCode": 0,
+    "report": {
+      "build": "26A434",
+      "fans": [
+        {
+          "actualRPM": 0,
+          "index": 0,
+          "maximumRPM": 5349,
+          "minimumRPM": 1350,
+          "mode": 3,
+          "targetRPM": 0
+        },
+        {
+          "actualRPM": 0,
+          "index": 1,
+          "maximumRPM": 5777,
+          "minimumRPM": 1458,
+          "mode": 3,
+          "targetRPM": 0
+        }
+      ],
+      "hardwareControlAvailable": false,
+      "hardwareWritesExecuted": 0,
+      "model": "Mac15,7",
+      "preflight": "wrongMachine",
+      "readSeconds": 0.003775291668716818,
+      "sampleStartedAt": "2026-10-04T15:36:39Z",
+      "testMode": 0,
+      "thermalPressure": "nominal",
+      "version": "27.0.1"
+    },
+    "stderr": "",
+    "helperSHA256": "5cf66c06fd6fb6de6e5dfd1af50b9f3d06e989898a8f5b28540f2afb90e8152b",
+    "ownerUID": 501
+  },
+  "sandboxedRead": {
+    "exitCode": 78,
+    "error": "connectionUnavailable",
+    "writes": 0
+  }
+}
