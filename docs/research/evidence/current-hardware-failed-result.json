@@ -1,0 +1,212 @@
+{
+  "observedAt": "2026-10-04T22:43:18.645948+05:00",
+  "sessionPath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/current-hardware-continuation",
+  "completedFilesSHA256": {
+    "PLAN.md": "d4eac0b60e6479e18b79ed5376d529614b542565e66f9b484e88ba25b10ed76f",
+    "after-command.json": "77fcdd8fca36b7a33c032eab372f108dd134ca0352b44fda22716ab068289fd2",
+    "before-review.json": "73f95bbdc244a87f9b2a6bf065bbb5395f3f6fc859ae8b0b592b6f24f46aad22",
+    "hardware-command-started.json": "d98cf9be798cf66886ec38c9af74dd2f7eb094e4d7c8778a82dbc31ae8e14782",
+    "installed-peer.json": "d983b5168bf1e95933601debbae39dfaa9e9b9a7870207cd4f00407d1689fd74",
+    "manifest.json": "354b341bff0cccb5f11080ad7ae746b949894a0af6ebc6535242a57d2006a196",
+    "result.json": "e554a8fd0abe58aefc8141898cafa28327d91988b094241f6500f9d2e6278da2",
+    "review-import-completed.json": "194d58ac8f8d134308e16fdef7ec34abd7343a6486968529ab2b11615d630362",
+    "review.json": "a0be6d93014fd40bfb16c6872cd0a423dbe8246af55e5d99928ac43073b843d0",
+    "run-started.json": "1d0126364e70e34f4248b8c0918bd825d306d3a95507093dbb8fba0074dcff4e",
+    "session.py": "c9c70ca365a373d325f078deb07e9ec150a89c47031b9b78dc55845fac218e93"
+  },
+  "installedFingerprint": {
+    "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+    "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7",
+    "launchDaemonSHA256": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b"
+  },
+  "bootUUID": "277d8b80-f202-4926-9318-bde81f25c8e0",
+  "candidateSHA256": "0cca75356929b7d09ac325381449af584211fcc01fca8caafee949344bf7de80",
+  "reviewSHA256": "e6cf1e24d9c6ba83c739399d4f681b5c7d709cccf85f8e3be035f4648e75b29a",
+  "planSHA256": "d4eac0b60e6479e18b79ed5376d529614b542565e66f9b484e88ba25b10ed76f",
+  "result": {
+    "completedAt": "2026-10-04T22:43:18.645948+05:00",
+    "installedPeer": {
+      "fingerprint": {
+        "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+        "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7",
+        "launchDaemonSHA256": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b"
+      },
+      "hardwareControlAvailable": false,
+      "helperVerified": true,
+      "installedLocation": true,
+      "registration": "enabled",
+      "rootOwned": true,
+      "trustedBundle": true
+    },
+    "audit": {
+      "authority": {
+        "approval": {
+          "approvedAt": 32565.86645725,
+          "challenge": {
+            "binaries": {
+              "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+              "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7"
+            },
+            "bootSession": "277D8B80-F202-4926-9318-BDE81F25C8E0",
+            "connectionOwner": "C3F650A3-7013-45FC-85C9-25E48C5986C6",
+            "expiresAt": 32839.936419749996,
+            "id": "BE8DAC57-AA6F-47BC-81AA-AE6866AEA56D",
+            "issuedAt": 32539.93641975,
+            "ownerReviewSHA256": "e6cf1e24d9c6ba83c739399d4f681b5c7d709cccf85f8e3be035f4648e75b29a",
+            "planSHA256": "0cca75356929b7d09ac325381449af584211fcc01fca8caafee949344bf7de80"
+          },
+          "domain": "hardware"
+        },
+        "challenge": {
+          "binaries": {
+            "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+            "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7"
+          },
+          "bootSession": "277D8B80-F202-4926-9318-BDE81F25C8E0",
+          "connectionOwner": "C3F650A3-7013-45FC-85C9-25E48C5986C6",
+          "expiresAt": 32839.936419749996,
+          "id": "BE8DAC57-AA6F-47BC-81AA-AE6866AEA56D",
+          "issuedAt": 32539.93641975,
+          "ownerReviewSHA256": "e6cf1e24d9c6ba83c739399d4f681b5c7d709cccf85f8e3be035f4648e75b29a",
+          "planSHA256": "0cca75356929b7d09ac325381449af584211fcc01fca8caafee949344bf7de80"
+        },
+        "ledger": {
+          "approval": {
+            "approvedAt": 32565.86645725,
+            "challenge": {
+              "binaries": {
+                "applicationSHA256": "8c4181c8ec1b688b182620321a2bb7b49a488f5b6a4c8ccb5b5d9621daa2e14c",
+                "helperSHA256": "105df56505c79f7ad429db38499e5549b3f03323b9bbbf8f93e54ec75122d7b7"
+              },
+              "bootSession": "277D8B80-F202-4926-9318-BDE81F25C8E0",
+              "connectionOwner": "C3F650A3-7013-45FC-85C9-25E48C5986C6",
+              "expiresAt": 32839.936419749996,
+              "id": "BE8DAC57-AA6F-47BC-81AA-AE6866AEA56D",
+              "issuedAt": 32539.93641975,
+              "ownerReviewSHA256": "e6cf1e24d9c6ba83c739399d4f681b5c7d709cccf85f8e3be035f4648e75b29a",
+              "planSHA256": "0cca75356929b7d09ac325381449af584211fcc01fca8caafee949344bf7de80"
+            },
+            "domain": "hardware"
+          },
+          "attempts": [
+            0,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "autoCodesObserved": false,
+          "domain": "hardware",
+          "expiresAt": 32618.738668875,
+          "fixedClosed": true,
+          "lastClock": 32614.835707958333,
+          "pendingRestoration": true,
+          "restoreRequestedDate": 812828595.48642,
+          "restoreStartedAt": 32612.62768220833,
+          "sessionID": "C6A34609-A639-47D3-B4E4-029113BCACC6",
+          "startedAt": 32608.738668875,
+          "successfulReturns": [
+            0,
+            7,
+            8,
+            9
+          ],
+          "unlockReservedAt": 32609.15877220833
+        }
+      },
+      "currentBootSession": "277D8B80-F202-4926-9318-BDE81F25C8E0",
+      "hardwareControlAvailable": false,
+      "outcome": {
+        "elapsedSeconds": 6.565892708331376,
+        "events": [
+          "fixedProbeConfirmed",
+          "fixedProbeConfirmed",
+          "writerReady",
+          "readerProbeConfirmed",
+          "readerReady",
+          "fixedProbeConfirmed",
+          "fixedClosed",
+          "writerStopRequested",
+          "writerExited",
+          "restorationStarted",
+          "restoreProbeConfirmed",
+          "restoreProbeConfirmed",
+          "restorerReady",
+          "readerProbeConfirmed",
+          "autoStep5Requested",
+          "restoreProbeConfirmed",
+          "autoStep6Requested",
+          "restoreProbeConfirmed",
+          "autoStep7Requested",
+          "restoreProbeConfirmed",
+          "autoStep8Requested",
+          "restoreProbeConfirmed",
+          "autoStep9Requested",
+          "restoreProbeConfirmed"
+        ],
+        "failedSteps": [
+          1,
+          5,
+          6
+        ],
+        "observations": [
+          {
+            "sampleJSON": "{\"fans\":[{\"maximum\":5349,\"minimum\":1350,\"mode\":3,\"index\":0,\"actual\":0,\"target\":0},{\"maximum\":5777,\"minimum\":1458,\"mode\":3,\"index\":1,\"actual\":0,\"target\":0}],\"testMode\":0,\"readSeconds\":0.0032802499990793876,\"pressure\":\"nominal\",\"machine\":{\"build\":\"26A434\",\"version\":\"27.0.1\",\"model\":\"Mac15,7\"},\"sampledAt\":812828591.731291}",
+            "stage": "baseline"
+          }
+        ],
+        "phase": "recoveryRequired",
+        "physicalAutoVerified": false,
+        "powerNotificationsRegistered": true,
+        "reason": "restoreStepFailure",
+        "sessionID": "C6A34609-A639-47D3-B4E4-029113BCACC6",
+        "simulationOnly": false
+      },
+      "physicalAutoVerified": false,
+      "readOnlyAudit": true
+    },
+    "clientError": "Command '['/Applications/Ventilator.app/Contents/MacOS/Ventilator', '--run-owner-experiment', 'e6cf1e24d9c6ba83c739399d4f681b5c7d709cccf85f8e3be035f4648e75b29a']' returned non-zero exit status 78.",
+    "hardwareWriteCountKnown": false,
+    "physicalAutoVerified": false
+  },
+  "reservedSteps": [
+    0,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "successfulDeviceReturns": [
+    0,
+    7,
+    8,
+    9
+  ],
+  "reportedFailedSteps": [
+    1,
+    5,
+    6
+  ],
+  "writeCountKnown": false,
+  "physicalAutoVerified": false,
+  "fixedRPMObserved": false,
+  "interpretation": {
+    "admission": "Explicit approval and START accepted; receipt consumed, durable ledger and broker started.",
+    "fixed": "Unlock returned successfully. manualZero failed before durable reservation; manualOne/targetZero/targetOne not attempted. No independent Fixed observation.",
+    "restore": "All five Auto steps reserved once. autoZero/autoOne reported failure; clearTargetZero/clearTargetOne/releaseUnlock returned successfully. Failed effects remain unknown.",
+    "evidence": "Only pre-write baseline saved; no post-unlock or Auto independent snapshots. Code/returns do not establish physical effects or restoration.",
+    "diagnosticGap": "Child reply.error was discarded by broker; exact step errors are not available in this audit. Root cause remains unknown.",
+    "policy": "No repeats, no new hardware plan, no pending cleanup, no service restart/replacement. Keep GUI read-only. Physical stop plan applies."
+  },
+  "ownerObservationAfterFailure": {
+    "poweredOn": true,
+    "reportedHeatOrUnusualBehavior": false,
+    "establishesAuto": false,
+    "physicalShutdownRequiredByFrozenPlan": true,
+    "physicalShutdownConfirmed": false
+  },
+  "protectedDirectoryCount": 16,
+  "privateGUIFileCount": 4
+}

@@ -1,0 +1,30 @@
+{
+  "tests": {
+    "products": [
+      30,
+      57,
+      10,
+      26
+    ],
+    "total": 123,
+    "failures": 0
+  },
+  "buildAndStrictAdHocVerification": "passed",
+  "realIPCFileModels": 3,
+  "sourceOnly": true,
+  "actualInstalledChanged": false,
+  "rootStateReadOrChangedByAgent": false,
+  "hardwareCommandsByAgent": 0,
+  "completedFiles": 11,
+  "protectedDirectoryCount": 16,
+  "privateGUIFileCount": 4,
+  "pendingRetained": true,
+  "noNewOwnerHardwarePlan": true,
+  "physicalMacState": "ownerReportsPoweredOnWithoutHeatOrUnusualBehavior",
+  "ownerObservationEstablishesAuto": false,
+  "physicalShutdownRequiredByFrozenPlan": true,
+  "physicalShutdownConfirmed": false,
+  "docs": 13,
+  "bdd": 118,
+  "docsErrors": 0
+}

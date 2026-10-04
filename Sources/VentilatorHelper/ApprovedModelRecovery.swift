@@ -4,7 +4,7 @@ import VentilatorInstallation
 import VentilatorControl
 import VentilatorExperiment
 
-enum ModelRecoveryCase: String, Codable { case normal, hold, sleep, delayedAutoZero, blockedFixed, blockedRestore, restoreFailure, blockedReader, readerFailure, blockedAutoReader, earlyAutoReaderFailure, stoppedAuthorityTransaction }
+enum ModelRecoveryCase: String, Codable { case normal, hold, sleep, delayedAutoZero, blockedFixed, blockedRestore, restoreFailure, blockedReader, readerFailure, blockedAutoReader, earlyAutoReaderFailure, stoppedAuthorityTransaction, unobservedUnlock, unobservedUnlockAutoFailures }
 
 /// A harness proxy supplies heartbeat while the dedicated broker owns the experiment model.
 func runApprovedModelParent(directory: URL, fault: ModelRecoveryCase) throws {

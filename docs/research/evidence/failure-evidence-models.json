@@ -1,0 +1,144 @@
+{
+  "verifiedAt": "2026-10-04T22:57:44.357573+05:00",
+  "UID": 501,
+  "helperSHA256": "44dc3d2cb4ef1ec6fdabc32d48d897697332663b3d99506d064b435f3818265f",
+  "cases": [
+    {
+      "mode": "normal",
+      "phase": "autoCodesObserved",
+      "reason": "explicitAuto",
+      "reservedSteps": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "successfulReturns": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "failedSteps": [],
+      "pending": false,
+      "failures": [],
+      "independentStages": [
+        "baseline",
+        "auto1",
+        "auto2",
+        "auto3"
+      ]
+    },
+    {
+      "mode": "unobservedUnlock",
+      "phase": "autoCodesObserved",
+      "reason": "writerFailure",
+      "reservedSteps": [
+        0,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "successfulReturns": [
+        0,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "failedSteps": [
+        1
+      ],
+      "pending": false,
+      "failures": [
+        {
+          "error": "unsafeObservation",
+          "elapsedSeconds": 3.3188963749998948,
+          "phase": "fixed",
+          "admissionSampleJSON": "{\"testMode\":0,\"machine\":{\"version\":\"27.0.1\",\"build\":\"26A434\",\"model\":\"Mac15,7\"},\"sampledAt\":812829457.166404,\"fans\":[{\"minimum\":1350,\"actual\":0,\"index\":0,\"target\":0,\"maximum\":5349,\"mode\":3},{\"minimum\":1458,\"actual\":0,\"index\":1,\"target\":0,\"maximum\":5777,\"mode\":3}],\"pressure\":\"nominal\",\"readSeconds\":0.0004028749972349033}",
+          "step": 1,
+          "role": "fixed"
+        }
+      ],
+      "independentStages": [
+        "baseline",
+        "auto1",
+        "auto2",
+        "auto3"
+      ]
+    },
+    {
+      "mode": "unobservedUnlockAutoFailures",
+      "phase": "recoveryRequired",
+      "reason": "restoreStepFailure",
+      "reservedSteps": [
+        0,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "successfulReturns": [
+        0,
+        7,
+        8,
+        9
+      ],
+      "failedSteps": [
+        1,
+        5,
+        6
+      ],
+      "pending": true,
+      "failures": [
+        {
+          "elapsedSeconds": 3.316226958333573,
+          "phase": "fixed",
+          "admissionSampleJSON": "{\"readSeconds\":0.0003090416721533984,\"testMode\":0,\"machine\":{\"version\":\"27.0.1\",\"model\":\"Mac15,7\",\"build\":\"26A434\"},\"pressure\":\"nominal\",\"sampledAt\":812829463.482645,\"fans\":[{\"mode\":3,\"index\":0,\"actual\":0,\"maximum\":5349,\"target\":0,\"minimum\":1350},{\"mode\":3,\"index\":1,\"actual\":0,\"maximum\":5777,\"target\":0,\"minimum\":1458}]}",
+          "error": "unsafeObservation",
+          "role": "fixed",
+          "step": 1
+        },
+        {
+          "elapsedSeconds": 3.55697012499877,
+          "phase": "restoring",
+          "admissionSampleJSON": "{\"readSeconds\":8.916667138691992e-05,\"testMode\":0,\"machine\":{\"version\":\"27.0.1\",\"model\":\"Mac15,7\",\"build\":\"26A434\"},\"pressure\":\"nominal\",\"sampledAt\":812829463.664571,\"fans\":[{\"mode\":3,\"index\":0,\"actual\":0,\"maximum\":5349,\"target\":0,\"minimum\":1350},{\"mode\":3,\"index\":1,\"actual\":0,\"maximum\":5777,\"target\":0,\"minimum\":1458}]}",
+          "error": "failedStep",
+          "role": "restore",
+          "step": 5
+        },
+        {
+          "elapsedSeconds": 3.702800583334465,
+          "phase": "restoring",
+          "admissionSampleJSON": "{\"readSeconds\":0.00035708333598449826,\"testMode\":0,\"machine\":{\"version\":\"27.0.1\",\"model\":\"Mac15,7\",\"build\":\"26A434\"},\"pressure\":\"nominal\",\"sampledAt\":812829463.812402,\"fans\":[{\"mode\":3,\"index\":0,\"actual\":0,\"maximum\":5349,\"target\":0,\"minimum\":1350},{\"mode\":3,\"index\":1,\"actual\":0,\"maximum\":5777,\"target\":0,\"minimum\":1458}]}",
+          "error": "failedStep",
+          "role": "restore",
+          "step": 6
+        }
+      ],
+      "independentStages": [
+        "baseline"
+      ]
+    }
+  ],
+  "matchingReservationPatternDoesNotIdentifyHardwareCause": true,
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "installedOrRootStateChanged": false
+}
