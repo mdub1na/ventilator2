@@ -1,0 +1,61 @@
+{
+  "preparedAt": "2026-10-04T17:29:28.628150+05:00",
+  "purpose": "guiHelperAdministrativeReadOnly",
+  "ownerUID": 501,
+  "machine": {
+    "model": "Mac15,7",
+    "version": "27.0.1",
+    "build": "26A434"
+  },
+  "bootUUID": "277d8b80-f202-4926-9318-bde81f25c8e0",
+  "packageFilesSHA256": {
+    "PLAN.md": "ffd6e6fe4ef46e19af59c7237e07e99f8d75afb0ca1b27d38883748acf7b3e27",
+    "manifest.json": "39f4d222193682dbff9e356cfecf35c2b795b7cd8f75ebaec8bb03067198accb",
+    "session.py": "9c188f4b652d7a5c08044ffbae42f609203d86c8e17faab8b8aa95f76184f10a"
+  },
+  "packageFileCount": 3,
+  "sourceFileCount": 27,
+  "protectedDirectories": 10,
+  "fingerprint": {
+    "applicationSHA256": "56f5e3b1317d045899a7c1f2c65df86c478d07f87ad9f66c2aeb6f913f9a6efb",
+    "helperSHA256": "c03f8e10021af0199669bdb2c2e17d76a9e4d1455d774d521c619c2a5e94999d",
+    "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+  },
+  "installedFilesSHA256": {
+    "Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+    "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+    "Contents/MacOS/Ventilator": "56f5e3b1317d045899a7c1f2c65df86c478d07f87ad9f66c2aeb6f913f9a6efb",
+    "Contents/MacOS/VentilatorHelper": "c03f8e10021af0199669bdb2c2e17d76a9e4d1455d774d521c619c2a5e94999d",
+    "Contents/_CodeSignature/CodeResources": "ff5867aabec2199ce05034fcbeac49c465ffd37878db0d5c2e437c61e61e9107"
+  },
+  "guiFilesSHA256": {
+    "56f5e3b1317d045899a7c1f2c65df86c478d07f87ad9f66c2aeb6f913f9a6efb-c03f8e10021af0199669bdb2c2e17d76a9e4d1455d774d521c619c2a5e94999d-f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f.json": "bbf21f41e3b20e63157f0a19a1dab0f0e3554277701cbc6e153e66ccfb1b8cf7"
+  },
+  "planSHA256": "ffd6e6fe4ef46e19af59c7237e07e99f8d75afb0ca1b27d38883748acf7b3e27",
+  "scriptSHA256": "9c188f4b652d7a5c08044ffbae42f609203d86c8e17faab8b8aa95f76184f10a",
+  "verification": {
+    "workflowModels": 19,
+    "workflowModelExitCode": 0,
+    "scopedParserUIDs": [
+      -2,
+      -2,
+      501
+    ],
+    "scopedParserOtherApplicationsExcluded": true,
+    "docsCheck": {
+      "documents": 13,
+      "bddScenarios": 107,
+      "errors": 0
+    },
+    "actualFrozenNonTTYCollectExitCode": 78,
+    "actualStartedMarkerAbsent": true,
+    "actualFrozenCheckExitCode": 0,
+    "sourceInstalledGUIBytesUnchanged": true
+  },
+  "administrativeReadPerformed": false,
+  "nativeStatusRepeated": false,
+  "registrationRepeated": false,
+  "hardwareWrites": [],
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false
+}

@@ -12,6 +12,8 @@ source: Sources/Ventilator
 
 # Приложение
 
+Actual signed GUI update выполнен владельцем: после одноразового нажатия экран остался в requiresApproval, кнопка подключения disabled. Поздний отдельный CLI report — enabled/remoteFailure при отсутствующем system job. Наблюдения относятся к разным моментам; refresh агентом не вызывался, причина расхождения не доказана. Нельзя объяснять этот результат отсутствием GUI нажатия или исправлять повторным register. [Факты](../research/evidence/gui-helper-update-result.json), [следующее только чтение](../gui-helper-state-owner.md).
+
 Исходники GUI шага объединены в main, для installed проверки подготовлен [один полный owner update](../gui-helper-owner-update.md). Source shortcut `--show-helper-setup` открывает именно этот раздел и не вызывает register. Положительный новый production GUI/root result ещё не получен.
 
 ## Состояния
