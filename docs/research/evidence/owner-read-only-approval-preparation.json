@@ -1,0 +1,103 @@
+{
+  "actualCollection": false,
+  "actualNewRootPeerVerified": false,
+  "fullPlan": "docs/helper-read-only-approval.md",
+  "hardwareWritesExecuted": 0,
+  "manifest": {
+    "backupFilesSHA256": {
+      "Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb"
+    },
+    "commands": {
+      "btm": [
+        "/usr/bin/sudo",
+        "--",
+        "/usr/bin/perl",
+        "-e",
+        "alarm 20; exec \"/usr/bin/sfltool\", \"dumpbtm\"; die \"exec failed\\n\";"
+      ],
+      "launchd": [
+        "/usr/bin/sudo",
+        "--",
+        "/usr/bin/perl",
+        "-e",
+        "alarm 5; exec \"/bin/launchctl\", \"print\", \"system/dev.ventilator.helper\"; die \"exec failed\\n\";"
+      ]
+    },
+    "hardwareWritesExecuted": 0,
+    "installedFingerprint": {
+      "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "ownerFilesSHA256": {
+      "PLAN.md": "1398cb5c17610d5bb9d75789b8d1d41505a1dda223011e164c83b1767a4037b1",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Ventilator.app/Contents/MacOS/Ventilator": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e7a4e6cd967b9c0bca58b89cb3bab152a66ef19ee6f0d545837624887445f20a",
+      "manifest.json": "97e91a491c1ecc904bcf05ca22a42deac7ec8919e36b6a32e8426a1f3fe01be3",
+      "qualification-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+      "registration-completed.json": "53c91e37554326945f707a236bc3aec825200fdd2b601c7cc69af08c84c6e24b",
+      "registration-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+      "removal-completed.json": "f3ddd594d48c0fad2f9fa2b53d4607c0b0dbc952e1c44c0bec0dd2607ba94411",
+      "removal-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38",
+      "replacement-completed.json": "8e5a07923399c65fdb765d1c0a4a8ba1034ce65d7c27ea7123c97dc0d15684f5",
+      "replacement-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38",
+      "sealed.json": "cbe21c549c2272806da821724572bb700717b5bd207fa7c0acf17a64e50aac28",
+      "session.py": "ab3b4bdd526850f535bc75c706c5ff3184cef9d9460080cabba2aa65b1b7db16",
+      "update-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38"
+    },
+    "ownerSource": "owner-profile-update-resume",
+    "ownerUID": 501,
+    "planSHA256": "751d1e0ae1e4886ac3a13c2c68b83c74a19bdcf6897422fbe450a0f4459c2f99",
+    "preparedAt": "2026-10-04T12:06:01+05:00",
+    "purpose": "readOnlyApprovalInspection",
+    "readOnlyMachine": {
+      "build": "26A434",
+      "model": "Mac15,7",
+      "version": "27.0.1"
+    },
+    "scriptSHA256": "028a5e1967826e409b410b8fe1cbdc631c83d2401c868c256bad01049b55a350"
+  },
+  "ownerCommand": "python3 /Users/mdub1na/IdeaProjects/ventilator2/.build/helper-read-only-approval/snapshot.py collect",
+  "packageFilesSHA256": {
+    "PLAN.md": "751d1e0ae1e4886ac3a13c2c68b83c74a19bdcf6897422fbe450a0f4459c2f99",
+    "manifest.json": "addf4d3ed34e91bc5e04fd4ede4e408f3aab6e604bdd68d47b9b305e59442caa",
+    "snapshot.py": "028a5e1967826e409b410b8fe1cbdc631c83d2401c868c256bad01049b55a350"
+  },
+  "packagePath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/helper-read-only-approval",
+  "physicalAutoVerified": false,
+  "preservation": {
+    "backupFiles": 5,
+    "backupUnchanged": true,
+    "earlierPackagesFilesUnchanged": {
+      "administrativeSnapshot": 7,
+      "originalOwner": 15,
+      "previousSystemCycle": 8,
+      "signedSource": 12
+    },
+    "stoppedUpdateFiles": 17,
+    "stoppedUpdateUnchanged": true
+  },
+  "purpose": "Owner inspection of existing Ventilator notification and read-only administrative snapshot of the newly installed copy",
+  "verification": {
+    "actualNoTTY": {
+      "exitCode": 1,
+      "markerCreated": false,
+      "stderr": "STOP: Run this one explicit action in the owner's non-root Terminal, without sudo. Preserve the snapshot; no retry.\n"
+    },
+    "docsCheck": {
+      "bddScenarios": 93,
+      "documents": 13,
+      "errors": 0
+    },
+    "dryRun": "docs/research/evidence/read-only-approval-dry-run.txt",
+    "gitDiffCheckPassed": true,
+    "nativeRebuildPerformed": false
+  }
+}

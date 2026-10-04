@@ -1,0 +1,366 @@
+{
+  "actualNewInstallation": true,
+  "actualNewRootPeerVerified": false,
+  "certificateRequalificationNeeded": false,
+  "files": {
+    "PLAN.md": "1398cb5c17610d5bb9d75789b8d1d41505a1dda223011e164c83b1767a4037b1",
+    "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+    "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+    "Ventilator.app/Contents/MacOS/Ventilator": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+    "Ventilator.app/Contents/MacOS/VentilatorHelper": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+    "Ventilator.app/Contents/_CodeSignature/CodeResources": "e7a4e6cd967b9c0bca58b89cb3bab152a66ef19ee6f0d545837624887445f20a",
+    "manifest.json": "97e91a491c1ecc904bcf05ca22a42deac7ec8919e36b6a32e8426a1f3fe01be3",
+    "qualification-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+    "registration-completed.json": "53c91e37554326945f707a236bc3aec825200fdd2b601c7cc69af08c84c6e24b",
+    "registration-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+    "removal-completed.json": "f3ddd594d48c0fad2f9fa2b53d4607c0b0dbc952e1c44c0bec0dd2607ba94411",
+    "removal-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38",
+    "replacement-completed.json": "8e5a07923399c65fdb765d1c0a4a8ba1034ce65d7c27ea7123c97dc0d15684f5",
+    "replacement-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38",
+    "sealed.json": "cbe21c549c2272806da821724572bb700717b5bd207fa7c0acf17a64e50aac28",
+    "session.py": "ab3b4bdd526850f535bc75c706c5ff3184cef9d9460080cabba2aa65b1b7db16",
+    "update-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38"
+  },
+  "globalJobAbsenceProven": false,
+  "hardwareWritesExecuted": 0,
+  "installed": {
+    "backupFingerprint": {
+      "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "installedFileCount": 5,
+    "installedFingerprint": {
+      "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "machine": {
+      "build": "26A434",
+      "model": "Mac15,7",
+      "version": "27.0.1"
+    },
+    "rootOwnership": {
+      "Contents": true,
+      "Contents/Info.plist": true,
+      "Contents/Library": true,
+      "Contents/Library/LaunchDaemons": true,
+      "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": true,
+      "Contents/MacOS": true,
+      "Contents/MacOS/Ventilator": true,
+      "Contents/MacOS/VentilatorHelper": true,
+      "Contents/_CodeSignature": true,
+      "Contents/_CodeSignature/CodeResources": true
+    }
+  },
+  "markers": {
+    "manifest.json": {
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "fingerprint": {
+        "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+        "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareWritesExecuted": 0,
+      "installedReplacement": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "packageFiles": {
+        "PLAN.md": "1398cb5c17610d5bb9d75789b8d1d41505a1dda223011e164c83b1767a4037b1",
+        "session.py": "ab3b4bdd526850f535bc75c706c5ff3184cef9d9460080cabba2aa65b1b7db16"
+      },
+      "readOnlyMachine": {
+        "build": "26A434",
+        "model": "Mac15,7",
+        "version": "27.0.1"
+      },
+      "readOnlyUpdate": true,
+      "resumedFrom": {
+        "filesSHA256": {
+          "PLAN.md": "a16c8d6848139a641a0901048f89721c0858ef3cc54521531ccc62a12b682c41",
+          "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+          "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+          "Ventilator.app/Contents/MacOS/Ventilator": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+          "Ventilator.app/Contents/MacOS/VentilatorHelper": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+          "Ventilator.app/Contents/_CodeSignature/CodeResources": "e7a4e6cd967b9c0bca58b89cb3bab152a66ef19ee6f0d545837624887445f20a",
+          "manifest.json": "5f2489819f5d29ee84336b2785d485bf1e81203b0ffa45d0526265dba4295481",
+          "qualification-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+          "session.py": "65bef82f5bc6c45f05484284db6de93a6d337c710ce1d59088eef25ce542793f",
+          "sign-started.json": "0da1a54a45d82b68a2c430f9a711f9c63f4a67750da9f81c6bd5bd7b7775a7f7",
+          "signature-ready.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+          "update-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38"
+        },
+        "installedReplacement": {
+          "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+          "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+          "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+        },
+        "manifestSHA256": "5f2489819f5d29ee84336b2785d485bf1e81203b0ffa45d0526265dba4295481",
+        "originalFingerprint": {
+          "applicationSHA256": "0b6055bcd6b34b42df8ac08cad97486269c008d35c548c407576bfe5e5c65f71",
+          "helperSHA256": "e144c5e41ee2e752a71b0b2482bcf5c3f92a4b0b686babf216bb303e0e13af9d",
+          "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+        },
+        "packageFiles": {
+          "PLAN.md": "a16c8d6848139a641a0901048f89721c0858ef3cc54521531ccc62a12b682c41",
+          "session.py": "65bef82f5bc6c45f05484284db6de93a6d337c710ce1d59088eef25ce542793f"
+        },
+        "signStartedSHA256": "0da1a54a45d82b68a2c430f9a711f9c63f4a67750da9f81c6bd5bd7b7775a7f7"
+      },
+      "schema": 1,
+      "signatureReady": true,
+      "signed": false,
+      "teamIdentifier": "4659S5GD6X"
+    },
+    "qualification-started.json": {
+      "fingerprint": {
+        "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+        "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareWritesExecuted": 0
+    },
+    "registration-completed.json": {
+      "error": "serviceNotEnabled",
+      "fingerprint": {
+        "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+        "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareControlAvailable": false,
+      "helperVerified": false,
+      "installedLocation": true,
+      "registration": "requiresApproval",
+      "registrationDiagnostic": "Error Domain=SMAppServiceErrorDomain Code=1 \"Operation not permitted\" UserInfo={NSLocalizedFailureReason=Operation not permitted}",
+      "rootOwned": true,
+      "trustedBundle": true
+    },
+    "registration-started.json": {
+      "fingerprint": {
+        "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+        "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareWritesExecuted": 0
+    },
+    "removal-completed.json": {
+      "error": "serviceNotEnabled",
+      "fingerprint": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareControlAvailable": false,
+      "helperVerified": false,
+      "installedLocation": true,
+      "registration": "notRegistered",
+      "rootOwned": true,
+      "trustedBundle": true
+    },
+    "removal-started.json": {
+      "hardwareWritesExecuted": 0,
+      "previous": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      }
+    },
+    "replacement-completed.json": {
+      "fingerprint": {
+        "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+        "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareWritesExecuted": 0,
+      "previous": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      }
+    },
+    "replacement-started.json": {
+      "hardwareWritesExecuted": 0,
+      "previous": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      }
+    },
+    "sealed.json": {
+      "certificateSHA1": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+      "fingerprint": {
+        "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+        "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "notarizationClaimed": false,
+      "positiveRevocation": true,
+      "teamIdentifier": "4659S5GD6X"
+    },
+    "update-started.json": {
+      "hardwareWritesExecuted": 0,
+      "previous": {
+        "applicationSHA256": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+        "helperSHA256": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      }
+    }
+  },
+  "ownerReport": {
+    "ONEntered": true,
+    "administrativePromptAppeared": false,
+    "backgroundActivitySwitchedOn": true
+  },
+  "paths": {
+    "/Applications/Ventilator-before-profile-fix.bundle-backup": true,
+    "/Applications/Ventilator-profile-staging.app": false,
+    "/Library/Application Support/Ventilator": false
+  },
+  "physicalAutoVerified": false,
+  "references": [
+    "https://developer.apple.com/documentation/servicemanagement/smappservice/status-swift.enum/requiresapproval?language=objc",
+    "https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29?changes=_4",
+    "https://developer.apple.com/forums/thread/802443"
+  ],
+  "rootJobLookup": {
+    "command": [
+      "/usr/bin/sudo",
+      "-n",
+      "--",
+      "/usr/bin/perl",
+      "-e",
+      "alarm 5; exec \"/bin/launchctl\", \"print\", \"system/dev.ventilator.helper\"; die \"exec failed\\n\";"
+    ],
+    "exitCode": 1,
+    "purpose": "Read-only system job lookup only if existing noninteractive sudo credentials permit it; no prompt or service mutation",
+    "stderr": "sudo: a password is required\n",
+    "stdout": ""
+  },
+  "systemSettingsAX": {
+    "agentChangedSetting": false,
+    "elementID": "background-switch-Ventilator",
+    "loginItemsPageRestored": true,
+    "securityAllowRequestPresent": false,
+    "value": "on",
+    "window": "Login Items"
+  },
+  "systemState": {
+    "btm": {
+      "complete": true,
+      "exitCode": 0,
+      "rawOtherApplicationsSaved": false,
+      "records": [
+        {
+          "fields": {
+            "Bundle Identifier": "dev.ventilator.macos",
+            "Developer Name": "Дмитрий Мясников",
+            "Disposition": "[disabled, disallowed, not notified] (pending authorization) (0x10)",
+            "Flags": "[  ] (0)",
+            "Generation": "36",
+            "Identifier": "2.dev.ventilator.macos",
+            "Name": "Ventilator",
+            "Team Identifier": "4659S5GD6X",
+            "Type": "app (0x2)",
+            "URL": "/Applications/Ventilator.app",
+            "UUID": "D735070D-6752-4E11-89FE-6078FC31919F"
+          },
+          "uid": -2
+        },
+        {
+          "fields": {
+            "Developer Name": "(null)",
+            "Disposition": "[enabled, allowed, not notified] (0x3)",
+            "Executable Path": "Contents/MacOS/VentilatorHelper",
+            "Flags": "[  ] (0)",
+            "Generation": "2474",
+            "Identifier": "16.dev.ventilator.helper",
+            "Last Use": "2026-10-04 11:47:10+05:00",
+            "Name": "VentilatorHelper",
+            "Parent Identifier": "2.dev.ventilator.macos",
+            "Team Identifier": "4659S5GD6X",
+            "Type": "daemon (0x10)",
+            "URL": "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist",
+            "UUID": "7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F"
+          },
+          "uid": -2
+        },
+        {
+          "fields": {
+            "Bundle Identifier": "dev.ventilator.macos",
+            "Developer Name": "Дмитрий Мясников",
+            "Disposition": "[disabled, allowed, notified] (0xa)",
+            "Flags": "[  ] (0)",
+            "Generation": "1",
+            "Identifier": "2.dev.ventilator.macos",
+            "Name": "Ventilator",
+            "Team Identifier": "4659S5GD6X",
+            "Type": "app (0x2)",
+            "URL": "/Applications/Ventilator.app",
+            "UUID": "BACD812D-ACFD-4C47-9C6A-D6161F076D49"
+          },
+          "uid": 0
+        },
+        {
+          "fields": {
+            "Bundle Identifier": "dev.ventilator.macos",
+            "Developer Name": "Дмитрий Мясников",
+            "Disposition": "[disabled, allowed, not notified] (pending authorization) (0x12)",
+            "Flags": "[  ] (0)",
+            "Generation": "22",
+            "Identifier": "2.dev.ventilator.macos",
+            "Name": "Ventilator",
+            "Team Identifier": "4659S5GD6X",
+            "Type": "app (0x2)",
+            "URL": "/Applications/Ventilator.app",
+            "UUID": "D735070D-6752-4E11-89FE-6078FC31919F"
+          },
+          "uid": 501
+        }
+      ],
+      "stderr": ""
+    },
+    "launchd": {
+      "exitCode": 113,
+      "stderr": "Bad request.\nCould not find service \"dev.ventilator.helper\" in domain for system\n",
+      "stdout": ""
+    },
+    "log": {
+      "events": [
+        {
+          "message": "removing service: application.dev.ventilator.macos.20902026.20902032",
+          "process": "launchd",
+          "timestamp": "2026-10-04 11:47:07.910355+0500"
+        },
+        {
+          "message": "removing service: dev.ventilator.helper",
+          "process": "launchd",
+          "timestamp": "2026-10-04 11:47:14.732718+0500"
+        },
+        {
+          "message": "_bundleURLForAuditToken: updating item uuid=D735070D-6752-4E11-89FE-6078FC31919F, name=Ventilator, type=app, disposition=[disabled, allowed, not notified] (pending authorization), identifier=2.dev.ventilator.macos, url=file:///Applications/Ventilator.app/ URL to: file:///Applications/Ventilator-profile-staging.app/",
+          "process": "backgroundtaskmanagementd",
+          "timestamp": "2026-10-04 11:47:35.286860+0500"
+        },
+        {
+          "message": "_bundleURLForAuditToken: updating item uuid=D735070D-6752-4E11-89FE-6078FC31919F, name=Ventilator, type=app, disposition=[disabled, allowed, not notified] (pending authorization), identifier=2.dev.ventilator.macos, url=file:///Applications/Ventilator-profile-staging.app/ URL to: file:///Applications/Ventilator.app/",
+          "process": "backgroundtaskmanagementd",
+          "timestamp": "2026-10-04 11:47:35.346596+0500"
+        },
+        {
+          "message": "registerLaunchItem: found existing item: uuid=7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F, name=VentilatorHelper, type=daemon, disposition=[disabled, disallowed, not notified], identifier=16.dev.ventilator.helper, url=Contents/Library/LaunchDaemons/dev.ventilator.helper.plist -- file:///",
+          "process": "backgroundtaskmanagementd",
+          "timestamp": "2026-10-04 11:47:35.475768+0500"
+        }
+      ],
+      "exitCode": 0,
+      "selection": "Scoped Ventilator lifecycle/path decisions after update-started marker; prior old-helper respawn events excluded"
+    },
+    "status": {
+      "exitCode": 0,
+      "stderr": "",
+      "stdout": "{\n  \"error\" : \"serviceNotEnabled\",\n  \"fingerprint\" : {\n    \"applicationSHA256\" : \"c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc\",\n    \"helperSHA256\" : \"49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27\",\n    \"launchDaemonSHA256\" : \"f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f\"\n  },\n  \"hardwareControlAvailable\" : false,\n  \"helperVerified\" : false,\n  \"installedLocation\" : true,\n  \"registration\" : \"requiresApproval\",\n  \"rootOwned\" : true,\n  \"trustedBundle\" : true\n}\n"
+    }
+  }
+}
