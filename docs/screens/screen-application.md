@@ -12,7 +12,9 @@ source: Sources/Ventilator
 
 # Приложение
 
-Последний installed reconnect завершён в 18:33:33 +05:00: GUI PID 49998 остаётся в requiresApproval, «Подключить помощник» disabled, «Открыть настройки macOS» и «Проверить состояние» доступны. Чтение экрана агентом не повторяет framework status/register. Строка автозапуска показывает «Пока недоступно» в новой установленной версии. Отдельное чтение Settings показывает Ventilator OFF; сообщение NONE само по себе не подтверждает ON. Повтор register запрещён; нужен ответ владельца о последнем включении. [Факты](../research/evidence/gui-helper-reconnect-result.json).
+Владелец подтвердил, что после последнего register пропустил ON. Подготовлено [продолжение только с включением фоновой активности](../gui-helper-enable-owner.md): существующая установка/регистрация сохраняются, после owner ON агент независимо проверяет переключатель и делает один bounded native status. Повтор signing/reconnect/register не нужен. ON/positive root пока не подтверждены, hardware writes 0.
+
+Последний installed reconnect завершён в 18:33:33 +05:00: GUI PID 49998 остаётся в requiresApproval, «Подключить помощник» disabled, «Открыть настройки macOS» и «Проверить состояние» доступны. Чтение экрана агентом не повторяет framework status/register. Строка автозапуска показывает «Пока недоступно» в новой установленной версии. Отдельное чтение Settings показывает Ventilator OFF; сообщение NONE само по себе не подтверждает ON. Владелец затем подтвердил пропуск ON; следующий план продолжает только это включение и одну проверку агентом. [Факты](../research/evidence/gui-helper-reconnect-result.json).
 
 Прежний GUI PID 35574 и enabled/remoteFailure относятся к предыдущей установке. Последующий refresh того GUI показал connectionFailed; persistent расхождение GUI/CLI не доказано. Source shortcut `--show-helper-setup` только открывает раздел. Positive production root result ещё не получен.
 

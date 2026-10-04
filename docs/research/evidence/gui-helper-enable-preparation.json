@@ -1,0 +1,33 @@
+{
+  "preparedAt": "2026-10-04T13:58:19.666789+00:00",
+  "sessionPath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/gui-helper-enable-owner",
+  "initialFilesSHA256": {
+    "PLAN.md": "f10ece137a077baca4d6f65c60bc42b4099162da4e6319a08bd9d4b715856b8b",
+    "manifest.json": "dd65a05595f3b832426494f4e2673fe7bf3eb2a21b9c66271ca6dcb32c1ff53c"
+  },
+  "planSHA256": "f10ece137a077baca4d6f65c60bc42b4099162da4e6319a08bd9d4b715856b8b",
+  "fingerprint": {
+    "applicationSHA256": "cf2b98b36f52a1c112dac327ae0ab5807c9db3721810fbe57c4e278667bd7157",
+    "helperSHA256": "445228b93de5ef2903799c2837887bc670ab3a937e33ed9a1470ce440f1b4971",
+    "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+  },
+  "preparationChecks": {
+    "frozenReconnectCheckExitCode": 0,
+    "completedReconnectFileCount": 30,
+    "completedReconnectPreserved": true,
+    "previousProtectedDirectoryCount": 12,
+    "allPreviousProtectedPreserved": true,
+    "installedMatchesPositiveSeal": true,
+    "guiMarkerCount": 2,
+    "wholeRootRuntimeAbsent": true,
+    "actualAXSwitchBeforeOwnerAction": "off",
+    "ownerConfirmedOmittedON": true,
+    "frameworkStatusOrXPCInvokedDuringPreparation": false,
+    "registrationInvoked": false,
+    "signingInvoked": false,
+    "permissionChangedByAgent": false,
+    "hardwareWritesExecuted": 0
+  },
+  "nextAction": "Owner enables Ventilator only and reports system authentication; agent independently checks ON before one bounded native status.",
+  "verificationPerformed": false
+}
