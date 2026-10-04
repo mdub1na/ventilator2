@@ -39,6 +39,7 @@
 - [x] Выполнить защищённую замену с backup и первую framework регистрацию: BTM record создана, requiresApproval подтверждён после error 1.
 - [x] Получить системное одобрение helper; actual registration=enabled подтверждён.
 - [x] Воспроизвести ошибку пути argv[0], исправить путь загруженного executable, добавить startup log и подготовить ограниченную замену disabled службы без runtime state.
+- [x] Подготовить read-only обновление 26A434 и продолжение после отказа public qualification: exact новая подпись сохранена, developer seal готов до owner OFF, аппаратный профиль не расширен. [Результат](docs/research/evidence/owner-profile-update-resume-package.json), [полный план](docs/owner-helper-update-resume.md).
 - [ ] Обновить signed installed helper, проверить enabled root XPC gate и получить одно локальное одобрение точного sealed опыта.
 - [ ] После одобрения выполнить ровно один ограниченный аппаратный опыт и проверить устойчивый возврат Auto.
 

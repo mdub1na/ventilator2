@@ -20,6 +20,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 Прежний [системный сеанс](../helper-registration-approval.md) завершён: owner off/on загрузил job. Его frozen script/plan и снимок сохраняются, повтор не разрешён. Parent pending text сохранился при загруженном job, поэтому не является самостоятельным критерием успеха. [Подготовка](../research/evidence/owner-system-approval-session.json), [фактический результат](../research/evidence/owner-system-approval-result.json).
 
+2026-10-04: owner подпись обновления завершилась, но public qualification отказала до OFF с -67635 «не удалось проверить аннулирование». Сохранены все 12 файлов, установленная копия неизменна. `prepare --read-only-update --signed-session --previous-session` теперь импортирует exact signature-complete source, остановленный до lifecycle действий, в новый пакет. Все source файлы связаны и проверяются после копирования; markers должны совпасть с fingerprint/previous pin, read-only source не может стать hardware package. Разработчик завершил одну public qualification нового продолжения на тех же файлах: positiveRevocation=true, новой подписи нет. До seal owner update запрещён; после seal он начинает с OFF. [Отказ](../research/evidence/owner-profile-update-qualification-stop.json), [seal и сохранность](../research/evidence/owner-profile-update-resume-package.json), [полная новая последовательность](../owner-helper-update-resume.md). Actual новой установки/root XPC ещё нет.
+
 ## Проверки и границы
 
 `SignedBundleInspector` проверяет точный Info/LaunchDaemon layout, регулярные app/helper/plist без symlink, Apple anchor/identifiers/общий Team ID, строгие подписи всех архитектур и вложенного кода. Для операций lifecycle и root helper требуется `/Applications/Ventilator.app`, все элементы bundle принадлежат root и не доступны для group/other write. Неполный обход файлов отвергается. Снимок связывает SHA-256 app/helper/plist и CDHash обеих программ. Это проверка кода/файлов; она не подтверждает регистрацию или живой процесс.
@@ -218,6 +220,22 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Дано:** неподписанный либо sealed read-only пакет с exact прежним pin.
 **Когда:** signing/qualification, OFF/ON, runtime/hash, removal, register, root peer или hardware denial не подтверждены; либо команда повторяется.
 **Тогда:** последующие действия не выполняются, markers/partial files сохраняются, sign/qualification/lifecycle/UI не повторяются. Hardware review и восемь отдельных запрещённых CLI-команд отвергаются; без owner TTY update не начинается.
+
+**Automated:** `scripts/read-only-update-dry-run.py`
+
+### Scenario: Read-only продолжение сохраняет завершённую подпись
+
+**Дано:** read-only source остановлен на qualification после signature-ready и до OFF; прежняя installed копия закреплена отдельным sealed пакетом.
+**Когда:** prepare получает --read-only-update, --signed-session и --previous-session.
+**Тогда:** CLI копирует exact signed bytes без ключа/кандидата, связывает каждый source файл и проверяет неизменность после копирования. Изменённые markers/PLAN/executable, lifecycle или hardware файлы отвергаются; read-only source не может стать hardware package.
+
+**Automated:** `scripts/read-only-update-dry-run.py`
+
+### Scenario: Public seal предшествует owner продолжению
+
+**Дано:** импортированный signatureReady read-only пакет без seal.
+**Когда:** вызываются owner update, sign либо developer qualify.
+**Тогда:** update отказывает до marker/OFF/system actions, sign не обращается к ключу. Только один qualify может создать seal без hardware review; повтор запрещён. Исходный остановленный пакет сохраняется.
 
 **Automated:** `scripts/read-only-update-dry-run.py`
 

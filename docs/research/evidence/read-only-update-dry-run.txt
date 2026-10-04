@@ -4,26 +4,14 @@ Exact signed read-only fingerprint: {
   "helperSHA256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
 }
-Read-only helper verified; snapshot saved at /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-update-model-3e42yyvi/result.json. Stop here; no hardware experiment.
+Read-only helper verified; snapshot saved at /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-update-model-bb1rhxw5/result.json. Stop here; no hardware experiment.
 Model read-only update; zero hardware writes.
 Exact signed read-only fingerprint: {
   "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "helperSHA256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
 }
-Read-only helper verified; snapshot saved at /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-update-model-ob5vh5dp/result.json. Stop here; no hardware experiment.
-Model read-only update; zero hardware writes.
-Exact signed read-only fingerprint: {
-  "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "helperSHA256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-  "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
-}
-Model read-only update; zero hardware writes.
-Exact signed read-only fingerprint: {
-  "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "helperSHA256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-  "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
-}
+Read-only helper verified; snapshot saved at /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-update-model-hwlb1mlt/result.json. Stop here; no hardware experiment.
 Model read-only update; zero hardware writes.
 Exact signed read-only fingerprint: {
   "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -66,13 +54,29 @@ Exact signed read-only fingerprint: {
   "helperSHA256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
 }
-Read-only helper verified; snapshot saved at /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-update-model-k0wno5h5/result.json. Stop here; no hardware experiment.
+Model read-only update; zero hardware writes.
+Exact signed read-only fingerprint: {
+  "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "helperSHA256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+}
+Model read-only update; zero hardware writes.
+Exact signed read-only fingerprint: {
+  "applicationSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "helperSHA256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "launchDaemonSHA256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+}
+Read-only helper verified; snapshot saved at /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-update-model-yf84pu5f/result.json. Stop here; no hardware experiment.
 Model read-only update; zero hardware writes.
 Model read-only update; zero hardware writes.
 One-shot update model: three success and twelve failure paths preserve markers, stop dependent actions and block replay including signing/qualification; changed OS refused before marker.
-Replaced exact disabled unstarted bundle; old signed app preserved at /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-replacement-model-8cst1cf4/old.bundle-backup
+Replaced exact disabled unstarted bundle; old signed app preserved at /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-replacement-model-l8zq4lcr/old.bundle-backup
 Real replacement orchestration model: one scoped bootout, staged identity check, distinct non-app backup and ordered moves.
-Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-package-model-yo196y5l/update. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-package-model-ekvcdvgj/update. No signing, install, sudo or hardware writes.
 Read-only update signed and certificate qualified; no hardware review, approval or SMC writes.
 Real copied package/CLI: fixture qualification creates only seal; hardware review and eight disallowed commands refused; update requires owner TTY.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-resume-model-qkq4eevp/stopped. No signing, install, sudo or hardware writes.
+Prepared /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-resume-model-qkq4eevp/resumed. No signing, install, sudo or hardware writes.
+Read-only update signed and certificate qualified; no hardware review, approval or SMC writes.
+Signed read-only resume: exact source preserved; unqualified owner command and re-sign refused; one public seal; hardware conversion, seven source mutations and copy race rejected.
 Read-only update dry-run passed; no actual signature, sudo, installation, service mutation or SMC writes.
