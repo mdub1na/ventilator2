@@ -81,7 +81,7 @@ final class ExperimentVerificationTests: XCTestCase {
 
     private func snapshot(
         at time: Date,
-        build: String = "26A428",
+        build: String = "26A434",
         actual: Double? = 0,
         target: Double? = 0,
         mode: UInt8 = 3
@@ -91,7 +91,7 @@ final class ExperimentVerificationTests: XCTestCase {
             FanReading(index: index, actualRPM: actual, targetRPM: target,
                        minimumRPM: range.0, maximumRPM: range.1, modeCode: mode)
         }
-        return MonitorSnapshot(modelIdentifier: "Mac15,7", macOSVersion: "27.0.0",
+        return MonitorSnapshot(modelIdentifier: "Mac15,7", macOSVersion: "27.0.1",
                                macOSBuild: build, sampledAt: time, fans: fans,
                                temperatures: [], smcAvailable: true)
     }

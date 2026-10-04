@@ -7,7 +7,7 @@ public final class SimulatedFanTransport: ExperimentTransport {
     public enum Fault: Error { case unavailable, partialFixedFailure, restoreFailure }
     public var fault: Fault?
     public var thermalPressure: ExperimentVerification.ThermalPressure = .nominal
-    public var build = "26A428"
+    public var build = "26A434"
     public var fixedRPMMoves = true
     public var ranges = [(1350.0, 5349.0), (1458.0, 5777.0)]
     public private(set) var effects: [SimulatedEffect] = []
@@ -23,7 +23,7 @@ public final class SimulatedFanTransport: ExperimentTransport {
                        modeCode: manual ? 1 : 3)
         }
         return ControlObservation(snapshot: MonitorSnapshot(
-            modelIdentifier: "Mac15,7", macOSVersion: "27.0.0", macOSBuild: build,
+            modelIdentifier: "Mac15,7", macOSVersion: "27.0.1", macOSBuild: build,
             sampledAt: date, fans: fans, temperatures: [], smcAvailable: true
         ), thermalPressure: thermalPressure, testModeCode: manual ? 1 : 0)
     }

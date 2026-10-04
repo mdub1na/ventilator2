@@ -48,8 +48,8 @@ public final class FileSimulatedStepDevice: ExperimentStepDevice {
                        targetRPM: state.targets[index], minimumRPM: ranges[index].0,
                        maximumRPM: ranges[index].1, modeCode: state.modes[index])
         }
-        return ControlObservation(snapshot: MonitorSnapshot(modelIdentifier: "Mac15,7", macOSVersion: "27.0.0",
-            macOSBuild: "26A428", sampledAt: date, fans: fans, temperatures: [], smcAvailable: true),
+        return ControlObservation(snapshot: MonitorSnapshot(modelIdentifier: "Mac15,7", macOSVersion: "27.0.1",
+            macOSBuild: "26A434", sampledAt: date, fans: fans, temperatures: [], smcAvailable: true),
             thermalPressure: .nominal, testModeCode: state.testMode)
     }
 }

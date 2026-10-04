@@ -9,10 +9,11 @@ public struct ExperimentMachine: Codable, Equatable, Sendable {
     public let version: String
     public let build: String
     public init(model: String, version: String, build: String) { self.model = model; self.version = version; self.build = build }
-    public static let candidate = ExperimentMachine(model: "Mac15,7", version: "27.0.0", build: "26A428")
+    public static let legacyReadOnlyProfile = ExperimentMachine(model: "Mac15,7", version: "27.0.0", build: "26A428")
+    public static let candidate = ExperimentMachine(model: "Mac15,7", version: "27.0.1", build: "26A434")
     /// Diagnostic reads only. This profile grants no hardware authority or candidate approval.
     public static let diagnosticProfile = ExperimentMachine(model: "Mac15,7", version: "27.0.1", build: "26A434")
-    fileprivate var allowsDiagnosticRead: Bool { self == .candidate || self == .diagnosticProfile }
+    fileprivate var allowsDiagnosticRead: Bool { self == .legacyReadOnlyProfile || self == .diagnosticProfile }
 
     public static func current() -> ExperimentMachine {
         let version = ProcessInfo.processInfo.operatingSystemVersion

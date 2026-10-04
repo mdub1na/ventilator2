@@ -194,7 +194,7 @@ public final class ControlSession {
 
     private func monitoringFailure(_ observation: ControlObservation, date: Date) -> StopReason? {
         let snapshot = observation.snapshot
-        guard snapshot.modelIdentifier == "Mac15,7", snapshot.macOSVersion == "27.0.0", snapshot.macOSBuild == "26A428" else { return .profileChanged }
+        guard snapshot.modelIdentifier == "Mac15,7", snapshot.macOSVersion == "27.0.1", snapshot.macOSBuild == "26A434" else { return .profileChanged }
         guard observation.thermalPressure == .nominal else { return .thermalPressure }
         guard snapshot.smcAvailable, snapshot.fans.map(\.index) == [0, 1],
               date.timeIntervalSince(snapshot.sampledAt) >= 0, date.timeIntervalSince(snapshot.sampledAt) <= 3,

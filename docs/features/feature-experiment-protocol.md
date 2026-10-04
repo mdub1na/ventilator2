@@ -12,11 +12,13 @@ tags: [macOS, SMC, approval, preparation]
 
 # Протокол ограниченного опыта
 
+Подготовленный source candidate теперь **schema4 / Mac15,7 / 27.0.1 / 26A434**. Старые schema3 binaries/reviews/seals сохранены; legacy profile/schema3 review отвергаются новой версией. Fresh read-only data подтверждают exact metadata/ranges, но запись/physical Auto не подтверждены. Новый [полный owner сеанс](../current-hardware-owner.md) связывает qualification/backup/update, empty root state audit, signed full review и отдельные TTY APPROVE/START. Без receipt устройство не открывается; GUI controls остаются false. Actual installed root helper пока прежний и по-прежнему сообщает unsupportedMachine; новую сборку/опыт агент не устанавливает и не запускает. [Source verification](../research/evidence/current-experiment-source.json).
+
 Реализованы нативный код формирования/проверки SMC-записей и файловая логика одобрения. **Experimental hardware entry подключён за installed/local-receipt gates, положительный запуск не выполнялся.** Никакие записи на Mac не выполнялись; `hardwareControlAvailable=false`. Эта feature описывает подготовленный код и проверку на моделях, не успешное управление оборудованием.
 
 ## Нативная граница
 
-`CSMCExperiment` предоставляет только десять шагов из `ExperimentStep`; ключи, типы и байты фиксированы. Произвольного writer(key, bytes) нет. Все пакеты проверены на совпадение с `CandidateExperimentPlan`. Нативный open требует root, `Mac15,7`/`26A428` и конечный будущий deadline не более 10 с для Fixed либо 8 с для восстановления.
+`CSMCExperiment` предоставляет только десять шагов из `ExperimentStep`; ключи, типы и байты фиксированы. Произвольного writer(key, bytes) нет. Все пакеты проверены на совпадение с `CandidateExperimentPlan`. Нативный open требует root, `Mac15,7`/`26A434` и конечный будущий deadline не более 10 с для Fixed либо 8 с для восстановления.
 
 Перед записью повторно проверяются профиль, два вентилятора, свежая метаинформация ключа и условия шага. Для Fixed также проверяются точные диапазоны, порядок, трёхсекундное ожидание после unlock и deadline непосредственно перед IOKit. Повтор одного шага на соединении запрещён; ошибка закрывает дальнейший Fixed. Kernel failure, неверный размер ответа, SMC result и неквалифицированный nonzero status отвергаются. Это проверено чистыми пакетами и компиляцией; сам аппаратный путь **не запускался**.
 
@@ -32,9 +34,9 @@ GUI не зависит от `VentilatorExperiment`/`CSMCExperiment`; CLI зав
 
 Timestamp берётся **до** первого чтения. Бюджет чтения — 0,5 с по `mach_continuous_time`; обратный/невалидный clock и медленный возврат отвергают снимок. Этот бюджет не отменяет синхронный IOKit; подготовленный общий broker получает снимки из отдельного reader процесса. Thermal pressure остаётся явным входом preflight, не скрывается отсутствием CPU/GPU-атрибуции.
 
-Read-only observer отдельно принимает диагностический профиль 27.0.1/26A434 и сохраняет actual version/build; writer/candidate/issuer/runtime остаются на 27.0.0/26A428. Смена профиля в середине чтения запрещена, включая переход между двумя разрешёнными read-only profiles. [Fresh observation](../research/evidence/current-profile-preflight.json).
+Read-only observer отдельно принимает диагностический профиль 27.0.1/26A434 и сохраняет actual version/build. При PR #43 writer/candidate/issuer/runtime оставались на 27.0.0/26A428; отдельный schema4 теперь описан выше. Смена профиля в середине чтения запрещена, включая переход между двумя разрешёнными read-only profiles. [Fresh observation](../research/evidence/current-profile-preflight.json).
 
-`--experiment-read-only` запускает только этот наблюдатель без root/одобрения и выводит снимок/результат preflight. Чтение на текущем Mac выполнено без sudo; [результат](../research/evidence/experiment-read-only.json). Успешный кандидатный preflight не разрешает аппаратные записи.
+`--experiment-read-only` запускает только этот наблюдатель без root/одобрения и выводит снимок/результат preflight. Чтение текущего профиля выполнено без sudo; [результат](../research/evidence/current-profile-preflight.json). Успешный кандидатный preflight не разрешает аппаратные записи.
 
 ## Свежий ответ восстановителя
 
@@ -362,10 +364,26 @@ CLI `--approve-local-model <directory> <ownerUUID> <planSHA> <reviewSHA>` тре
 
 **Automated:** `Tests/VentilatorExperimentTests/BrokerRestartRecoveryTests.swift::testWrongBootHashOrSessionCannotCloseOrRestore`
 
-### Scenario: Диагностический профиль не подставляется вместо аппаратного candidate
+### Scenario: Legacy read-only профиль не подставляется вместо текущего candidate
 
-**Дано:** Mac15,7/27.0.1/26A434 с проверенными ui8/flt read-only ключами.
+**Дано:** legacy Mac15,7/27.0.0/26A428 с проверенными ui8/flt read-only ключами.
 **Когда:** observer получает независимый снимок либо профиль меняется между началом и концом чтения.
-**Тогда:** успешный snapshot содержит actual version/build и не проходит прежний candidate preflight; изменившийся профиль отвергает весь снимок. Writer/approval/runtime guards не расширяются.
+**Тогда:** успешный snapshot содержит actual version/build и не проходит текущий schema4 candidate preflight; изменившийся профиль отвергает весь снимок. Read-only snapshot не выдаёт authority/approval.
 
-**Automated:** `Tests/VentilatorExperimentTests/ReadOnlyExperimentObserverTests.swift::testDiagnosticProfileKeepsActualIdentityAndCannotPassCandidatePreflight`
+**Automated:** `Tests/VentilatorExperimentTests/ReadOnlyExperimentObserverTests.swift::testLegacyReadOnlyProfileCannotPassCurrentCandidatePreflight`
+
+### Scenario: Сохранённый legacy review не одобряет новый candidate
+
+**Дано:** новые schema4/current profile/binary hashes и декодированный старый schema3/26A428 review.
+**Когда:** проверяется candidate equality/hash или создаётся local approval review.
+**Тогда:** digest отличается, matchesCandidate=false и reviewMismatch блокирует импорт/одобрение. Новая версия не расширяет legacy review на другую ОС.
+
+**Automated:** `Tests/VentilatorControlTests/CandidateExperimentPlanTests.swift::testLegacySchemaAndProfileCannotAuthorizeCurrentCandidate`
+
+### Scenario: Единый текущий owner сеанс требует новый root peer и пустую authority
+
+**Дано:** exact прежний enabled/bound helper, absent runtime, tested v4 payload и frozen owner/machine/boot/full PLAN/writes.
+**Когда:** владелец выполняет один полный run.
+**Тогда:** signature/qualification/full signed review предшествуют старому guarded unregister; exact backup сохраняется. Pending/failed new peer, missing marker, неизвестная job, прежняя authority/outcome/boot или отмена запрещают review import и hardware client. Root import/issuer сохраняют настоящие Terminal descriptors. Client failure собирает audit и сохраняет pending без retry; models не запускают actual hardware.
+
+**Automated:** `scripts/current-hardware-owner-dry-run.py`

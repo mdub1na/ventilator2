@@ -68,13 +68,13 @@ final class ReadOnlyExperimentObserverTests: XCTestCase {
         }
     }
 
-    func testDiagnosticProfileKeepsActualIdentityAndCannotPassCandidatePreflight() throws {
+    func testLegacyReadOnlyProfileCannotPassCurrentCandidatePreflight() throws {
         let source = Source(), context = Context()
-        context.machine = .diagnosticProfile
+        context.machine = .legacyReadOnlyProfile
         let observation = try observer(source, context).sample().observation
         XCTAssertEqual(observation.snapshot.modelIdentifier, "Mac15,7")
-        XCTAssertEqual(observation.snapshot.macOSVersion, "27.0.1")
-        XCTAssertEqual(observation.snapshot.macOSBuild, "26A434")
+        XCTAssertEqual(observation.snapshot.macOSVersion, "27.0.0")
+        XCTAssertEqual(observation.snapshot.macOSBuild, "26A428")
         XCTAssertEqual(observation.snapshot.fans.map(\.modeCode), [3, 3])
         XCTAssertEqual(ExperimentVerification.preflight(observation.snapshot, now: context.date, thermalPressure: .nominal), .wrongMachine)
         source.afterRead = { context.machine = .candidate }

@@ -53,11 +53,11 @@ public struct CandidateExperimentPlan: Codable, Equatable {
     public let restartPolicy: String
 
     public init(binaries: Binaries) {
-        schemaVersion = 3
+        schemaVersion = 4
         stage = "candidate-unapproved"
         modelIdentifier = "Mac15,7"
-        macOSVersion = "27.0.0"
-        macOSBuild = "26A428"
+        macOSVersion = "27.0.1"
+        macOSBuild = "26A434"
         self.binaries = binaries
         fans = [FanRange(index: 0, minimumRPM: 1350, maximumRPM: 5349),
                 FanRange(index: 1, minimumRPM: 1458, maximumRPM: 5777)]

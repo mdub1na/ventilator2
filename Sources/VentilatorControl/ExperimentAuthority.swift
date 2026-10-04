@@ -319,7 +319,7 @@ public final class ExperimentAuthority {
 
     private func activeProfile(_ observation: ControlObservation, date: Date) -> Bool {
         let snapshot = observation.snapshot
-        return snapshot.modelIdentifier == "Mac15,7" && snapshot.macOSVersion == "27.0.0" && snapshot.macOSBuild == "26A428" &&
+        return snapshot.modelIdentifier == "Mac15,7" && snapshot.macOSVersion == "27.0.1" && snapshot.macOSBuild == "26A434" &&
             snapshot.smcAvailable && snapshot.fans.map(\.index) == [0, 1] &&
             date.timeIntervalSince(snapshot.sampledAt) >= 0 && date.timeIntervalSince(snapshot.sampledAt) <= 3 &&
             observation.testModeCode != nil && snapshot.fans.allSatisfy {

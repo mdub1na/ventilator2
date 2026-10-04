@@ -16,6 +16,8 @@
 
 ## M2 — подготовка единственного опыта
 
+Подготовленный source candidate теперь **schema4 / Mac15,7 / 27.0.1 / 26A434**. Старые schema3 binaries/reviews/seals сохранены; legacy profile/schema3 review отвергаются новой версией. Fresh read-only data подтверждают exact metadata/ranges, но запись/physical Auto не подтверждены. Новый [полный owner сеанс](docs/current-hardware-owner.md) связывает qualification/backup/update, empty root state audit, signed full review и отдельные TTY APPROVE/START. Без receipt устройство не открывается; GUI controls остаются false. Actual installed root helper пока прежний и по-прежнему сообщает unsupportedMachine; новую сборку/опыт агент не устанавливает и не запускает. [Source verification](docs/research/evidence/current-experiment-source.json).
+
 Fresh independent read-only observer на 27.0.1/26A434 подтвердил оба mode3, Ftst0, прежние ranges и nominal pressure за 3.8 мс. Actual profile сохранён; прежний candidate preflight остаётся wrongMachine. Read-only diagnostic allowlist отделён от аппаратного профиля. [Данные](docs/research/evidence/current-profile-preflight.json).
 
 Owner сеанс новой identity завершён 2026-10-04 в 20:11:31 +05:00: **enabled, helperVerified=true, running root job PID 66079**, `readOnlyHelperVerified=true`. Owner сообщил ON и ALLOW; exact installed подпись/positive qualification и bound root XPC подтверждены. Сохранены 30 файлов completed пакета, old backup, 14 protected директорий и два прежних GUI marker; новый marker — третий. Staging/root runtime отсутствуют. Hardware status отдельно подтвердил **unsupportedMachine**, аппаратных записей 0, physicalAutoVerified=false. Завершённый run/register/ready не повторять. [Actual result](docs/research/evidence/gui-helper-identity-result.json).
