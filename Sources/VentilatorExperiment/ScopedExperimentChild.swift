@@ -74,6 +74,7 @@ public struct BrokerObservation: Codable {
 /// boot, exact binaries and a fresh broker response before opening the fixed-step SMC transport.
 public final class ScopedExperimentChild {
     public let role: ExperimentChildRole
+    public private(set) var lastStepObservation: TimedExperimentObservation?
     private let authority: ExperimentAuthority
     private let scope: RecoveryScope
     private let device: ExperimentStepDevice?
@@ -136,9 +137,11 @@ public final class ScopedExperimentChild {
     }
 
     public func perform(_ step: ExperimentStep) throws {
+        lastStepObservation = nil
         guard let executor, role != .reader, step.isFixed == (role == .fixed),
               let ledger = try authority.state().ledger, scope.matches(ledger) else { throw NativeExperimentError.invalidScope }
         let sample = try sample()
+        lastStepObservation = sample // Reuse the admission read; no extra device I/O for diagnostics.
         try executor.perform(step, now: ExperimentMonotonicClock.now(), date: Date(), observation: sample.observation)
     }
 
@@ -152,6 +155,13 @@ public final class ScopedExperimentChild {
             throw NativeExperimentError.invalidScope
         }
         device.blockAfterEffect = step
+    }
+
+    /// An unobserved unlock is a fault hypothesis on the file model, never a native command change.
+    public func simulateUnobservedUnlock(autoFailures: Bool) throws {
+        guard authority.domain == .simulation, let model else { throw NativeExperimentError.invalidScope }
+        model.unlockEffectObserved = false
+        if autoFailures { model.failBeforeSteps = [.autoZero, .autoOne] }
     }
 }
 

@@ -7,6 +7,8 @@ import VentilatorCore
 public final class FileSimulatedStepDevice: ExperimentStepDevice {
     public let domain: ExperimentDomain = .simulation
     public var failBeforeStep: ExperimentStep?
+    public var failBeforeSteps: Set<ExperimentStep> = []
+    public var unlockEffectObserved = true
     private let journal: FileSessionJournal
     private let sessionID: UUID
 
@@ -18,14 +20,14 @@ public final class FileSimulatedStepDevice: ExperimentStepDevice {
 
     public func write(_ reservation: ExperimentWriteReservation) throws {
         let step = try reservation.consume(domain: .simulation, sessionID: sessionID)
-        if step == failBeforeStep { throw SimulatedStepDevice.Fault.failedStep }
+        if step == failBeforeStep || failBeforeSteps.contains(step) { throw SimulatedStepDevice.Fault.failedStep }
         let ownership = try journal.acquireSimulationDeviceLock()
         defer { withExtendedLifetime(ownership) {} }
         guard var state = try journal.loadSimulationDevice(), !state.effects.contains(step) else {
             throw CocoaError(.fileReadCorruptFile)
         }
         switch step {
-        case .unlock: state.testMode = 1
+        case .unlock: if unlockEffectObserved { state.testMode = 1 }
         case .manualZero: state.modes[0] = 1
         case .manualOne: state.modes[1] = 1
         case .targetZero: state.targets[0] = 2500

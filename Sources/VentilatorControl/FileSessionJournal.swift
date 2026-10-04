@@ -284,6 +284,24 @@ public struct RecoveryObservationEvidence: Codable {
     public init(stage: String, sampleJSON: String) { self.stage = stage; self.sampleJSON = sampleJSON }
 }
 
+/// Diagnostic admission samples belong to the failing child, not the independent recovery reader.
+/// They never authorize a write or qualify Auto. The broker records at most sixteen failures.
+public struct RecoveryFailureEvidence: Codable {
+    public let phase: String
+    public let role: String
+    public let step: ExperimentStep?
+    public let error: String
+    public let elapsedSeconds: Double?
+    public let admissionSampleJSON: String?
+    public init(phase: String, role: String, step: ExperimentStep?, error: String,
+                elapsedSeconds: Double?, admissionSampleJSON: String? = nil) {
+        self.phase = phase; self.role = role; self.step = step
+        self.error = String(error.prefix(512))
+        self.elapsedSeconds = elapsedSeconds.flatMap { $0.isFinite && $0 >= 0 ? $0 : nil }
+        self.admissionSampleJSON = admissionSampleJSON
+    }
+}
+
 public struct SimulationRecoveryOutcome: Codable {
     public let sessionID: UUID
     public let phase: String
@@ -294,14 +312,17 @@ public struct SimulationRecoveryOutcome: Codable {
     public let powerNotificationsRegistered: Bool
     public let simulationOnly: Bool
     public let observations: [RecoveryObservationEvidence]?
+    public let failures: [RecoveryFailureEvidence]?
 
     public init(sessionID: UUID, phase: String, reason: String?, events: [String], failedSteps: [ExperimentStep],
-                elapsedSeconds: Double, powerNotificationsRegistered: Bool, observations: [RecoveryObservationEvidence] = []) {
+                elapsedSeconds: Double, powerNotificationsRegistered: Bool, observations: [RecoveryObservationEvidence] = [],
+                failures: [RecoveryFailureEvidence] = []) {
         self.sessionID = sessionID; self.phase = phase; self.reason = reason
         self.events = events; self.failedSteps = failedSteps; self.elapsedSeconds = elapsedSeconds
         self.powerNotificationsRegistered = powerNotificationsRegistered
         simulationOnly = true
         self.observations = observations
+        self.failures = Array(failures.prefix(16))
     }
 }
 
@@ -317,12 +338,15 @@ public struct HardwareRecoveryOutcome: Codable {
     public let simulationOnly: Bool
     public let physicalAutoVerified: Bool
     public let observations: [RecoveryObservationEvidence]?
+    public let failures: [RecoveryFailureEvidence]?
     public init(sessionID: UUID, phase: String, reason: String?, events: [String], failedSteps: [ExperimentStep],
-                elapsedSeconds: Double, powerNotificationsRegistered: Bool, observations: [RecoveryObservationEvidence] = []) {
+                elapsedSeconds: Double, powerNotificationsRegistered: Bool, observations: [RecoveryObservationEvidence] = [],
+                failures: [RecoveryFailureEvidence] = []) {
         self.sessionID = sessionID; self.phase = phase; self.reason = reason; self.events = events
         self.failedSteps = failedSteps; self.elapsedSeconds = elapsedSeconds
         self.powerNotificationsRegistered = powerNotificationsRegistered
         simulationOnly = false; physicalAutoVerified = false
         self.observations = observations
+        self.failures = Array(failures.prefix(16))
     }
 }

@@ -12,13 +12,15 @@ tags: [macOS, approval, XPC, broker, preparation]
 
 # Runtime владельческого опыта
 
-Owner сеанс schema4 завершён до запуска: exact signing/positive qualification, installed/root XPC и full review import прошли. Ввод APPROVE в A и START в B отклонён до start/approveLocally. Saved root audit содержит только challenge, без approval/ledger/outcome; hardware writes=0. Предыдущий wrapper не повторять. Подготовлено [продолжение установленной signed сборки](../current-hardware-continuation.md) с fresh audit/expired challenge и отдельными точными вводами B → A. Native подсказки уточнены в source, installed binaries пока прежние; новый полный PLAN объясняет их ввод. [Actual evidence](../research/evidence/current-hardware-declined-result.json).
+Одобренный hardware опыт завершён **recoveryRequired / restoreStepFailure** в 22:43:18 +05:00. Receipt consumed; reserved0/5–9, successful returns0/7–9, failed1/5/6. ManualZero1 отказал до reservation, остальные Fixed2–4 не выполнялись; 2500 RPM не наблюдены. Единственный independent snapshot — baseline до writes; physical Auto не подтверждён. Exact причины ошибок child reply потеряны прежним broker. Все пять Auto steps уже reserved; повторов, нового hardware owner плана, очистки pending и замены/restart службы не выполнять. Приложение остаётся read-only. [Actual audit](../research/evidence/current-hardware-failed-result.json). Source диагностический шаг сохраняет bounded phase/role/step/error/admission sample отдельно от independent reader evidence; модель не доказывает аппаратную причину.
+
+Предыдущий owner сеанс schema4 завершён до запуска (исторический результат): exact signing/positive qualification, installed/root XPC и full review import прошли. Ввод APPROVE в A и START в B отклонён до start/approveLocally. Saved root audit содержит только challenge, без approval/ledger/outcome; hardware writes=0. Предыдущий wrapper не повторять. Было подготовлено [теперь завершённое продолжение установленной signed сборки](../current-hardware-continuation.md) с fresh audit/expired challenge и отдельными точными вводами B → A. Native подсказки уточнены в source, installed binaries пока прежние; новый полный PLAN объясняет их ввод. [Actual evidence](../research/evidence/current-hardware-declined-result.json).
 
 Подготовленный source candidate теперь **schema4 / Mac15,7 / 27.0.1 / 26A434**. Старые schema3 binaries/reviews/seals сохранены; legacy profile/schema3 review отвергаются новой версией. Fresh read-only data подтверждают exact metadata/ranges, но запись/physical Auto не подтверждены. Новый [полный owner сеанс](../current-hardware-owner.md) связывает qualification/backup/update, empty root state audit, signed full review и отдельные TTY APPROVE/START. Без receipt устройство не открывается; GUI controls остаются false. На момент source подготовки installed helper был прежним и сообщал unsupportedMachine; последующий owner update описан выше. [Source verification](../research/evidence/current-experiment-source.json).
 
 Owner сеанс новой identity завершён 2026-10-04 в 20:11:31 +05:00: **enabled, helperVerified=true, running root job PID 66079**, `readOnlyHelperVerified=true`. Owner сообщил ON и ALLOW; exact installed подпись/positive qualification и bound root XPC подтверждены. Сохранены 30 файлов completed пакета, old backup, 14 protected директорий и два прежних GUI marker; новый marker — третий. Staging/root runtime отсутствуют. Hardware status отдельно подтвердил **unsupportedMachine**, аппаратных записей 0, physicalAutoVerified=false. Завершённый run/register/ready не повторять. [Actual result](../research/evidence/gui-helper-identity-result.json).
 
-Подключена подготовленная experimental связка XPC → локальный receipt → отдельный broker. **Положительный hardware запуск не выполнялся.** Обычный GUI, `hardwareControlAvailable` и физическая квалификация остаются закрытыми. Этот документ описывает код и модельную проверку; он не разрешает запись на Mac15,7.
+Подключена подготовленная experimental связка XPC → локальный receipt → отдельный broker. **Hardware admission/begin выполнен, но опыт завершился recoveryRequired; управление/возврат Auto не квалифицированы.** Обычный GUI, `hardwareControlAvailable` и физическая квалификация остаются закрытыми. Этот документ описывает код и модельную проверку; он не разрешает запись на Mac15,7.
 
 ## Admission и процессы
 
@@ -68,6 +70,7 @@ Native signed/root-owned installed/root XPC и administrative approval теку�
 | Broker и private hardware entries | `Sources/VentilatorHelper/ExperimentRecoveryBroker.swift`, `Sources/VentilatorHelper/HelperMain.swift` |
 | Native child и recovery | `Sources/VentilatorExperiment/ScopedExperimentChild.swift`, `Sources/VentilatorExperiment/BrokerRestartRecovery.swift` |
 | Клиент/публичный сертификат | `Sources/Ventilator/OwnerExperimentCLI.swift`, `Sources/VentilatorInstallation/InstalledHelperClient.swift`, `Sources/VentilatorInstallation/CertificateQualification.swift` |
+| Failure diagnostics и модели | `Sources/VentilatorControl/FileSessionJournal.swift`, `Sources/VentilatorExperiment/ScopedExperimentChild.swift`, `scripts/failure-evidence-dry-run.py` |
 | Terminal input и unstarted continuation | `Sources/VentilatorInstallation/OwnerExperimentTerminal.swift`, `scripts/current-hardware-continuation.py`, `scripts/current-hardware-continuation-dry-run.py` |
 | Full review и owner package | `Sources/VentilatorControl/LocalApprovalReview.swift`, `Sources/VentilatorControl/LocalReviewFile.swift`, `Sources/VentilatorHelper/LocalApprovalCLI.swift`, `scripts/owner-session.py`, `scripts/owner-session-dry-run.py` |
 | Process/XPC проверка | `Sources/VentilatorHelper/SessionRuntimeCheck.swift`, `scripts/session-runtime-dry-run.py` |
@@ -175,3 +178,19 @@ Native signed/root-owned installed/root XPC и administrative approval теку�
 **Тогда:** fresh root audit обязан совпасть с прежним challenge, уже истёкшим по continuous clock; approval/ledger/outcome/другой boot/challenge блокируют review import и client. Подпись/lifecycle не повторяются. Client failure сохраняет audit; replay не запускает клиент повторно.
 
 **Automated:** `scripts/current-hardware-continuation-dry-run.py`
+
+### Scenario: Причина исходного отказа сохраняется после ошибки Auto
+
+**Дано:** file-model unlock возвращает успех без наблюдаемого эффекта; опционально оба Auto mode writes отказывают.
+**Когда:** ManualZero admission отвергается и broker выполняет единственную ограниченную попытку Auto.
+**Тогда:** initial unsafeObservation и последующие failedStep сохраняются с phase/role/step и уже прочитанным admission sample; последний restoreStepFailure не стирает исходную причину. Diagnostic samples не становятся independent Fixed/Auto evidence; reservations одноразовые и pending остаётся при ошибке Auto. Native hardware допускает только normal fault.
+
+**Automated:** `scripts/failure-evidence-dry-run.py`
+
+### Scenario: Старый hardware outcome читается без новой диагностики
+
+**Дано:** сохранённый JSON до optional failures.
+**Когда:** новый decoder читает outcome, либо сохраняется oversized diagnostic list с неизвестным clock.
+**Тогда:** legacy failures=nil; новый список ограничен первыми16, error512 символами, невалидный elapsed остаётся nil. PhysicalAutoVerified=false и admission samples отделены от independent observations.
+
+**Automated:** `Tests/VentilatorControlTests/RecoveryFailureEvidenceTests.swift::testLegacyHardwareOutcomeDecodesWithoutNewDiagnostics`, `Tests/VentilatorControlTests/RecoveryFailureEvidenceTests.swift::testDiagnosticLimitsKeepEarliestFailureAndUnknownTimeIsNotInvented`

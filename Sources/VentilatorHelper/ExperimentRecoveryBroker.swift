@@ -25,6 +25,7 @@ private struct BrokerChildReply: Codable {
     let pid: Int32
     let error: String?
     let observation: BrokerObservation?
+    var diagnosticObservation: BrokerObservation? = nil
 }
 struct BrokerBootstrap: Codable {
     let sessionID: UUID
@@ -77,6 +78,9 @@ private func runExperimentChild(directory: URL, domain: ExperimentDomain) throws
         try authority.stopAfterTargetReturnForModelCheck()
     }
     if bootstrap.fault == .restoreFailure { try child.simulateFailure(before: .autoZero) }
+    if [.unobservedUnlock, .unobservedUnlockAutoFailures].contains(bootstrap.fault), bootstrap.role != .reader {
+        try child.simulateUnobservedUnlock(autoFailures: bootstrap.fault == .unobservedUnlockAutoFailures)
+    }
     if bootstrap.fault == .blockedFixed && bootstrap.role == .fixed { try child.simulateBlock(afterEffect: .unlock) }
     if bootstrap.fault == .blockedRestore && bootstrap.role == .restore { try child.simulateBlock(afterEffect: .autoZero) }
     try channel.send(BrokerChildReply(id: nil, scope: bootstrap.scope, role: bootstrap.role, pid: getpid(), error: nil, observation: nil))
@@ -114,7 +118,8 @@ private func runExperimentChild(directory: URL, domain: ExperimentDomain) throws
             guard HelperClock.now() < request.deadline else { throw CheckError.failed("Late child operation") }
         } catch { errorCode = String(describing: error) }
         try channel.send(BrokerChildReply(id: request.id, scope: bootstrap.scope, role: bootstrap.role,
-                                        pid: getpid(), error: errorCode, observation: observation))
+            pid: getpid(), error: errorCode, observation: observation,
+            diagnosticObservation: errorCode != nil && request.step != nil ? child.lastStepObservation.map(BrokerObservation.init) : nil))
     }
 }
 
@@ -194,6 +199,15 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
         throw CheckError.failed("Broker ledger binding")
     }
     var events: [String] = [], failedSteps: [ExperimentStep] = []
+    var failures: [RecoveryFailureEvidence] = []
+    func recordFailure(phase: RecoveryPhase, role: ExperimentChildRole, step: ExperimentStep? = nil,
+                       error: String, sample: BrokerObservation? = nil) {
+        guard failures.count < 16 else { return }
+        let elapsed = HelperClock.now() - ledger.startedAt
+        let sampleJSON = sample.flatMap { try? JSONEncoder().encode($0) }.map { String(decoding: $0, as: UTF8.self) }
+        failures.append(.init(phase: phase.rawValue, role: role.rawValue, step: step, error: error,
+                              elapsedSeconds: elapsed, admissionSampleJSON: sampleJSON))
+    }
     var restart: BrokerRestartRecovery?
     let monitor: RecoveryMonitor
     if bootstrap.restarting {
@@ -345,14 +359,18 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                     guard child.valid(reply), reply.observation == nil, let id = reply.id else { throw CheckError.failed("Broker child reply binding") }
                     try monitor.acknowledge(id: id, scope: reply.scope, now: HelperClock.now())
                     if let step = pendingStep {
-                        if reply.error != nil {
+                        if let error = reply.error {
                             failedSteps.append(step)
+                            recordFailure(phase: child.bootstrap.phase, role: child.bootstrap.role, step: step,
+                                          error: error, sample: reply.diagnosticObservation)
                             if step.isFixed { monitor.stop(reason: "writerFailure", now: HelperClock.now()) }
                         } else if step == .unlock { unlockCompletedAt = HelperClock.now() }
                     }
                     pendingStep = nil
                 }
             } catch {
+                recordFailure(phase: child.bootstrap.phase, role: child.bootstrap.role, step: pendingStep,
+                              error: String(describing: error))
                 if monitor.phase == .fixed { monitor.stop(reason: "writerChannelFailure", now: HelperClock.now()) }
                 else { monitor.fail(reason: "restorerChannelFailure") }
             }
@@ -368,9 +386,11 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                 if let data = try reader.channel.readLine(waitSeconds: 0) {
                     guard let pending = readerRequest else { throw CheckError.failed("Unsolicited reader frame") }
                     let reply = try JSONDecoder().decode(BrokerChildReply.self, from: data)
-                    guard reader.valid(reply), reply.id == pending.id, reply.error == nil, let value = reply.observation else {
+                    guard reader.valid(reply), reply.id == pending.id else {
                         throw CheckError.failed("Reader reply binding")
                     }
+                    if let error = reply.error { throw CheckError.failed(error) }
+                    guard let value = reply.observation else { throw CheckError.failed("Reader observation missing") }
                     let receivedAt = Date()
                     let observation = try value.admitted(requestedAt: pending.date, deadline: pending.deadline,
                                                 now: HelperClock.now(), date: receivedAt)
@@ -410,6 +430,7 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                     readerRequest = (id, date, deadline); nextRead = HelperClock.now() + 0.1
                 }
             } catch {
+                recordFailure(phase: monitor.phase, role: .reader, error: String(describing: error))
                 if monitor.phase == .fixed {
                     monitor.stop(reason: readerRequest.map { HelperClock.now() >= $0.deadline } == true ? "readerTimeout" : "readerFailure", now: HelperClock.now())
                 } else {
@@ -438,7 +459,10 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                         nextProbe = now + 0.25
                     }
                 }
-            } catch { monitor.stop(reason: "writerFailure", now: HelperClock.now()) }
+            } catch {
+                recordFailure(phase: .fixed, role: .fixed, step: pendingStep, error: String(describing: error))
+                monitor.stop(reason: "writerFailure", now: HelperClock.now())
+            }
         }
 
         if monitor.phase == .restoring {
@@ -470,7 +494,10 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
                         events.append("autoCodesObserved")
                     }
                 }
-            } catch { monitor.fail(reason: "restorationVerificationFailure") }
+            } catch {
+                recordFailure(phase: .restoring, role: .restore, step: pendingStep, error: String(describing: error))
+                monitor.fail(reason: "restorationVerificationFailure")
+            }
         }
         RunLoop.current.run(until: Date().addingTimeInterval(0.02))
     }
@@ -484,19 +511,22 @@ private func runExperimentBroker(directory: URL, domain: ExperimentDomain) throw
     if reader?.process.isRunning == true || retiredReaders.contains(where: { $0.process.isRunning }) { monitor.fail(reason: "readerNotQuiescent") }
     sleepAcknowledgements.forEach { $0() }; sleepAcknowledgements.removeAll()
     try persistBrokerOutcome(journal: journal, domain: domain, ledger: ledger, phase: monitor.phase,
-        reason: monitor.reason, events: events, failedSteps: failedSteps, registered: power.registered, observations: independentEvidence)
+        reason: monitor.reason, events: events, failedSteps: failedSteps, registered: power.registered,
+        observations: independentEvidence, failures: failures)
     withExtendedLifetime(power) {}
 }
 
 private func persistBrokerOutcome(journal: FileSessionJournal, domain: ExperimentDomain, ledger: ApprovedExperimentLedger,
                                   phase: RecoveryPhase, reason: String?, events: [String], failedSteps: [ExperimentStep], registered: Bool,
-                                  observations: [RecoveryObservationEvidence] = []) throws {
+                                  observations: [RecoveryObservationEvidence] = [], failures: [RecoveryFailureEvidence] = []) throws {
     let elapsed = max(0, HelperClock.now() - ledger.startedAt)
     if domain == .simulation {
         try journal.saveRecoveryOutcome(.init(sessionID: ledger.sessionID, phase: phase.rawValue,
-            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered, observations: observations))
+            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered,
+            observations: observations, failures: failures))
     } else {
         try journal.saveHardwareRecoveryOutcome(.init(sessionID: ledger.sessionID, phase: phase.rawValue,
-            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered, observations: observations))
+            reason: reason, events: events, failedSteps: failedSteps, elapsedSeconds: elapsed, powerNotificationsRegistered: registered,
+            observations: observations, failures: failures))
     }
 }
