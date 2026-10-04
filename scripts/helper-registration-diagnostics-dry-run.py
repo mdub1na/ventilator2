@@ -260,7 +260,9 @@ for mode in ["none", "allow", "cancel", "sudo-denied", "btm-timeout", "bad-peer"
                 assert report["helperVerified"] == (mode == "allow")
                 assert len(calls) == (1 if mode == "sudo-denied" else 3 if mode in ["allow", "bad-peer", "verify-timeout"] else 2)
                 assert report["hardwareWritesExecuted"] == 0
-                if mode == "none": assert report["outcome"] == "systemApprovalPending"
+                if mode == "none":
+                    assert report["outcome"] == "rootJobAbsent" and report["rootJobLoaded"] is False
+                    assert report["registrationStatus"] is None and report["nativeVerificationAttempted"] is False
                 if mode == "runtime-appeared": assert report["outcome"] == "runtimeStatePresent"
                 if mode == "bad-peer": assert report["steps"]["verification"]["reply"]["helperVerified"] is False
                 if mode == "verify-timeout": assert report["steps"]["verification"]["timedOut"]
@@ -328,7 +330,7 @@ print("Real read-only package preparation/check: stopped source and backup prese
 old_boot, new_boot = "11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222"
 
 
-def restart_fixture(base):
+def restart_fixture(base, absent_outcome="systemApprovalPending"):
     owner = base / ".build" / snapshot.READ_ONLY_SOURCE
     source = base / ".build" / snapshot.READ_ONLY_SNAPSHOT
     installed, backup = base / "installed", base / "backup"
@@ -347,7 +349,7 @@ def restart_fixture(base):
                 "planSHA256": snapshot.digest(source / "PLAN.md"), "commands": snapshot.COMMANDS,
                 "readOnlyMachine": snapshot.READ_ONLY_MACHINE, "hardwareWritesExecuted": 0}
     steps = {"launchd": {"exitCode": 113}, "btm": {"exitCode": 0, "complete": True, "formatRecognized": True}}
-    result = {"outcome": "systemApprovalPending", "helperVerified": False, "hardwareWritesExecuted": 0,
+    result = {"outcome": absent_outcome, "helperVerified": False, "hardwareWritesExecuted": 0,
               "runtimeBefore": {"lstatErrno": 2}, "runtimeAfter": {"lstatErrno": 2}, "ownerActionReported": "NONE",
               "installedFingerprint": fingerprint, "scriptSHA256": manifest["scriptSHA256"], "planSHA256": manifest["planSHA256"], "steps": steps}
     for name, value in {"manifest.json": manifest, "result.json": result, "owner-action.json": {"action": "NONE"},
@@ -378,13 +380,19 @@ with tempfile.TemporaryDirectory(prefix="ventilator-restart-bindings-", dir=root
         except FileExistsError: pass
 print("Post-restart real preparation/check: completed source snapshot, installed copy, backup and prepared boot pinned; changed files and repeated preparation refused.")
 
-for mode in ["same-boot", "pending", "verified", "bad-peer", "verification-timeout", "sudo-denied", "alarm", "btm-format", "runtime-present", "runtime-appeared", "source-changed"]:
+with tempfile.TemporaryDirectory(prefix="ventilator-restart-new-outcome-", dir=root / ".build") as directory:
+    package, installed, backup, source = restart_fixture(Path(directory), absent_outcome="rootJobAbsent")
+    assert (package / "manifest.json").exists()
+print("Post-restart preparation accepts both preserved historical systemApprovalPending and factual rootJobAbsent only with the same complete absent-job/source/boot gates.")
+
+for mode in ["same-boot", "pending", "verified", "bad-peer", "verification-timeout", "sudo-denied", "alarm", "btm-format", "btm-denied", "btm-alarm", "runtime-present", "runtime-appeared", "source-changed", "pending-service-state", "non-object-reply", "unknown-registration", "malformed-json"]:
     with tempfile.TemporaryDirectory(prefix="ventilator-restart-collection-", dir=root / ".build") as directory:
         package, installed, backup, source = restart_fixture(Path(directory))
         manifest = json.loads((package / "manifest.json").read_text())
         calls, runtime_calls = [], []
-        reply = {"registration": "enabled", "helperVerified": mode != "bad-peer", "fingerprint": manifest["installedFingerprint"],
+        reply = {"registration": "requiresApproval" if mode == "pending-service-state" else "enabled", "helperVerified": mode not in ["bad-peer", "pending-service-state"], "fingerprint": manifest["installedFingerprint"],
                  "trustedBundle": True, "rootOwned": True, "installedLocation": True, "hardwareControlAvailable": False}
+        if mode == "unknown-registration": reply["registration"] = "unexpected-value"
 
         def metadata():
             runtime_calls.append(1)
@@ -397,11 +405,13 @@ for mode in ["same-boot", "pending", "verified", "bad-peer", "verification-timeo
                 return subprocess.CompletedProcess(argv, code, "model job")
             if argv == snapshot.COMMANDS["btm"]:
                 if mode == "source-changed": (source / "result.json").write_text("changed during read")
-                return subprocess.CompletedProcess(argv, 0, "unrecognized" if mode == "btm-format" else "Records for UID -2 :\n #1:\n Identifier: 16.dev.ventilator.helper\n")
+                code = 1 if mode == "btm-denied" else -signal.SIGALRM if mode == "btm-alarm" else 0
+                return subprocess.CompletedProcess(argv, code, "unrecognized" if mode in ["btm-format", "btm-denied", "btm-alarm"] else "Records for UID -2 :\n #1:\n Identifier: 16.dev.ventilator.helper\n")
             assert argv == ["/Applications/Ventilator.app/Contents/MacOS/Ventilator", "--verify-installed-helper"]
             assert kwargs["timeout"] == 10
             if mode == "verification-timeout": raise subprocess.TimeoutExpired(argv, 10)
-            return subprocess.CompletedProcess(argv, 78 if mode == "bad-peer" else 0, json.dumps(reply), "")
+            output = "{broken" if mode == "malformed-json" else json.dumps([] if mode == "non-object-reply" else reply)
+            return subprocess.CompletedProcess(argv, 78 if mode in ["bad-peer", "pending-service-state"] else 0, output, "")
 
         original_check = snapshot.check
         with patch.object(snapshot, "READ_ONLY_BACKUP", backup), patch.object(snapshot, "machine", return_value=snapshot.READ_ONLY_MACHINE), \
@@ -421,15 +431,24 @@ for mode in ["same-boot", "pending", "verified", "bad-peer", "verification-timeo
             else:
                 snapshot.collect(package)
                 result = json.loads((package / "result.json").read_text())
-                expected = "systemApprovalPending" if mode == "pending" else "readOnlyHelperVerified" if mode == "verified" else "diagnosticIncomplete" if mode in ["sudo-denied", "alarm", "btm-format"] else "runtimeStatePresent" if mode == "runtime-appeared" else "rootPeerUnverified"
+                incomplete = ["sudo-denied", "alarm", "btm-format", "btm-denied", "btm-alarm"]
+                attempted = mode in ["verified", "bad-peer", "verification-timeout", "pending-service-state", "non-object-reply", "unknown-registration", "malformed-json"]
+                expected = "rootJobAbsent" if mode == "pending" else "readOnlyHelperVerified" if mode == "verified" else "diagnosticIncomplete" if mode in incomplete else "runtimeStatePresent" if mode == "runtime-appeared" else "rootPeerUnverified"
                 assert result["outcome"] == expected and result["helperVerified"] == (mode == "verified")
                 assert result["preparedBootUUID"] == old_boot and result["observedBootUUID"] == new_boot and result["hardwareWritesExecuted"] == 0
-                assert len(calls) == (1 if mode in ["sudo-denied", "alarm"] else 2 if mode in ["pending", "btm-format", "runtime-appeared"] else 3)
+                assert result["rootJobLoaded"] == (None if mode in ["sudo-denied", "alarm"] else mode != "pending")
+                assert result["nativeVerificationAttempted"] == attempted
+                expected_status = "requiresApproval" if mode == "pending-service-state" else "enabled" if mode in ["verified", "bad-peer"] else None
+                assert result["registrationStatus"] == expected_status
+                if mode in ["btm-denied", "btm-alarm"]: assert result["stoppedAt"] == "btm"
+                if mode == "btm-format": assert result["stoppedAt"] == "btmFormat"
+                if mode == "non-object-reply": assert result["steps"]["verification"]["invalidReplyType"] is True
+                assert len(calls) == (1 if mode in ["sudo-denied", "alarm"] else 3 if attempted else 2)
                 previous_calls = list(calls)
                 try:
                     snapshot.collect(package)
                     raise AssertionError("Completed restart check repeated")
                 except (FileExistsError, RuntimeError): pass
                 assert calls == previous_calls
-print("Post-restart collection model: 11 boot/pending/peer/timeout/sudo/format/runtime/source-change paths; same boot and existing state refused before marker, no UI action, at most two bounded reads and one conditional peer check, replay blocked.")
+print("Post-restart collection model: 17 boot/absent-job/peer/timeout/sudo/format/runtime/source-change paths; root job, attempted native verification and observed registration are independent facts. No inferred pending consent; unknown registration and malformed replies remain unverified; replay blocked.")
 print("Registration diagnostics dry-run passed; no registration, actual UI cycle, installed app execution, root commands or SMC.")

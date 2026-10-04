@@ -240,7 +240,7 @@ def prepare_after_restart(repo, installed=Path("/Applications/Ventilator.app")):
     expected = {"snapshot.py", "PLAN.md", "manifest.json", "started.json", "owner-action.json", "launchd.json", "btm.json", "result.json"}
     result = json.loads((source / "result.json").read_text())
     if (set(source_files) != expected or previous.get("purpose") != "readOnlyApprovalInspection" or
-            result.get("outcome") != "systemApprovalPending" or result.get("helperVerified") is not False or
+            result.get("outcome") not in ("systemApprovalPending", "rootJobAbsent") or result.get("helperVerified") is not False or
             result.get("hardwareWritesExecuted") != 0 or result.get("installedFingerprint") != previous["installedFingerprint"] or
             result.get("scriptSHA256") != previous["scriptSHA256"] or result.get("planSHA256") != previous["planSHA256"] or
             set(result.get("steps", {})) != {"launchd", "btm"} or
@@ -366,18 +366,23 @@ def collect(package):
             step["stdout"] = result.stdout
         report["steps"][name] = step
         save(package / f"{name}.json", step)
-        if after_restart and name == "btm" and not step["formatRecognized"]:
-            report["stoppedAt"] = "btmFormat"
-            break
         if result.returncode not in ((0, 113) if name == "launchd" else (0,)):
             report["stoppedAt"] = name
+            break
+        if read_only and name == "btm" and not step["formatRecognized"]:
+            report["stoppedAt"] = "btmFormat"
             break
     report["runtimeAfter"] = runtime_metadata()
     check(package)  # Fail closed if the owner/installed package changed during collection.
     if read_only:
         report["helperVerified"] = False
-        report["outcome"] = "diagnosticIncomplete" if report.get("stoppedAt") else "systemApprovalPending"
-        loaded = not report.get("stoppedAt") and report["steps"]["launchd"]["exitCode"] == 0
+        # Job absence is not a framework registration response or proof of pending consent.
+        job_code = report["steps"]["launchd"]["exitCode"]
+        report["rootJobLoaded"] = job_code == 0 if job_code in (0, 113) else None
+        report["nativeVerificationAttempted"] = False
+        report["registrationStatus"] = None
+        report["outcome"] = "diagnosticIncomplete" if report.get("stoppedAt") else "rootJobAbsent"
+        loaded = not report.get("stoppedAt") and report["rootJobLoaded"] is True
         if loaded and report["runtimeAfter"].get("lstatErrno") != 2:
             report["outcome"] = "runtimeStatePresent"
         elif loaded:
@@ -385,6 +390,7 @@ def collect(package):
             # Exactly one bounded diagnostic XPC request, only on the pinned unsupported machine.
             executable = Path("/Applications/Ventilator.app/Contents/MacOS/Ventilator")
             command = [str(executable), "--verify-installed-helper"]
+            report["nativeVerificationAttempted"] = True
             try:
                 result = subprocess.run(command, capture_output=True, text=True, timeout=10)
                 step = {"exitCode": result.returncode, "stderr": result.stderr}
@@ -393,14 +399,18 @@ def collect(package):
                     reply = json.loads(text)
                 except ValueError:
                     reply = None
-                if reply is not None:
+                if isinstance(reply, dict):
                     step["reply"] = reply
+                    if reply.get("registration") in ("enabled", "requiresApproval", "notRegistered", "notFound", "unknown"):
+                        report["registrationStatus"] = reply["registration"]
                     if (result.returncode == 0 and reply.get("helperVerified") is True and reply.get("error") is None and
                             reply.get("registration") == "enabled" and reply.get("hardwareControlAvailable") is False and
                             reply.get("fingerprint") == manifest["installedFingerprint"] and
                             all(reply.get(key) is True for key in ["trustedBundle", "rootOwned", "installedLocation"])):
                         report["helperVerified"] = True
                         report["outcome"] = "readOnlyHelperVerified"
+                elif reply is not None:
+                    step["invalidReplyType"] = True
             except subprocess.TimeoutExpired:
                 step = {"timedOut": True}
             report["steps"]["verification"] = step

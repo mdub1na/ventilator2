@@ -1,0 +1,215 @@
+{
+  "purpose": "Record completed owner post-restart administrative snapshot and distinguish job absence from unqueried registration status",
+  "packagePath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/helper-after-restart",
+  "packageFilesSHA256": {
+    "PLAN.md": "b210eb4b7fd3205ca3ad046ffa610ec1e8e74fff564abec21e5c6044e8085850",
+    "btm.json": "65605f24491228b052c40a43d59d150ebfc4b3da062966da3b0d3289b05dcf61",
+    "launchd.json": "cc9c274e55c40577fc81ab6f27defd6c6e67ca34f02b765c85534c278e5ce63e",
+    "manifest.json": "e580e64aec76b653dd7f934ccf4f4206ac02120d1e87f1912c6905f2678e8814",
+    "result.json": "7486f3e1dfbd837edf4a335ea32e8d409548b0847dd6a4e3d12686e18c1087fa",
+    "snapshot.py": "353089b3ecac98ff4a6096e13152690cb15bc165fb656bfa214de5ec8c03a499",
+    "started.json": "0b65b1e5cd7dac653eadc7b102bc0f2a4a8a326c74b3171071f2d5117717bced"
+  },
+  "result": {
+    "startedAt": "2026-10-04T13:41:31+05:00",
+    "installedFingerprint": {
+      "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "scriptSHA256": "353089b3ecac98ff4a6096e13152690cb15bc165fb656bfa214de5ec8c03a499",
+    "planSHA256": "b210eb4b7fd3205ca3ad046ffa610ec1e8e74fff564abec21e5c6044e8085850",
+    "runtimeBefore": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    },
+    "hardwareWritesExecuted": 0,
+    "steps": {
+      "launchd": {
+        "exitCode": 113,
+        "completedAt": "2026-10-04T13:41:41+05:00",
+        "alarmExpired": false,
+        "stdout": ""
+      },
+      "btm": {
+        "exitCode": 0,
+        "completedAt": "2026-10-04T13:41:42+05:00",
+        "alarmExpired": false,
+        "records": [
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, disallowed, not notified] (0)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "37",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F",
+              "Name": "VentilatorHelper",
+              "Developer Name": "(null)",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "daemon (0x10)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[enabled, allowed, not notified] (0x3)",
+              "Identifier": "16.dev.ventilator.helper",
+              "URL": "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist",
+              "Executable Path": "Contents/MacOS/VentilatorHelper",
+              "Generation": "2474",
+              "Last Use": "2026-10-04 11:47:10+05:00",
+              "Parent Identifier": "2.dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 0,
+            "fields": {
+              "UUID": "BACD812D-ACFD-4C47-9C6A-D6161F076D49",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, notified] (0xa)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "2",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 501,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, not notified] (0x2)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "23",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          }
+        ],
+        "rawOtherApplicationsSaved": false,
+        "complete": true,
+        "formatRecognized": true
+      }
+    },
+    "preparedBootUUID": "bd3b89ca-d3ae-493e-adc0-b532fe8a2f69",
+    "observedBootUUID": "277d8b80-f202-4926-9318-bde81f25c8e0",
+    "purpose": "readOnlyAfterRestartInspection",
+    "runtimeAfter": {
+      "path": "/Library/Application Support/Ventilator",
+      "lstatErrno": 2,
+      "exists": false
+    },
+    "helperVerified": false,
+    "outcome": "systemApprovalPending"
+  },
+  "btmChanges": [
+    {
+      "uid": -2,
+      "identifier": "2.dev.ventilator.macos",
+      "changedFields": {
+        "Disposition": {
+          "before": "[disabled, disallowed, not notified] (pending authorization) (0x10)",
+          "after": "[disabled, disallowed, not notified] (0)"
+        },
+        "Generation": {
+          "before": "36",
+          "after": "37"
+        }
+      }
+    },
+    {
+      "uid": 0,
+      "identifier": "2.dev.ventilator.macos",
+      "changedFields": {
+        "Generation": {
+          "before": "1",
+          "after": "2"
+        }
+      }
+    },
+    {
+      "uid": 501,
+      "identifier": "2.dev.ventilator.macos",
+      "changedFields": {
+        "Disposition": {
+          "before": "[disabled, allowed, not notified] (pending authorization) (0x12)",
+          "after": "[disabled, allowed, not notified] (0x2)"
+        },
+        "Generation": {
+          "before": "22",
+          "after": "23"
+        }
+      }
+    }
+  ],
+  "observations": {
+    "differentBootConfirmed": true,
+    "rootJobAbsent": true,
+    "nativeVerificationAttempted": false,
+    "registrationStatusAfterRestart": null,
+    "historicalWrapperOutcome": "systemApprovalPending",
+    "currentDiagnosticMeaning": "rootJobAbsent",
+    "singleRestartDidNotLoadHelper": true,
+    "causeEstablished": false
+  },
+  "preservation": {
+    "allEarlierProtectedFilesUnchanged": true,
+    "fileCounts": {
+      "backup": 5,
+      "helper-read-only-approval": 8,
+      "helper-registration-approval": 8,
+      "helper-registration-diagnostics": 7,
+      "installed": 5,
+      "owner-profile-update": 12,
+      "owner-profile-update-resume": 17,
+      "owner-session": 15
+    },
+    "postRestartSnapshotFiles": 7,
+    "initialThreePreparationFilesUnchanged": true
+  },
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false,
+  "stop": "Do not repeat collection/setup/register/ready or restart as a loop. Preserve the completed package.",
+  "verification": {
+    "modelCommand": "python3 scripts/helper-registration-diagnostics-dry-run.py",
+    "modelExitCode": 0,
+    "postRestartModelPaths": 17,
+    "modelSummary": [
+      "Post-restart collection model: 17 boot/absent-job/peer/timeout/sudo/format/runtime/source-change paths; root job, attempted native verification and observed registration are independent facts. No inferred pending consent; unknown registration and malformed replies remain unverified; replay blocked.",
+      "Registration diagnostics dry-run passed; no registration, actual UI cycle, installed app execution, root commands or SMC."
+    ],
+    "logPath": ".build/absent-job-classification-dry-run.txt",
+    "logSHA256": "83aae7b323fe8f45e248cfe75284fd2b1ad3ccdf52a649727a2ac264c402f683",
+    "diagnosticSourceSHA256": "a786ff3ed0d1db591ae52dfe276bd7687f31ef0a758a09272b1e0d8a68582462",
+    "modelSourceSHA256": "fbfb0aa45ca0cf9472bd6b55349a05840685d1f59bf230d1050ee80990bce3c7",
+    "docsCheck": {
+      "command": ".venv-docs/bin/python scripts/docs_check.py --on-main",
+      "documents": 13,
+      "bddScenarios": 98,
+      "errors": 0
+    },
+    "diffCheckPassed": true,
+    "actualNewCollectionPerformed": false,
+    "actualRegistrationPerformed": false,
+    "actualInstalledApplicationExecuted": false,
+    "hardwareWritesExecuted": 0
+  }
+}
