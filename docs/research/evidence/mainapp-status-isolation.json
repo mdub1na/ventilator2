@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-10-04T17:58:34.958984+05:00",
+  "sourceChange": "Remove unavailable login item ServiceManagement access from monitoring startup",
+  "sourceFiles": [
+    "Sources/Ventilator/MonitorStore.swift",
+    "Sources/Ventilator/MainWindowView.swift"
+  ],
+  "adHocBundleFilesSHA256": {
+    "Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+    "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+    "Contents/MacOS/Ventilator": "e29f3c8a69f040e0426e1c72f61df5c5f9ffcc7edc0f7c0ce4e841a90629fca2",
+    "Contents/MacOS/VentilatorHelper": "c9e2bd0c4370a01eccfd46643e3315d075d967499ca555b430ea76eb408b77b6",
+    "Contents/_CodeSignature/CodeResources": "5c3e2283fc2ff1fff0f693ffeeaea5ebf18c4c86a99c72b4894d6e8174450a7f"
+  },
+  "verification": {
+    "buildAndStrictVerifyExitCode": 0,
+    "installationTests": 28,
+    "installationTestExitCode": 0,
+    "adHocHelperStatus": {
+      "registration": "notQueried",
+      "error": "appleSignatureRequired",
+      "helperVerified": false,
+      "hardwareControlAvailable": false
+    },
+    "completedGUIUpdateUnchanged": true,
+    "installedSignedBundleUnchanged": true,
+    "runtimeAbsent": true
+  },
+  "installedGUIRefresh": {
+    "pid": 35574,
+    "refreshCount": 1,
+    "phaseBefore": "requiresApproval",
+    "phaseAfter": "connectionFailed",
+    "displayedRegistration": "enabled",
+    "errorTextRead": false,
+    "logEntry": "2026-10-04 17:44:29.505 launchd: failed lookup dev.ventilator.helper; requestor Ventilator[35574]; error 3 No such process",
+    "registerInvoked": false
+  },
+  "rootRegistrationRepairProven": false,
+  "newSignedOwnerUpdatePerformed": false,
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false
+}

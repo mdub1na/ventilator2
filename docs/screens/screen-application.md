@@ -28,7 +28,7 @@ Actual signed GUI update выполнен владельцем: после од�
 - [x] **ConnectionFailed:** enabled, но peer verification отказала; детали доступны без обещания готовности.
 - [x] **Stopped:** сохранена предыдущая попытка либо отказ действия; автоматической повторной регистрации нет.
 - [x] **ReadOnly:** значок всегда включён; RPM controls остаются отключены во всех helper состояниях.
-- [x] **LoginBlocked:** переключатель автозапуска отключён до проверки установленной подписанной сборки.
+- [x] **LoginBlocked:** строка автозапуска сообщает «Пока недоступно». OS login-item status при startup не запрашивается; controls/register/unregister для этой недоступной функции отсутствуют.
 
 Первое открытие раздела запускает одно диагностическое чтение. Обновление после системного Allow выполняется кнопкой «Проверить состояние», таймер monitoring helper не опрашивает. Pending/enabled register не повторяют. Старые CLI/owner пакеты не выполняются из GUI. Текущая подписанная production установка ещё не содержит этот экран; для owner испытания нужна отдельная подписанная замена. На Mac15,7 / 27.0.1 hardware runtime остаётся закрыт.
 
@@ -42,5 +42,5 @@ Actual signed GUI update выполнен владельцем: после од�
 | Helper states/actions | `Sources/Ventilator/HelperSetupView.swift`, `Sources/VentilatorInstallation/HelperSetupModel.swift` |
 | Signature/process gate и GUI registration | `Sources/VentilatorInstallation/HelperServiceController.swift`, `Sources/VentilatorInstallation/GUIRegistrationAttempt.swift` |
 | Отключённый rendering fixture | `Sources/Ventilator/HelperSetupPreview.swift` |
-| Состояние login item | `Sources/Ventilator/MonitorStore.swift` |
+| Недоступный автозапуск без mainApp query | `Sources/Ventilator/MainWindowView.swift`, `Sources/Ventilator/MonitorStore.swift` |
 | Жизненный цикл окна | `Sources/Ventilator/VentilatorMain.swift` |

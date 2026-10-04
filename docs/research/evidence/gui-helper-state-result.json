@@ -1,0 +1,176 @@
+{
+  "observedAt": "2026-10-04T17:39:08.260878+05:00",
+  "purpose": "guiHelperAdministrativeReadActualResult",
+  "result": {
+    "completedAt": "2026-10-04T17:36:31.207228+05:00",
+    "steps": {
+      "launchd": {
+        "exitCode": 113,
+        "completedAt": "2026-10-04T17:36:30.966108+05:00",
+        "alarmExpired": false,
+        "stdout": ""
+      },
+      "btm": {
+        "exitCode": 0,
+        "completedAt": "2026-10-04T17:36:31.072622+05:00",
+        "alarmExpired": false,
+        "records": [
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, not notified] (0x2)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "74",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": -2,
+            "fields": {
+              "UUID": "7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F",
+              "Name": "VentilatorHelper",
+              "Developer Name": "(null)",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "daemon (0x10)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[enabled, allowed, not notified] (0x3)",
+              "Identifier": "16.dev.ventilator.helper",
+              "URL": "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist",
+              "Executable Path": "Contents/MacOS/VentilatorHelper",
+              "Generation": "2476",
+              "Last Use": "2026-10-04 11:47:10+05:00",
+              "Parent Identifier": "2.dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 0,
+            "fields": {
+              "UUID": "BACD812D-ACFD-4C47-9C6A-D6161F076D49",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, notified] (0xa)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "2",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          },
+          {
+            "uid": 501,
+            "fields": {
+              "UUID": "D735070D-6752-4E11-89FE-6078FC31919F",
+              "Name": "Ventilator",
+              "Developer Name": "Дмитрий Мясников",
+              "Team Identifier": "4659S5GD6X",
+              "Type": "app (0x2)",
+              "Flags": "[  ] (0)",
+              "Disposition": "[disabled, allowed, not notified] (0x2)",
+              "Identifier": "2.dev.ventilator.macos",
+              "URL": "/Applications/Ventilator.app",
+              "Generation": "23",
+              "Bundle Identifier": "dev.ventilator.macos"
+            }
+          }
+        ],
+        "complete": true,
+        "formatRecognized": true,
+        "rawOtherApplicationsSaved": false
+      }
+    },
+    "stoppedAt": null,
+    "integrityError": null,
+    "outcome": "rootJobAbsent",
+    "rootJobLoaded": false,
+    "registrationStatus": null,
+    "previousGUIUpdateResult": {
+      "completedAt": "2026-10-04T17:07:52.913355+05:00",
+      "ownerActionReported": "NONE",
+      "guiRegistrationAttempt": {
+        "pid": 35574,
+        "ownerUID": 501,
+        "fingerprint": {
+          "applicationSHA256": "56f5e3b1317d045899a7c1f2c65df86c478d07f87ad9f66c2aeb6f913f9a6efb",
+          "helperSHA256": "c03f8e10021af0199669bdb2c2e17d76a9e4d1455d774d521c619c2a5e94999d",
+          "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+        },
+        "date": 812808434.987119
+      },
+      "registration": {
+        "error": "remoteFailure",
+        "fingerprint": {
+          "applicationSHA256": "56f5e3b1317d045899a7c1f2c65df86c478d07f87ad9f66c2aeb6f913f9a6efb",
+          "helperSHA256": "c03f8e10021af0199669bdb2c2e17d76a9e4d1455d774d521c619c2a5e94999d",
+          "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+        },
+        "hardwareControlAvailable": false,
+        "helperVerified": false,
+        "installedLocation": true,
+        "registration": "enabled",
+        "rootOwned": true,
+        "trustedBundle": true
+      },
+      "rootJobLoaded": false,
+      "readOnlyHelperVerified": false,
+      "hardwareStatus": null,
+      "hardwareWritesExecuted": 0,
+      "physicalAutoVerified": false,
+      "outcome": "helperNotVerified"
+    },
+    "nativeVerificationAttempted": false,
+    "helperVerified": false,
+    "hardwareWritesExecuted": 0,
+    "physicalAutoVerified": false
+  },
+  "packageFilesSHA256": {
+    "PLAN.md": "ffd6e6fe4ef46e19af59c7237e07e99f8d75afb0ca1b27d38883748acf7b3e27",
+    "btm.json": "bd45bfc687874a371ede5021f0b7ae715f8edd1022f2d8b8c540a3496b0557de",
+    "launchd.json": "67952c716ecd67301523fe414390c4779241c82b8397238e79a1c3db6d4aed6a",
+    "manifest.json": "39f4d222193682dbff9e356cfecf35c2b795b7cd8f75ebaec8bb03067198accb",
+    "result.json": "ebd525ad36edc15bdc0fb591cececfcdd4f5585e4694e0055b5a90c7cc3d7cd6",
+    "session.py": "9c188f4b652d7a5c08044ffbae42f609203d86c8e17faab8b8aa95f76184f10a",
+    "started.json": "521b5e8159780af0446c363e9484eb4e5e533b6e2e7906435d31da722092113d"
+  },
+  "packageFileCount": 7,
+  "integrityChecks": {
+    "sourceUnchanged": true,
+    "installedUnchanged": true,
+    "guiUnchanged": true,
+    "runtimeAbsent": true,
+    "readFilesMatchResult": true,
+    "previousGUIResultUnchanged": true,
+    "planUnchanged": true,
+    "scriptUnchanged": true,
+    "protectedDirectoriesUnchanged": true
+  },
+  "fingerprint": {
+    "applicationSHA256": "56f5e3b1317d045899a7c1f2c65df86c478d07f87ad9f66c2aeb6f913f9a6efb",
+    "helperSHA256": "c03f8e10021af0199669bdb2c2e17d76a9e4d1455d774d521c619c2a5e94999d",
+    "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+  },
+  "observations": {
+    "BTMRecordCount": 4,
+    "BTMUIDs": [
+      -2,
+      -2,
+      0,
+      501
+    ],
+    "BTMDispositionContainsPendingAuthorization": false,
+    "BTMDispositionContainsDisallowed": false,
+    "currentFrameworkStatusQueried": false,
+    "effectiveDaemonAuthorizationProven": false,
+    "rootPeerProven": false
+  },
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false
+}

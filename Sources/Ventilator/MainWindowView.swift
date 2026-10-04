@@ -151,21 +151,12 @@ private struct ApplicationView: View {
     var body: some View {
         Form {
             Section("Запуск и значок") {
-                Toggle("Открывать при входе в macOS", isOn: Binding(
-                    get: { store.launchAtLogin },
-                    set: { store.setLaunchAtLogin($0) }
-                ))
-                .disabled(true)
-                Text("Автозапуск будет доступен после проверки установленной и подписанной версии приложения.")
-                    .foregroundStyle(.secondary)
+                LabeledContent("Открывать при входе в macOS", value: "Пока недоступно")
                 LabeledContent("Значок в строке меню", value: "Показывать всегда")
                 Text("Закрытие окна оставляет наблюдение работающим в строке меню.")
                     .foregroundStyle(.secondary)
             }
             HelperSetupView(model: store.helperSetup)
-            if let error = store.settingsError {
-                Section("Ошибка настройки") { Text(error).foregroundStyle(.red) }
-            }
         }
         .formStyle(.grouped)
     }
