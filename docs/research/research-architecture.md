@@ -8,6 +8,14 @@ date: 2026-10-04
 
 # Исследование
 
+## Разделение проверки файлов и службы — исследование 2026-10-04
+
+В `HelperServiceController.status()` создание `SMAppService.daemon` и чтение status выполнялись до проверки подписи, canonical installed path и process identity. `scripts/owner-session.py::replace_installed` использовал этот status для staging bundle. Scoped log в [снимке установки](evidence/owner-read-only-update-installed-pending.json) подтверждает временную смену BTM appURL на staging при таком запуске. Причинная связь с текущим отказом разрешения не установлена.
+
+Реализован отдельный `--inspect-signed-bundle [absolute-bundle-path]`: layout/signatures/ownership/hashes без ServiceManagement или XPC. Replacement читает staging файлы из pinned исходной app, staging executable не запускается. Status обращается к службе только после допуска установленного процесса. Модели проверяют отсутствие service/peer вызовов для root, unsigned, staging, writable и rejected process identity; staged service/peer/error/ownership/hash claims запрещают оба mv.
+
+Новый ad hoc CLI реально проверил файлы текущего signed installed bundle: exit 0, trusted/root-owned/canonical=true, fingerprint совпал, registration=notQueried, helperVerified=false. Это положительная проверка файлов без private key, а не запуск службы. Узкий log за 11:47:34–38 подтверждает BTM effectiveItemDisposition query от staging PID перед сменой appURL и возвратом на canonical; найден прежний child record при register, job отсутствует. Текущие signed installed, backup и frozen owner пакеты сохранены; исправление не означает завершения системного разрешения. [Проверки и границы](evidence/bundle-inspection-isolation.json).
+
 ## Завершённый административный снимок: уведомления нет, root job отсутствует, 2026-10-04
 
 Владелец собрал `.build/helper-read-only-approval/result.json` в 12:18:39 +05:00. На проверку существующего Background Items Added ответил NONE: уведомления Ventilator не было. Administrative `launchctl print system/dev.ventilator.helper` вернул 113, BTM dump завершился 0 без timeout. Четыре scoped BTM записи, включая global parent disabled/disallowed/pending authorization, полностью совпали с предыдущим снимком. Теперь отсутствие root job подтверждено чтением с sudo; enabled/allowed у child не доказывает загрузку службы или завершение системного разрешения.

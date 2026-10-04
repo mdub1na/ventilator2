@@ -95,12 +95,13 @@ with tempfile.TemporaryDirectory(prefix="ventilator-readonly-replacement-model-"
     package = Path(directory)
     (package / "sealed.json").write_text(json.dumps({"fingerprint": new}))
     staging, backup = package / "profile-staging.app", package / "old.bundle-backup"
-    responses = [json.dumps(disabled), json.dumps(disabled), json.dumps({**identity, "fingerprint": new}), json.dumps(disabled)]
+    staged = {**identity, "fingerprint": new, "installedLocation": False, "registration": "notQueried", "helperVerified": False}
+    responses = [json.dumps(disabled), json.dumps(disabled), json.dumps(staged), json.dumps(disabled)]
     with patch.object(session, "SESSION", package), patch.object(session, "HARDWARE_ROOT", package / "absent"), \
             patch.object(session, "READ_ONLY_STAGE", staging), patch.object(session, "READ_ONLY_BACKUP", backup), \
             patch.object(session, "owner_terminal"), patch.object(session, "check", return_value={"readOnlyUpdate": True, "installedReplacement": previous}), \
             patch.object(session, "fingerprints", return_value=previous), patch.object(session, "installed_check"), \
-            patch.object(session, "output", side_effect=responses), patch.object(session, "launchd_job_present", side_effect=[True, False, False]), \
+            patch.object(session, "output", side_effect=responses) as inspections, patch.object(session, "launchd_job_present", side_effect=[True, False, False]), \
             patch.object(session.subprocess, "run") as external:
         session.replace_installed()
         commands = [c.args[0] for c in external.call_args_list]
@@ -109,6 +110,8 @@ with tempfile.TemporaryDirectory(prefix="ventilator-readonly-replacement-model-"
         assert commands[-1] == ["sudo", "/bin/mv", str(staging), str(session.INSTALLED)]
         assert [c[1] for c in commands] == ["/bin/launchctl", "/usr/bin/ditto", "/usr/sbin/chown", "/bin/chmod", "/bin/mv", "/bin/mv"]
         assert (package / "replacement-completed.json").exists()
+        assert inspections.call_args_list[2].args[0] == [session.files(package / "Ventilator.app")["applicationSHA256"], "--inspect-signed-bundle", staging]
+        assert all(c.args[0][0] != session.files(staging)["applicationSHA256"] for c in inspections.call_args_list)
 print("Real replacement orchestration model: one scoped bootout, staged identity check, distinct non-app backup and ordered moves.")
 
 # Real copy/check/CLI refusal; only the certificate qualification response is a fixture.

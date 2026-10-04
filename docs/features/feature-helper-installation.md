@@ -12,9 +12,9 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
-Текущее состояние 2026-10-04: новая exact signed/root-owned копия установлена, backup подтверждён; один register требует approval. Owner ON прошёл без administrative prompt, subsequent verify и один developer status сохранили requiresApproval/serviceNotEnabled. Settings on не совпадает с global parent BTM disallowed/pending. Положительного root XPC новой сборки нет. [Markers и scoped state](../research/evidence/owner-read-only-update-installed-pending.json). Следующий [owner сеанс](../helper-read-only-approval.md) проверяет существующее уведомление и собирает global job/BTM snapshot, с одной conditional peer проверкой; новую подпись/установку/register не выполняет. [Frozen подготовка](../research/evidence/owner-read-only-approval-preparation.json).
+Текущее состояние 2026-10-04: новая exact signed/root-owned копия установлена, backup подтверждён; один register требует approval. Owner ON прошёл без administrative prompt, subsequent verify и один developer status сохранили requiresApproval/serviceNotEnabled. Settings on не совпадает с global parent BTM disallowed/pending. Последующий [owner сеанс](../helper-read-only-approval.md) завершён: уведомления нет (NONE), administrative root lookup вернул 113, BTM не изменился; conditional peer проверка не запускалась. Положительного root XPC новой сборки нет, причина незавершённого разрешения не установлена. Collection/setup/register/ready не повторять. [Результат и сохранность](../research/evidence/owner-read-only-approval-result.json), [frozen подготовка](../research/evidence/owner-read-only-approval-preparation.json).
 
-Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. После одного owner off/on **system job загружен**, хотя parent BTM всё ещё содержит pending authorization. Один installed XPC verify получил enabled/deadline: helper завершается на runtime с untrustedSignature. Read-only проверка обнаружила смену ОС на **27.0.1 (26A434)** при candidate **27.0.0 (26A428)**; профиль ошибочно объединялся с signature guard. Root XPC ещё не подтверждён; GUI-кнопки RPM отключены. [Последние факты](../research/evidence/owner-system-approval-result.json).
+Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. В предыдущем сеансе один owner off/on загрузил system job, хотя parent BTM всё ещё содержал pending authorization. Тогда installed XPC verify получил enabled/deadline: старый helper завершался на runtime с untrustedSignature. Read-only проверка обнаружила смену ОС на **27.0.1 (26A434)** при candidate **27.0.0 (26A428)**; профиль ошибочно объединялся с signature guard. GUI-кнопки RPM отключены. [Исторический результат старой сборки](../research/evidence/owner-system-approval-result.json).
 
 Исправленный daemon на неподтверждённом профиле проходит прежний signed/root-owned identity gate и сохраняет диагностический XPC, не создавая аппаратный runtime/authority и не вызывая startup hardware recovery. Preparation/start явно отказывают с unsupportedMachine; старый аппаратный candidate не расширен. Installation status по-прежнему читает существующий pending journal и не очищает его. Новая копия установлена, actual signed root positive ожидает завершения системного разрешения.
 
@@ -25,6 +25,10 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 2026-10-04: owner подпись обновления завершилась, но public qualification отказала до OFF с -67635 «не удалось проверить аннулирование». Сохранены все 12 файлов, установленная копия неизменна. `prepare --read-only-update --signed-session --previous-session` теперь импортирует exact signature-complete source, остановленный до lifecycle действий, в новый пакет. Все source файлы связаны и проверяются после копирования; markers должны совпасть с fingerprint/previous pin, read-only source не может стать hardware package. Разработчик завершил одну public qualification нового продолжения на тех же файлах: positiveRevocation=true, новой подписи нет. До seal owner update запрещён; после seal он начинает с OFF. [Отказ](../research/evidence/owner-profile-update-qualification-stop.json), [seal и сохранность](../research/evidence/owner-profile-update-resume-package.json), [полная новая последовательность](../owner-helper-update-resume.md). Actual новой установки/root XPC ещё нет.
 
 ## Проверки и границы
+
+`--inspect-signed-bundle [absolute-bundle-path]` проверяет только файлы указанного либо текущего bundle и возвращает registration=notQueried, helperVerified=false, hardwareControlAvailable=false. Ошибка подписи/layout даёт JSON с error и exit 78; relative/лишние arguments отвергаются до inspection. Этот путь не создаёт SMAppService и не связывается с XPC; canonical location/root ownership отражаются в отчёте, но не являются обязательными для статической диагностики. Replacement запускает pinned исходную app для чтения staging файлов, временная копия не исполняется. До обоих mv требуются trusted/root-owned exact fingerprint, installedLocation=false, notQueried, отсутствие error и peer/hardware claims.
+
+`--helper-status` допускает ServiceManagement только после non-root, статической подписи, canonical installed/root-owned bundle и динамической identity текущего процесса. При отказе registration остаётся notQueried; после допуска framework state читается один раз, peer проверяется только при enabled. Это предотвращает обновление BTM appURL диагностической временной копией; успех системного consent этим не заявляется. Frozen пакеты прежних сеансов и текущие signed installed binaries не изменяются при обновлении исходников.
 
 `SignedBundleInspector` проверяет точный Info/LaunchDaemon layout, регулярные app/helper/plist без symlink, Apple anchor/identifiers/общий Team ID, строгие подписи всех архитектур и вложенного кода. Для операций lifecycle и root helper требуется `/Applications/Ventilator.app`, все элементы bundle принадлежат root и не доступны для group/other write. Неполный обход файлов отвергается. Снимок связывает SHA-256 app/helper/plist и CDHash обеих программ. Это проверка кода/файлов; она не подтверждает регистрацию или живой процесс.
 
@@ -344,6 +348,22 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** только SMAppServiceErrorDomain/code 1 с requiresApproval допускает diagnostic response; другие domain/code/status остаются ошибками без retry.
 
 **Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testRegistrationErrorNeedsActualPendingApprovalState`
+
+### Scenario: Status временной или непроверенной копии не обращается к службе
+
+**Дано:** staging/writable bundle, root процесс, ошибка подписи либо dynamic process identity.
+**Когда:** выполняется status.
+**Тогда:** registration=notQueried, helperVerified=false; ServiceManagement и peer не вызываются. Для admitted installed процесса state читается один раз; только enabled допускает peer verification, peer ошибка сохраняется.
+
+**Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testStatusRejectsUnadmittedBundleBeforeServiceOrPeerAccess`, `Tests/VentilatorInstallationTests/InstallationTests.swift::testStatusRejectsRootSignatureOrProcessFailureBeforeServiceAccess`, `Tests/VentilatorInstallationTests/InstallationTests.swift::testStatusQueriesOnlyAdmittedProcessAndVerifiesOnlyEnabledPeer`
+
+### Scenario: Staging проверяется только статически перед заменой
+
+**Дано:** signed staging bundle и pinned fingerprint.
+**Когда:** replacement проверяет новую копию.
+**Тогда:** pinned исходная app вызывает --inspect-signed-bundle с абсолютным staging path; staging executable не запускается. NotQueried и отсутствие peer/hardware claims обязательны; writable/error/changed hash либо service/peer claim останавливают оба mv. Прежние повторные проверки installed bundle и launchd gates сохраняются.
+
+**Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testStaticInspectionReportsFilesWithoutInstalledAdmission`, `scripts/owner-session-dry-run.py`, `scripts/read-only-update-dry-run.py`, `scripts/installation-dry-run.py`
 
 ### Scenario: Отказ public qualification сохраняет завершённую подпись
 
