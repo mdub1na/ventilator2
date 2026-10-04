@@ -8,6 +8,16 @@ date: 2026-10-04
 
 # Исследование
 
+## Отдельный GUI probe запустился; архивирование остановилось — 2026-10-04
+
+Владелец завершил подпись с mandatory positive revocation и одно GUI register. Первый ответ был error 1 / requiresApproval; после сообщённого ALLOW в 15:30:06 +05:00 native status стал **enabled**, administrative system job — running, PID 18620, exit 0. Один последующий unregister дал **notRegistered**, root lookup — 113. Список аппаратных записей пуст; probe не имеет device transport. Это подтверждает работоспособность нового GUI/administrative bootstrap пути с тем же сертификатом и Team на Mac15,7 / 27.0.1 / 26A434.
+
+Архивирование не завершилось: владелец ввёл CLOSED, но wrapper остановился с **Probe GUI still running**. Read-only process check подтвердил PID 18550 с exact installed probe argv; cleanup-completed.json и retired.bundle отсутствуют, подписанные пять файлов пока в /Applications. Старый сеанс содержит 21 файл; девять protected директорий сохранены. Нужен отдельный archive-only continuation после фактического завершения GUI; повтор регистрации или unregister не требуется.
+
+Один canonical installed **Ventilator --helper-status** после probe всё ещё сообщил **requiresApproval / serviceNotEnabled**, helperVerified=false, hardwareControlAvailable=false. Runtime отсутствует до/после. Следовательно, разрешение probe не восстановило действующую production службу. Успех новой identity не отделяет влияние GUI от новой регистрационной истории и не устанавливает причину прежнего отказа. Следующая гипотеза для разработки — явный GUI путь установки helper с наблюдаемым системным разрешением; аппаратный M2 на новой ОС остаётся закрытым. [Файлы, подпись, launchd, STOP и прямой статус](evidence/registration-probe-result.json).
+
+Подготовка archive-only продолжения: три frozen файла проверены, 13 моделей отказа/переноса и bounded GUI exit прошли, реальный no-TTY finish отказал exit 78 без изменения обоих пакетов. docs_check: 13 документов / 101 BDD / 0 ошибок. Перенос, sudo и native probe status при подготовке не выполнялись. [Полный порядок](../registration-probe-archive-owner.md), [hash bindings и проверки](evidence/registration-probe-archive-preparation.json).
+
 ## Прямой статус после перезапуска и решение об изоляции — 2026-10-04
 
 В 14:29:15 +05:00 один bounded `--helper-status` из exact canonical installed app вернул actual **requiresApproval / serviceNotEnabled**. Машина/boot и три installed hashes совпали с завершённым post-restart snapshot; trusted/root-owned/installed gates положительные, runtime отсутствует до/после, hardware=false, helper=false. Регистрация и native peer не выполнялись. Это новый framework факт; общий outcome старого frozen collector сам такого факта не давал. [Прямой ответ](evidence/post-restart-framework-state.json).

@@ -12,6 +12,10 @@ publishes: [VentilatorHelper]
 
 # Помощник
 
+Завершённая owner проверка отдельной GUI identity подтвердила enabled и running root job с той же Apple Development подписью/Team на 27.0.1. Probe затем успешно unregistered, system job отсутствует. Архивирование остановилось на живом GUI PID; подготовлен отдельный перенос без повторного lifecycle. Это не production root peer: прямой status основного Ventilator после probe по-прежнему requiresApproval. Аппаратный runtime отсутствует; M2 не открыт. [Факты](../research/evidence/registration-probe-result.json), [archive-only порядок](../registration-probe-archive-owner.md).
+
+## История состояния до GUI probe
+
 Следующая диагностическая проверка подготовлена в отдельном приложении с собственными app/service IDs и noop daemon, без production модулей и аппаратного транспорта. Это GUI/consent/bootstrap isolation, не новый runtime Ventilator. Последующий прямой status текущей установки подтвердил requiresApproval; активный переключатель Settings не подтвердил root readiness. [Факт](../research/evidence/post-restart-framework-state.json), [отдельный полный план](../registration-probe-owner.md). До owner подписи/system approval actual probe ещё не запускался.
 
 Последний завершённый owner snapshot 2026-10-04 — после перезапуска: boot UUID изменился, root launchd lookup снова вернул 113. BTM убрал pending authorization у parent; child enabled/allowed не изменился. Conditional native verify не запускался, framework status после перезапуска неизвестен; новая installed копия ещё не подтверждена как root peer. Семь файлов пакета сохранены. Collection/setup/register/ready и перезапуск не повторять. [Фактический результат](../research/evidence/after-restart-result.json). Notification/snapshot и post-restart сеансы завершены. Исходный wrapper теперь разделяет job load, попытку native verification и наблюдённый framework status; общее systemApprovalPending прежнего frozen пакета не является свежим SMAppService reply.

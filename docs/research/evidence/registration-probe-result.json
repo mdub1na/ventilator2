@@ -1,0 +1,234 @@
+{
+  "observedAt": "2026-10-04T15:37:20.062593+05:00",
+  "machine": {
+    "model": "Mac15,7",
+    "version": "27.0.1",
+    "build": "26A434"
+  },
+  "ownerUID": 501,
+  "bootUUID": "277D8B80-F202-4926-9318-BDE81F25C8E0",
+  "packageFilesSHA256": {
+    "PLAN.md": "02845d2c4ccc3c2577ffacb8847dd645702b899dd8ff339fd833df872cc180b0",
+    "cleanup-started.json": "ade49afaba2c8c626b87e3706ee2184bf33864a41ba047f2c4c5e5c6dc5e84fc",
+    "cleanup.json": "dd1ebfd3c650fb5421e61f1af677b627ad4e0980a3ae7a71269db9e0b64fb843",
+    "gui.json": "5a83f78d220b6eb8f649278e7107226243a24acf0683cfd7926f6af771137c51",
+    "installation.json": "b5e2a791a295eb618440cfe96987cc88fd6035801e3e0131e9caee1ac1cefd74",
+    "job-after-cleanup.json": "2b3a142698f3c6135fa8d4c3eaa6988b32b883208ce557c02566181e4f09c960",
+    "job-after-registration.json": "924d9d3e700962acc1ffb087254baab0a57577630ee88383ced1df5ea350a3a1",
+    "job-before-install.json": "dfedc107cc84b553ac10d566ba9e240166b89e654e2dc7e284fb6599669d09ce",
+    "manifest.json": "970f39f84e700bd78a198fba54e900233766019ee9660d68f064b66842c4a417",
+    "payload.app/Contents/Info.plist": "279ee6a609bea484fc3afecb64143169f40984107f946c1712429177ba65d100",
+    "payload.app/Contents/Library/LaunchDaemons/dev.ventilator.registration-probe.daemon.plist": "f7b186e4c952d8f8bc768a23af5a59bbf5456ebd83c2bb4394c07c9b72960a8a",
+    "payload.app/Contents/MacOS/RegistrationProbe": "6fea65c7fb62cccae5ac035a8c32fe8206230393af44c427bf9256f09071aefd",
+    "payload.app/Contents/MacOS/RegistrationProbeDaemon": "f007351cd479912b76b566265be1dfaa4181bd216269d74ecd6dffeaeae80095",
+    "payload.app/Contents/_CodeSignature/CodeResources": "93113b2511d2b00b660e23536e7009ebced79a16b18594551f0dcd197981d2bd",
+    "registration-started.json": "5a83f78d220b6eb8f649278e7107226243a24acf0683cfd7926f6af771137c51",
+    "registration.json": "9d01347494e945524bd36a07b54207402fedc94dbe00c4345a6b2a055910336a",
+    "result.json": "3e40020e190ef395ce4957dd0ac4eb81839e2527194df1d1fea4905fa5e00455",
+    "run-started.json": "7fda65d1b4652d97ebd65cbb33f59e4d377e6618aba5bea2d65774f17291bd7c",
+    "sealed.json": "fca5d369d3ee39a53b15d980f44f7be82fe09553c19e460bc7da139b913e0c47",
+    "session.py": "08b0666e17ab81b3c2329d720afb25a7310bf176686996530616688ade37f139",
+    "signature-ready.json": "cf2183dcc653c660690b3d16f61e3b25fedd654f604ce498e7e4f4c042b7ac8e"
+  },
+  "signedProbe": {
+    "certificate": "4895C06FF7407EAF5F350E78CF23D0B41AD466C9",
+    "fingerprint": {
+      "Contents/_CodeSignature/CodeResources": "93113b2511d2b00b660e23536e7009ebced79a16b18594551f0dcd197981d2bd",
+      "Contents/Info.plist": "279ee6a609bea484fc3afecb64143169f40984107f946c1712429177ba65d100",
+      "Contents/Library/LaunchDaemons/dev.ventilator.registration-probe.daemon.plist": "f7b186e4c952d8f8bc768a23af5a59bbf5456ebd83c2bb4394c07c9b72960a8a",
+      "Contents/MacOS/RegistrationProbe": "6fea65c7fb62cccae5ac035a8c32fe8206230393af44c427bf9256f09071aefd",
+      "Contents/MacOS/RegistrationProbeDaemon": "f007351cd479912b76b566265be1dfaa4181bd216269d74ecd6dffeaeae80095"
+    },
+    "positiveRevocation": true,
+    "team": "4659S5GD6X"
+  },
+  "protectedFilesSHA256": {
+    "/Applications/Ventilator-before-profile-fix.bundle-backup": {
+      "Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb"
+    },
+    "/Users/mdub1na/IdeaProjects/ventilator2/.build/helper-read-only-approval": {
+      "PLAN.md": "751d1e0ae1e4886ac3a13c2c68b83c74a19bdcf6897422fbe450a0f4459c2f99",
+      "btm.json": "15d166e663f241644a222dfa13f65a48423dade2b0938050c7ebb98cd6ac9edd",
+      "launchd.json": "10923fca5c6668895327282fcfa6eb083ea9fc3ce3e9f74fde8159d9f010e4d9",
+      "manifest.json": "addf4d3ed34e91bc5e04fd4ede4e408f3aab6e604bdd68d47b9b305e59442caa",
+      "owner-action.json": "931295c3a04bd9944d3b0f4987cf78d9a2ba6753d2254a35f19b1e1e01aae944",
+      "result.json": "a856cd2332116aa44723e56905820f6f22021aba6b1eb15b8aa237ff5e84e707",
+      "snapshot.py": "028a5e1967826e409b410b8fe1cbdc631c83d2401c868c256bad01049b55a350",
+      "started.json": "f953503049fcc085ce19a6e948222427f5d543f5f3e903b71d2ae764e819d3ef"
+    },
+    "/Users/mdub1na/IdeaProjects/ventilator2/.build/helper-registration-approval": {
+      "PLAN.md": "e704614d89bf989f9bfa54424c4a08c222dccaa1657d60e501323dc47d75fda0",
+      "btm.json": "0499662a74ce690114f766741ca175ab0d4e6e769e867af3fda71e6ef8e28aec",
+      "launchd.json": "5214909b75b8a0aa941d8cf47991cb972a14909343968b844afb117eecb6a6c4",
+      "manifest.json": "2a8f2656e4a23cd4b011523dd2931ae7369ca1f6ad71459287e4d49f8e7ae6e4",
+      "owner-action.json": "792fe00a976d09e38a981301906a11ea44ebee580b8f0278845a251526d16bac",
+      "result.json": "189b2ff23ae9c0feb72e83529bccf68726aa1aa8af6fb19ac23c7113bcec95d1",
+      "snapshot.py": "dfa54b2b869bec26bc01e148d2306fe936d8d2ad562ff777110ba188e706facc",
+      "started.json": "7c0c29ba40dca8b4c07d5adca6380d5e838d661e1447e9c6d04614564386fcdc"
+    },
+    "/Users/mdub1na/IdeaProjects/ventilator2/.build/helper-registration-diagnostics": {
+      "PLAN.md": "083cbefab229df1217cf23a2d710baa8e0a9a1766ffda0213f389f2a7784f698",
+      "btm.json": "3cc284394e2a37859786bad898dbcf2c26fb9d4cf02d6de7d0f93a0e7f09e511",
+      "launchd.json": "0c30d793b60848124d98be32a1a8d1fc835e7ec45c95108877cded9aef0d0e67",
+      "manifest.json": "a0b81a1dc6a1a04252ca24a82ce1a2f0e4ded9e580e7206e7699eac5d6af6f32",
+      "result.json": "e95d61ff25d5d16d74c8fd3e6a63a263d9ff1592c8c41ad0714eb13e0eb969c9",
+      "snapshot.py": "dc6950f39a93c0063df9737a72f274a31cc3b3afe510b8ce5b9fefe8a8df525e",
+      "started.json": "ba522141b37943d527cf33cddfd6e9e26c3f57856d08a1eda45e45a7db6ac7ff"
+    },
+    "/Applications/Ventilator.app": {
+      "Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Contents/MacOS/Ventilator": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "Contents/MacOS/VentilatorHelper": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "Contents/_CodeSignature/CodeResources": "e7a4e6cd967b9c0bca58b89cb3bab152a66ef19ee6f0d545837624887445f20a"
+    },
+    "/Users/mdub1na/IdeaProjects/ventilator2/.build/owner-profile-update": {
+      "PLAN.md": "a16c8d6848139a641a0901048f89721c0858ef3cc54521531ccc62a12b682c41",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Ventilator.app/Contents/MacOS/Ventilator": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e7a4e6cd967b9c0bca58b89cb3bab152a66ef19ee6f0d545837624887445f20a",
+      "manifest.json": "5f2489819f5d29ee84336b2785d485bf1e81203b0ffa45d0526265dba4295481",
+      "qualification-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+      "session.py": "65bef82f5bc6c45f05484284db6de93a6d337c710ce1d59088eef25ce542793f",
+      "sign-started.json": "0da1a54a45d82b68a2c430f9a711f9c63f4a67750da9f81c6bd5bd7b7775a7f7",
+      "signature-ready.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+      "update-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38"
+    },
+    "/Users/mdub1na/IdeaProjects/ventilator2/.build/owner-profile-update-resume": {
+      "PLAN.md": "1398cb5c17610d5bb9d75789b8d1d41505a1dda223011e164c83b1767a4037b1",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Ventilator.app/Contents/MacOS/Ventilator": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e7a4e6cd967b9c0bca58b89cb3bab152a66ef19ee6f0d545837624887445f20a",
+      "manifest.json": "97e91a491c1ecc904bcf05ca22a42deac7ec8919e36b6a32e8426a1f3fe01be3",
+      "qualification-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+      "registration-completed.json": "53c91e37554326945f707a236bc3aec825200fdd2b601c7cc69af08c84c6e24b",
+      "registration-started.json": "6d41d8a69e164d7e750f719c0163385cdecb49a0e62e6a9b3ae6b25c6aa406fa",
+      "removal-completed.json": "f3ddd594d48c0fad2f9fa2b53d4607c0b0dbc952e1c44c0bec0dd2607ba94411",
+      "removal-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38",
+      "replacement-completed.json": "8e5a07923399c65fdb765d1c0a4a8ba1034ce65d7c27ea7123c97dc0d15684f5",
+      "replacement-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38",
+      "sealed.json": "cbe21c549c2272806da821724572bb700717b5bd207fa7c0acf17a64e50aac28",
+      "session.py": "ab3b4bdd526850f535bc75c706c5ff3184cef9d9460080cabba2aa65b1b7db16",
+      "update-started.json": "7f3656e238c47232d60450e5e368dd4baa173ac72bb7e2516832c75e60f8ce38"
+    },
+    "/Users/mdub1na/IdeaProjects/ventilator2/.build/owner-session": {
+      "PLAN.md": "80217afe0faa01f7e8ea1765117ae1c53a05cd6a61a3bbb9f79c48d7dae225a7",
+      "Ventilator.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+      "Ventilator.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+      "Ventilator.app/Contents/MacOS/Ventilator": "342343978d1f133bde0affea14d664eab9431e9ec3a5edb57d49894793a27caa",
+      "Ventilator.app/Contents/MacOS/VentilatorHelper": "24017940cc5a6447c95002083e026e2ad1f22cc9dab1e3e18a4177ae5e361430",
+      "Ventilator.app/Contents/_CodeSignature/CodeResources": "e51b51f019766693a09bdd6f5dc9ac0d2ae52b0d6f24ea8713b0cf61eec159eb",
+      "candidate.json": "611beae7cc61f2ab0b3a5892f33400fedeec11b73502610a59cefcc28d3c6243",
+      "manifest.json": "47c12ec7064781a0153ffcb04b9ab2178ad2e8dd7793a52b3428cd45ed49073a",
+      "qualification-started.json": "eb133f2d73be43af1d36efbc82708d01783d5ff683e33178473f8c38cf26f6b7",
+      "registration-completed.json": "917c6151abd8cf09cddc4a72d69410e6665cc50b731279f52f81fc91e111e2e6",
+      "registration-started.json": "37263e896658b2a756d1541d9a593e6eddd2702a10162bba19824652667693f0",
+      "review.json": "6cb96a66cdbcd7b391a9f150e278e2cdaa885a951359ef3110d7c72cb911cf49",
+      "review.sha256": "d563760ece4ff61363aa45a9e3138cb85112f5df7e9b7dea9aa9f126cf0383ae",
+      "sealed.json": "ce83ee9d947a79e9ba927d0de532a87ff8c09bb26a9a14cebf2dc5f764098001",
+      "session.py": "f475e8413456043d99f165cccddd7438487ac3a81da1e37c7ae1b800cc48ae90"
+    },
+    "/Users/mdub1na/IdeaProjects/ventilator2/.build/helper-after-restart": {
+      "PLAN.md": "b210eb4b7fd3205ca3ad046ffa610ec1e8e74fff564abec21e5c6044e8085850",
+      "btm.json": "65605f24491228b052c40a43d59d150ebfc4b3da062966da3b0d3289b05dcf61",
+      "launchd.json": "cc9c274e55c40577fc81ab6f27defd6c6e67ca34f02b765c85534c278e5ce63e",
+      "manifest.json": "e580e64aec76b653dd7f934ccf4f4206ac02120d1e87f1912c6905f2678e8814",
+      "result.json": "7486f3e1dfbd837edf4a335ea32e8d409548b0847dd6a4e3d12686e18c1087fa",
+      "snapshot.py": "353089b3ecac98ff4a6096e13152690cb15bc165fb656bfa214de5ec8c03a499",
+      "started.json": "0b65b1e5cd7dac653eadc7b102bc0f2a4a8a326c74b3171071f2d5117717bced"
+    }
+  },
+  "ownerResult": {
+    "completedAt": "2026-10-04T15:30:06.064749+05:00",
+    "ownerActionReported": "ALLOW",
+    "registrationAttempt": {
+      "diagnostic": "Error Domain=SMAppServiceErrorDomain Code=1 \"Operation not permitted\" UserInfo={NSLocalizedFailureReason=Operation not permitted}",
+      "hardwareControlAvailable": false,
+      "hardwareWritesExecuted": 0,
+      "registration": "requiresApproval"
+    },
+    "registrationStatus": "enabled",
+    "rootJobLoaded": true,
+    "isolatedBootstrapConfirmed": true,
+    "ventilatorRootPeerVerified": false,
+    "hardwareWritesExecuted": 0,
+    "interpretation": "Tests only this new GUI identity; does not repair or establish cause for Ventilator."
+  },
+  "cleanupReply": {
+    "hardwareControlAvailable": false,
+    "hardwareWritesExecuted": 0,
+    "registration": "notRegistered"
+  },
+  "jobAfterRegistration": {
+    "observedAt": "2026-10-04T15:30:06.064469+05:00",
+    "exitCode": 0,
+    "stdout": "system/dev.ventilator.registration-probe.daemon = {\n\tactive count = 1\n\tpath = (submitted by smd.98)\n\ttype = Submitted\n\tmanaged_by = com.apple.xpc.ServiceManagement\n\tstate = running\n\n\tprogram identifier = Contents/MacOS/RegistrationProbeDaemon (mode: 2)\n\tparent bundle identifier = dev.ventilator.registration-probe\n\tparent bundle version = 1\n\tBTM uuid = CA0FED28-B977-4034-9AC5-25BADBB9CCB4\n\tdefault environment = {\n\t\tPATH => /usr/bin:/bin:/usr/sbin:/sbin\n\t}\n\n\tenvironment = {\n\t\tOSLogRateLimit => 64\n\t\tXPC_SERVICE_NAME => dev.ventilator.registration-probe.daemon\n\t}\n\n\tLWCR = {\n\t\t\"reqs\" => {\n\t\t\t\"signing-identifier\" => \"dev.ventilator.registration-probe.daemon\"\n\t\t\t\"validation-category\" => 3\n\t\t\t\"team-identifier\" => \"4659S5GD6X\"\n\t\t}\n\t\t\"vers\" => 1\n\t\t\"comp\" => 1\n\t\t\"ccat\" => 0\n\t}\n\n\tdomain = system\n\tminimum runtime = 10\n\texit timeout = 5\n\truns = 1\n\tpid = 18620\n\timmediate reason = speculative\n\tforks = 0\n\texecs = 1\n\tinitialized = 1\n\ttrampolined = 1\n\tstarted suspended = 0\n\tproxy started suspended = 0\n\tchecked allocations = 0 (queried = 1)\n\tchecked allocations reason = no host\n\tchecked allocations flags = 0x0\n\tlast exit code = (never exited)\n\n\tresource coalition = {\n\t\tID = 2176\n\t\ttype = resource\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = dev.ventilator.registration-probe.daemon\n\t}\n\n\tjetsam coalition = {\n\t\tID = 2177\n\t\ttype = jetsam\n\t\tstate = active\n\t\tactive count = 1\n\t\tname = dev.ventilator.registration-probe.daemon\n\t}\n\n\tspawn type = daemon (3)\n\tjetsam priority = 40\n\tjetsam memory limit (active) = (unlimited)\n\tjetsam memory limit (inactive) = (unlimited)\n\tjetsamproperties category = daemon\n\tsubmitted job. ignore execute allowed\n\tjetsam thread limit = 32\n\tcpumon = default\n\tjob state = running\n\tsanitizer flags = 0x0\n\n\tproperties = partial import | runatload | resolve program | has LWCR\n}\n",
+    "stderr": null
+  },
+  "jobAfterCleanup": {
+    "observedAt": "2026-10-04T15:30:06.163517+05:00",
+    "exitCode": 113,
+    "stdout": "",
+    "stderr": null
+  },
+  "cleanupCompleted": false,
+  "archiveExists": false,
+  "guiProcess": {
+    "pid": 18550,
+    "exitCode": 0,
+    "stdout": "18550     1   501 S    /Applications/Ventilator Registration Probe.app/Contents/MacOS/RegistrationProbe --owner-probe-session /Users/mdub1na/IdeaProjects/ventilator2/.build/registration-probe-owner\n",
+    "stderr": ""
+  },
+  "runtimeAbsentBefore": true,
+  "registrationRequested": false,
+  "hardwareWritesExecuted": 0,
+  "ventilatorStatus": {
+    "command": [
+      "/Applications/Ventilator.app/Contents/MacOS/Ventilator",
+      "--helper-status"
+    ],
+    "timeoutSeconds": 10,
+    "exitCode": 0,
+    "stdout": "{\n  \"error\" : \"serviceNotEnabled\",\n  \"fingerprint\" : {\n    \"applicationSHA256\" : \"c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc\",\n    \"helperSHA256\" : \"49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27\",\n    \"launchDaemonSHA256\" : \"f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f\"\n  },\n  \"hardwareControlAvailable\" : false,\n  \"helperVerified\" : false,\n  \"installedLocation\" : true,\n  \"registration\" : \"requiresApproval\",\n  \"rootOwned\" : true,\n  \"trustedBundle\" : true\n}\n",
+    "stderr": "",
+    "reply": {
+      "error": "serviceNotEnabled",
+      "fingerprint": {
+        "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+        "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareControlAvailable": false,
+      "helperVerified": false,
+      "installedLocation": true,
+      "registration": "requiresApproval",
+      "rootOwned": true,
+      "trustedBundle": true
+    }
+  },
+  "runtimeAbsentAfter": true,
+  "completedAt": "2026-10-04T15:37:20.144068+05:00",
+  "ownerTerminalReport": {
+    "receivedAt": "2026-10-04",
+    "closureAnswer": "CLOSED",
+    "stop": "Probe GUI still running; preserve state",
+    "reportedApproval": "ALLOW"
+  },
+  "interpretation": {
+    "isolatedGUIBootstrapConfirmed": true,
+    "isolatedUnregisterConfirmed": true,
+    "archiveCompleted": false,
+    "productionRegistrationAfterProbe": "requiresApproval",
+    "productionRootPeerVerified": false,
+    "causeEstablished": false,
+    "hardwareExperimentStarted": false
+  }
+}
