@@ -31,9 +31,10 @@ final class LocalApprovalIssuerTests: XCTestCase {
     func testDeclineEOFAndPartialConsentNeverApprove() throws {
         let (directory, authority, issuer, review) = try fixture(); defer { try? FileManager.default.removeItem(at: directory) }
         let prompt = try issuer.prepare(owner: UUID(), planSHA256: review.candidate.sha256(), reviewSHA256: review.sha256(), now: 10)
-        for response in [nil, "", "yes", "APPROVE", " " + prompt.confirmation] {
+        for response in [nil, "", "yes", "APPROVE", "START", "START \(prompt.challenge.id.uuidString)", " " + prompt.confirmation] {
             XCTAssertThrowsError(try issuer.confirm(prompt, response: response, now: 11))
             XCTAssertNil(try authority.state().approval)
+            XCTAssertNil(try authority.state().ledger)
         }
     }
 
