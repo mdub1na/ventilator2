@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-10-04T14:29:14.940170+05:00",
+  "ownerUID": 501,
+  "machine": {
+    "model": "Mac15,7",
+    "version": "27.0.1",
+    "build": "26A434"
+  },
+  "bootUUID": "277d8b80-f202-4926-9318-bde81f25c8e0",
+  "runtimeBefore": {
+    "lstatErrno": 2,
+    "exists": false
+  },
+  "command": [
+    "/Applications/Ventilator.app/Contents/MacOS/Ventilator",
+    "--helper-status"
+  ],
+  "timeoutSeconds": 10,
+  "registrationRequested": false,
+  "hardwareWritesExecuted": 0,
+  "exitCode": 0,
+  "stdout": "{\n  \"error\" : \"serviceNotEnabled\",\n  \"fingerprint\" : {\n    \"applicationSHA256\" : \"c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc\",\n    \"helperSHA256\" : \"49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27\",\n    \"launchDaemonSHA256\" : \"f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f\"\n  },\n  \"hardwareControlAvailable\" : false,\n  \"helperVerified\" : false,\n  \"installedLocation\" : true,\n  \"registration\" : \"requiresApproval\",\n  \"rootOwned\" : true,\n  \"trustedBundle\" : true\n}\n",
+  "stderr": "",
+  "reply": {
+    "error": "serviceNotEnabled",
+    "fingerprint": {
+      "applicationSHA256": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+      "helperSHA256": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareControlAvailable": false,
+    "helperVerified": false,
+    "installedLocation": true,
+    "registration": "requiresApproval",
+    "rootOwned": true,
+    "trustedBundle": true
+  },
+  "runtimeAfter": {
+    "lstatErrno": 2,
+    "exists": false
+  },
+  "completedAt": "2026-10-04T14:29:15.022260+05:00"
+}

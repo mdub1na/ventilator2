@@ -12,6 +12,10 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
+Добавлен отдельный diagnostic GUI probe (`dev.ventilator.registration-probe` / `.daemon`) с noop daemon и своим owner пакетом. Он не линкует модули Ventilator/аппаратный транспорт, не подтверждает production root XPC и не ремонтирует его регистрацию. CLI inspect/qualify не создают SMAppService; GUI registration и cleanup требуют canonical root-owned signed process, pinned Team/certificate и exact owner seal. Marker предшествует каждому sole register/unregister; retry закрыт. Owner workflow подписывает/qualifies до установки, scope root commands ограничен probe, cleanup подтверждает absent job/GUI exit и архивирует exact bundle. [Полный сеанс](../registration-probe-owner.md). Actual signed/system positive ещё не выполнен.
+
+2026-10-04 14:29 +05:00 прямой installed `--helper-status` подтвердил requiresApproval после перезапуска, при прежних exact fingerprints/owner/machine/boot и отсутствии runtime. Предыдущее «не запрашивался» ниже относится к завершённому collector. [Прямой ответ](../research/evidence/post-restart-framework-state.json).
+
 Текущее состояние 2026-10-04, после перезапуска: другой boot подтверждён, administrative root lookup снова вернул 113. BTM убрал pending authorization у parent, global parent остался disallowed, child enabled/allowed не изменился. Native verification и framework status после перезапуска не запрашивались. Общая метка systemApprovalPending в frozen скрипте не доказывает actual requiresApproval. Installed/backup и прежние сеансы сохранены; положительного root XPC нет, причина отсутствия службы не установлена. Collection/setup/register/ready не повторять. [Результат и сохранность](../research/evidence/after-restart-result.json). До перезапуска register/verify возвращали requiresApproval; уведомления не было. [Предыдущий снимок](../research/evidence/owner-read-only-approval-result.json).
 
 Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. В предыдущем сеансе один owner off/on загрузил system job, хотя parent BTM всё ещё содержал pending authorization. Тогда installed XPC verify получил enabled/deadline: старый helper завершался на runtime с untrustedSignature. Read-only проверка обнаружила смену ОС на **27.0.1 (26A434)** при candidate **27.0.0 (26A428)**; профиль ошибочно объединялся с signature guard. GUI-кнопки RPM отключены. [Исторический результат старой сборки](../research/evidence/owner-system-approval-result.json).
@@ -90,6 +94,9 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 ## Code anchors
 
 | Компонент | Code |
+| Изолированный GUI probe, static/process/owner gates | `Diagnostics/RegistrationProbe/ProbeApp.swift`, `Diagnostics/RegistrationProbe/ProbeBundle.swift` |
+| Noop daemon и отдельная сборка | `Diagnostics/RegistrationProbe/ProbeDaemon.swift`, `scripts/build-registration-probe.py` |
+| Полный owner run и модель | `scripts/registration-probe-session.py`, `scripts/registration-probe-dry-run.py` |
 |---|---|
 | Layout, подписи, root ownership и runtime | `Sources/VentilatorInstallation/SignedBundleInspector.swift` |
 | Путь загруженного executable | `Sources/VentilatorInstallation/CurrentExecutable.swift` |
@@ -398,3 +405,19 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** check показывает signature=complete, certificateQualification=stopped, fullReview=notSealed; повтор sign не вызывает codesign. Sign сам не вызывает public qualification, sealed import показывает оба complete только после полного bound check.
 
 **Automated:** `scripts/owner-session-dry-run.py`
+
+### Scenario: Отдельная регистрационная проверка не исполняет аппаратный код
+
+**Дано:** ad hoc probe либо неканонический процесс без sealed owner session.
+**Когда:** запрашивается inspect/qualify/status/cleanup или preview.
+**Тогда:** неподписанная Apple identity и неустановленные lifecycle пути отказывают до SMAppService; preview имеет отключённые service controls. Нативная модель сохраняет failed registration до запрета повторного вызова; noop daemon отвергает обычный non-root запуск.
+
+**Automated:** `scripts/registration-probe-native-check.py`, `scripts/registration-probe-dry-run.py`
+
+### Scenario: Изолированный owner workflow завершает только свой тест
+
+**Дано:** frozen owner/machine/script/plan/protected-file bindings и отдельные app/service IDs.
+**Когда:** выполняется sign → positive qualification → absent-job exclusive install → GUI register → status/root read → cleanup.
+**Тогда:** qualification/job/sudo/format/отмена/partial install отказывают без зависимых действий; success означает только isolated bootstrap, не production peer. Unregister выполняется один раз, архивирование запрещено при active GUI; changed files/alias и replay не вызывают операций. Аппаратных записей нет.
+
+**Automated:** `scripts/registration-probe-dry-run.py`
