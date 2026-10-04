@@ -16,6 +16,8 @@
 
 ## M2 — подготовка единственного опыта
 
+Реализована новая compiled identity `dev.ventilator.app` / `dev.ventilator.app.helper` с одноимённым plist; Apple anchor/Team/CDHash и root peer gates сохранены. Старые identities и лишний legacy plist отвергаются до signature/framework. 29 installation/setup tests, strict ad hoc build и anonymous XPC/runtime models прошли. Это **source verification**, installed версия ещё прежняя. Полный [owner сеанс новой identity](docs/gui-helper-identity-owner.md) проверяет гипотезу сохранённой истории: positive qualification до lifecycle, pending/absent-only old removal, exact backup, sole GUI register и раздельные CONNECTED → ON → ALLOW/NONE. Hardware writes=[], actual новая регистрация пока не выполнена. [Source evidence](docs/research/evidence/helper-identity-source-preparation.json).
+
 После owner включения actual AX ON независимо подтверждён; единственный native status в 19:13:33 +05:00 остался **requiresApproval/serviceNotEnabled**, helperVerified=false. CLI exit 0 означает завершение диагностики. Frozen continuation4, completed reconnect30, protected12, installed5 и private GUI2 сохранены; runtime отсутствует, hardware writes 0. ON не привёл к root positive. Повтор статуса/регистрации не выполняется; исследуется системный допуск. [Actual result](docs/research/evidence/gui-helper-enable-result.json).
 
 Владелец подтвердил, что после последнего register пропустил ON. Подготовлено [продолжение только с включением фоновой активности](docs/gui-helper-enable-owner.md): существующая установка/регистрация сохраняются, после owner ON агент независимо проверяет переключатель и делает один bounded native status. Повтор signing/reconnect/register не нужен. ON/positive root пока не подтверждены, hardware writes 0.

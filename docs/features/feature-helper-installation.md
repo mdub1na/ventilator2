@@ -12,6 +12,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
+Новая compiled identity — `dev.ventilator.app` / `dev.ventilator.app.helper`; Apple anchor/Team/CDHash и root peer gates сохранены. Legacy layout/extra plist отказывают до signature/framework. Новая сборка проверена на модели, installed версия ещё прежняя. Подготовлен один [owner сеанс](../gui-helper-identity-owner.md) для проверки гипотезы identity history с positive qualification, pending/absent-only removal, exact backup и явными CONNECTED → ON → ALLOW/NONE. [Source evidence](../research/evidence/helper-identity-source-preparation.json).
+
 После owner включения actual AX ON независимо подтверждён; единственный native status в 19:13:33 +05:00 остался **requiresApproval/serviceNotEnabled**, helperVerified=false. CLI exit 0 означает завершение диагностики. Frozen continuation4, completed reconnect30, protected12, installed5 и private GUI2 сохранены; runtime отсутствует, hardware writes 0. ON не привёл к root positive. Повтор статуса/регистрации не выполняется; исследуется системный допуск. [Actual result](../research/evidence/gui-helper-enable-result.json).
 
 Владелец подтвердил, что после последнего register пропустил ON. Подготовлено [продолжение только с включением фоновой активности](../gui-helper-enable-owner.md): существующая установка/регистрация сохраняются, после owner ON агент независимо проверяет переключатель и делает один bounded native status. Повтор signing/reconnect/register не нужен. ON/positive root пока не подтверждены, hardware writes 0.
@@ -68,7 +70,7 @@ Owner archive-only continuation завершён: exact signed probe архив�
 
 Перед запуском обычного daemon, root simulation worker и подготовленного аппаратного device проверяется также динамическая подпись текущего процесса по CDHash. Приложение явно отказывается запускаться от root. Root-owned расположение — наш выбор для фиксированного M2 bundle, не требование Apple ко всем приложениям SMAppService.
 
-`CurrentExecutable` получает путь загруженного executable через `_NSGetExecutablePath`; argv[0] не используется для bundle, candidate hashes или дочерних процессов. По [Apple dyld](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dyld.3.html) путь может содержать symlink: helper не скрывает его через realpath, прежний layout gate по-прежнему отвергает aliases. Relative/foreign/opaque argv[0] реально проверены из cwd=/ на app/helper. Startup log `dev.ventilator.helper/startup` фиксирует этап identity/runtime/listener и отказ без nonce/approval содержимого.
+`CurrentExecutable` получает путь загруженного executable через `_NSGetExecutablePath`; argv[0] не используется для bundle, candidate hashes или дочерних процессов. По [Apple dyld](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dyld.3.html) путь может содержать symlink: helper не скрывает его через realpath, прежний layout gate по-прежнему отвергает aliases. Relative/foreign/opaque argv[0] реально проверены из cwd=/ на app/helper. Startup log `dev.ventilator.app.helper/startup` фиксирует этап identity/runtime/listener и отказ без nonce/approval содержимого.
 
 `InstalledHelperClient` использует privileged Mach service. Обе стороны XPC требуют Apple anchor, точный identifier/Team ID и CDHash своего counterpart. Каждый запрос имеет новый nonce и срок 2 с по continuous clock. JSON не аутентифицирует peer: UID/PID берутся из `NSXPCConnection`, UID должен быть root, PID должен совпасть с reply. Версия, nonce, CDHash и все три digest сверяются; oversized (>16 KiB), поздний, чужой или заявляющий hardware control ответ отвергается. Успешный handshake означает живой проверенный helper, не SMC admission или физический Auto.
 
@@ -522,3 +524,19 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** pending/failed peer сохраняются с readOnlyHelperVerified=false; отсутствии marker не подставляется факт GUI register. Только enabled, exact bound peer без error и loaded job допускают diagnostic unsupportedMachine status; неожиданное hardware claim отказывает. Физическое Auto и аппаратная запись не заявляются.
 
 **Automated:** `scripts/gui-helper-update-dry-run.py`
+
+### Scenario: Retired identity или лишний plist не допускают ServiceManagement
+
+**Дано:** новая compiled app/helper identity и bundle со старым app id, helper Label/MachServices либо дополнительным legacy plist.
+**Когда:** inspector проверяет layout или создаёт runtime signing requirement.
+**Тогда:** старые layouts отвергаются; requirements связывают только новые identifiers, прежние Apple anchor/Team/CDHash сохраняются. Ad hoc статус остаётся notQueried, actual старый installed bundle отвергается до framework.
+
+**Automated:** `Tests/VentilatorInstallationTests/InstallationTests.swift::testRetiredApplicationOrHelperIdentityIsRejected`, `Tests/VentilatorInstallationTests/InstallationTests.swift::testUnsignedBundleAndSymlinkAreRejectedBeforeServiceAccess`
+
+### Scenario: Fresh identity требует отсутствующих jobs и явного ON
+
+**Дано:** sealed новая payload, exact pending/unregistered old installation и private frozen owner/machine/boot bindings.
+**Когда:** владелец выполняет один frozen identity run.
+**Тогда:** квалификация предшествует new/old absent-job reads; enabled/unknown old state и loaded/unknown job запрещают unregister/replacement. Exact old backup сохраняется, новая служба подключается только из GUI. Без CONNECTED, ON и actual private new marker финальная проверка не выполняется. Pending/peer failure не означают готовность; hardware admission закрыт, replay не вызывает новых действий.
+
+**Automated:** `scripts/gui-helper-identity-dry-run.py`

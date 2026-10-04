@@ -28,7 +28,7 @@ final class ExperimentSessionRuntime {
     }
     private static func hardwareIdentity() throws -> UUID {
         let boot = try HardwareRecoveryIdentity.currentBoot()
-        guard SMAppService.daemon(plistName: "dev.ventilator.helper.plist").status == .enabled else {
+        guard SMAppService.daemon(plistName: SignedBundleInspector.plistName).status == .enabled else {
             throw LocalApprovalError.installationNotEnabled
         }
         return boot

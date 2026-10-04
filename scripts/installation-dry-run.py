@@ -71,7 +71,7 @@ for kind in ["launchArguments", "helperSymlink"]:
         copied = Path(directory) / "Ventilator.app"
         shutil.copytree(bundle, copied)
         if kind == "launchArguments":
-            path = copied / "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist"
+            path = copied / "Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist"
             data = plistlib.loads(path.read_bytes()); data["ProgramArguments"] = ["/bin/sh"]
             path.write_bytes(plistlib.dumps(data))
         else:

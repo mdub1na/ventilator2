@@ -1,0 +1,97 @@
+{
+  "verifiedAt": "2026-10-04T19:55:04.977473+05:00",
+  "ownerUID": 501,
+  "identities": {
+    "application": "dev.ventilator.app",
+    "helper": "dev.ventilator.app.helper"
+  },
+  "adHocBundleFilesSHA256": {
+    "Contents/Info.plist": "3a3b7afdc2e6c2e73b024be1ede9f85c1db06c245ccc360afc5b42e69b92a2f2",
+    "Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist": "e506ab97d2e9868c1288fcc2bb2702588430259bcc471c786b31b2cdf856b37b",
+    "Contents/MacOS/Ventilator": "8cc0713f543b54074f5b5999b18a220cbc6502a0fde26c941687bbffc0528bff",
+    "Contents/MacOS/VentilatorHelper": "8e6bac7c589002a442d1cd72621af712e016546234c8f812d1b3398705f9eaf4",
+    "Contents/_CodeSignature/CodeResources": "9ddc9c441df3c56f3bfa572f41fbd0e917bec2126cfa1017907e7a01bdcd787a"
+  },
+  "installationAndSetupTests": {
+    "count": 29,
+    "failures": 0,
+    "log": ".build/helper-identity-tests.log"
+  },
+  "checks": {
+    "adHocStatus": {
+      "argv": [
+        "/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app/Contents/MacOS/Ventilator",
+        "--helper-status"
+      ],
+      "exitCode": 0,
+      "stdout": "{\n  \"error\" : \"appleSignatureRequired\",\n  \"hardwareControlAvailable\" : false,\n  \"helperVerified\" : false,\n  \"installedLocation\" : false,\n  \"registration\" : \"notQueried\",\n  \"rootOwned\" : false,\n  \"trustedBundle\" : false\n}\n",
+      "stderr": ""
+    },
+    "retiredInstalledLayout": {
+      "argv": [
+        "/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app/Contents/MacOS/Ventilator",
+        "--inspect-signed-bundle",
+        "/Applications/Ventilator.app"
+      ],
+      "exitCode": 78,
+      "stdout": "{\n  \"error\" : \"invalidLayout\",\n  \"hardwareControlAvailable\" : false,\n  \"helperVerified\" : false,\n  \"installedLocation\" : false,\n  \"registration\" : \"notQueried\",\n  \"rootOwned\" : false,\n  \"trustedBundle\" : false\n}\n",
+      "stderr": ""
+    },
+    "runtimeModel": {
+      "argv": [
+        "/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app/Contents/MacOS/VentilatorHelper",
+        "--session-runtime-check"
+      ],
+      "exitCode": 0,
+      "stdout": "Unsupported hardware XPC model: Mac15,7/27.0.1/26A434; diagnostic idle, explicit blocker and start denial; no authority or device.\nUnsupported hardware XPC model: Mac15,7/27.0.0/other; diagnostic idle, explicit blocker and start denial; no authority or device.\nUnsupported hardware XPC model: unknown/27.0.0/26A428; diagnostic idle, explicit blocker and start denial; no authority or device.\nRuntime XPC model: explicit Auto passed; missing/wrong-owner approval, heartbeat, restore, status and replay; no hardware authority.\nRuntime XPC model: connection invalidation passed; missing/wrong-owner approval, heartbeat, restore, status and replay; no hardware authority.\nRuntime startup model: surviving broker lifetime lock passed; same receipt, no repeated Fixed/Auto.\nRuntime startup model: broker killed, remaining Auto only passed; same receipt, no repeated Fixed/Auto.\n",
+      "stderr": "VentilatorHelper: failed(\"Worker pipe closed\")\nVentilatorHelper: failed(\"Worker pipe closed\")\n"
+    },
+    "loopbackModel": {
+      "argv": [
+        "/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app/Contents/MacOS/VentilatorHelper",
+        "--loopback-check"
+      ],
+      "exitCode": 0,
+      "stdout": "XPC loopback: status, empty installation refusal, hardware preparation/refusal, malformed approval, simulation start, owner binding, heartbeat and restore passed; hardwareControlAvailable=false\n",
+      "stderr": ""
+    },
+    "strictSignature": {
+      "argv": [
+        "/usr/bin/codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "appIdentity": {
+      "argv": [
+        "/usr/bin/codesign",
+        "-d",
+        "--verbose=2",
+        "/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "Executable=/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app/Contents/MacOS/Ventilator\nIdentifier=dev.ventilator.app\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=4715 flags=0x2(adhoc) hashes=141+3 location=embedded\nSignature=adhoc\nInfo.plist entries=12\nTeamIdentifier=not set\nSealed Resources version=2 rules=13 files=2\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+    },
+    "helperIdentity": {
+      "argv": [
+        "/usr/bin/codesign",
+        "-d",
+        "--verbose=2",
+        "/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app/Contents/MacOS/VentilatorHelper"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "Executable=/Users/mdub1na/IdeaProjects/ventilator2/.build/Ventilator.app/Contents/MacOS/VentilatorHelper\nIdentifier=dev.ventilator.app.helper\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=6802 flags=0x2(adhoc) hashes=207+2 location=embedded\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\nTotal signatures=1\nChosen signature=1\n"
+    }
+  },
+  "installedMutationPerformed": false,
+  "registrationInvoked": false,
+  "hardwareWritesExecuted": 0,
+  "physicalAutoVerified": false
+}

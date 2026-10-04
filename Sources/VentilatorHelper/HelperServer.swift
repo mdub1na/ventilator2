@@ -15,7 +15,7 @@ enum HelperClock {
 }
 
 final class HelperCoordinator {
-    private let queue = DispatchQueue(label: "dev.ventilator.helper.session")
+    private let queue = DispatchQueue(label: SignedBundleInspector.machService + ".session")
     private let directory: URL
     private var worker: SimulationWorkerClient?
     private let experiment: ExperimentSessionRuntime?

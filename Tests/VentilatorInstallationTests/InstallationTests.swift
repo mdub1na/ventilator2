@@ -133,7 +133,7 @@ final class InstallationTests: XCTestCase {
         try PropertyListSerialization.data(fromPropertyList: object, format: .xml, options: 0)
     }
     private var launch: [String: Any] { ["Label": SignedBundleInspector.machService, "BundleProgram": "Contents/MacOS/VentilatorHelper", "MachServices": [SignedBundleInspector.machService: true]] }
-    private var info: [String: Any] { ["CFBundleIdentifier": "dev.ventilator.macos", "CFBundleExecutable": "Ventilator", "CFBundlePackageType": "APPL"] }
+    private var info: [String: Any] { ["CFBundleIdentifier": "dev.ventilator.app", "CFBundleExecutable": "Ventilator", "CFBundlePackageType": "APPL"] }
 
     func testLaunchLayoutRejectsAnotherExecutableExtraArgumentsOrMachService() throws {
         try SignedBundleInspector.validateLayout(launchData: plist(launch), infoData: plist(info))
@@ -145,6 +145,28 @@ final class InstallationTests: XCTestCase {
         }
         var otherApp = info; otherApp["CFBundleExecutable"] = "Other"
         XCTAssertThrowsError(try SignedBundleInspector.validateLayout(launchData: plist(launch), infoData: plist(otherApp)))
+    }
+
+    func testRetiredApplicationOrHelperIdentityIsRejected() throws {
+        var oldInfo = info
+        oldInfo["CFBundleIdentifier"] = "dev.ventilator.macos"
+        XCTAssertThrowsError(try SignedBundleInspector.validateLayout(launchData: plist(launch), infoData: plist(oldInfo))) {
+            XCTAssertEqual($0 as? InstallationError, .invalidLayout)
+        }
+        var oldLaunch = launch
+        oldLaunch["Label"] = "dev.ventilator.helper"
+        oldLaunch["MachServices"] = ["dev.ventilator.helper": true]
+        for appInfo in [info, oldInfo] {
+            XCTAssertThrowsError(try SignedBundleInspector.validateLayout(launchData: plist(oldLaunch), infoData: plist(appInfo))) {
+                XCTAssertEqual($0 as? InstallationError, .invalidLayout)
+            }
+        }
+        for (role, identifier) in [(SignedBundleInspector.Role.application, "dev.ventilator.app"), (.helper, "dev.ventilator.app.helper")] {
+            let requirement = try SignedBundleInspector.requirement(role: role, proof: proof())
+            XCTAssertTrue(requirement.contains("identifier \"\(identifier)\""))
+            XCTAssertTrue(requirement.contains("anchor apple generic"))
+            XCTAssertTrue(requirement.contains("cdhash H\""))
+        }
     }
 
     func testPinnedRequirementsCompileAndRejectInjection() throws {
@@ -233,9 +255,13 @@ final class InstallationTests: XCTestCase {
         try FileManager.default.createDirectory(at: bundle.appendingPathComponent("Contents/MacOS"), withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: bundle.appendingPathComponent("Contents/Library/LaunchDaemons"), withIntermediateDirectories: true)
         try plist(info).write(to: bundle.appendingPathComponent("Contents/Info.plist"))
-        try plist(launch).write(to: bundle.appendingPathComponent("Contents/Library/LaunchDaemons/dev.ventilator.helper.plist"))
+        try plist(launch).write(to: bundle.appendingPathComponent("Contents/Library/LaunchDaemons/dev.ventilator.app.helper.plist"))
         for name in ["Ventilator", "VentilatorHelper"] { try Data("unsigned".utf8).write(to: bundle.appendingPathComponent("Contents/MacOS/\(name)")) }
         XCTAssertThrowsError(try SignedBundleInspector.inspect(bundle))
+        let obsolete = bundle.appendingPathComponent("Contents/Library/LaunchDaemons/dev.ventilator.helper.plist")
+        try Data("obsolete daemon".utf8).write(to: obsolete)
+        XCTAssertThrowsError(try SignedBundleInspector.inspect(bundle)) { XCTAssertEqual($0 as? InstallationError, .invalidLayout) }
+        try FileManager.default.removeItem(at: obsolete)
         let helper = bundle.appendingPathComponent("Contents/MacOS/VentilatorHelper")
         try FileManager.default.removeItem(at: helper)
         try FileManager.default.createSymbolicLink(at: helper, withDestinationURL: bundle.appendingPathComponent("Contents/MacOS/Ventilator"))

@@ -5,7 +5,7 @@
     <key>CFBundleDevelopmentRegion</key><string>ru</string>
     <key>CFBundleDisplayName</key><string>Ventilator</string>
     <key>CFBundleExecutable</key><string>Ventilator</string>
-    <key>CFBundleIdentifier</key><string>dev.ventilator.macos</string>
+    <key>CFBundleIdentifier</key><string>dev.ventilator.app</string>
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
     <key>CFBundleName</key><string>Ventilator</string>
     <key>CFBundlePackageType</key><string>APPL</string>
