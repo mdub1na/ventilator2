@@ -27,10 +27,16 @@ final class HelperCoordinator {
         self.experiment = experiment
         self.machineSupported = machineSupported
         try experiment?.recoverOnStartup()
-        let journal = try FileSessionJournal(directory: directory)
-        if try journal.load() != nil {
-            worker = try SimulationWorkerClient(directory: directory)
-            lastReply = worker!.lastReply
+        // A diagnostic listener must not create simulation storage just to look for a journal.
+        var metadata = stat()
+        if lstat(directory.path, &metadata) == 0 {
+            let journal = try FileSessionJournal(directory: directory)
+            if try journal.load() != nil {
+                worker = try SimulationWorkerClient(directory: directory)
+                lastReply = worker!.lastReply
+            }
+        } else if errno != ENOENT {
+            throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno))
         }
     }
 

@@ -12,6 +12,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
+Подготовлен отдельный полный [GUI owner update](../gui-helper-owner-update.md). Новая подпись/positive qualification и root-owned staging/static inspection выполняются до conditional guarded unregister прежней копии; old bytes сохраняются в non-app backup. Root job после removal должен отсутствовать до mv. Новая GUI app открывается только canonical, сама не регистрирует helper; один explicit click сохраняет user marker. После ALLOW/NONE читаются actual status/job; успешный root peer отдельно от GUI attempt и только затем unsupportedMachine diagnostic status. CLI register, OFF/ON, hardware review/approval/start не вызываются. Replay, unknown/changed runtime/job/hash/marker/native reply останавливаются с сохранением путей. Actual owner update ещё не выполнен. [Подготовка/проверки](../research/evidence/gui-helper-update-preparation.json).
+
 В исходниках добавлен [GUI раздел помощника](../screens/screen-application.md): проверка статуса/XPC вне UI потока, одно explicit register из main actor только после подписанного canonical root-owned process и совпадения fingerprint с прочитанным состоянием. Pending/enabled не вызывают claim/register. Перед register создаётся exclusive/fsynced marker для owner и трёх signed hashes в приватном user Application Support; restart не стирает failed attempt. Файлы аппаратного review/authority не используются. Enabled без bound root verification не показывается как «Помощник доступен». Этот код ещё не установлен в production bundle; положительный GUI registration/root peer на нём требует отдельного owner update.
 
 Owner archive-only continuation завершён: exact signed probe архивирован в новый non-app bundle, installed target отсутствует, текущий status=notRegistered и root job absent. Старые 21 файл и девять protected директорий совпали; registration/unregister не повторялись. [Фактический итог](../research/evidence/registration-probe-archive-result.json).
@@ -111,6 +113,7 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 | Полный owner run и модель | `scripts/registration-probe-session.py`, `scripts/registration-probe-dry-run.py` |
 | Завершение переноса stopped probe без lifecycle повторов | `scripts/registration-probe-archive.py`, `scripts/registration-probe-archive-dry-run.py` |
 | GUI state/registration и per-owner marker | `Sources/Ventilator/HelperSetupView.swift`, `Sources/VentilatorInstallation/HelperSetupModel.swift`, `Sources/VentilatorInstallation/GUIRegistrationAttempt.swift` |
+| Полный diagnostic GUI update | `scripts/gui-helper-update.py`, `scripts/gui-helper-update-dry-run.py` |
 |---|---|
 | Layout, подписи, root ownership и runtime | `Sources/VentilatorInstallation/SignedBundleInspector.swift` |
 | Путь загруженного executable | `Sources/VentilatorInstallation/CurrentExecutable.swift` |
@@ -459,3 +462,19 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** exclusive marker с signed fingerprint сохранён и fsynced до register. Повтор не перезаписывает его; alias/public directory/invalid hashes отказывают, failure сохраняется. UI register выполняется на main thread, refresh — вне него; прочитанный enabled не заменяет root proof.
 
 **Automated:** `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testDurableMarkerSurvivesFailureAndRejectsReplayWithoutOverwriting`, `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testMarkerRefusesAliasesPublicDirectoryAndMalformedHashes`, `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testModelWaitsForExplicitRefreshAndCallsRegisterOnceOnMainThread`, `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testDisplayedReadinessRequiresInstalledTrustEnabledAndBoundPeer`
+
+### Scenario: GUI owner update квалифицирует новую копию до lifecycle действий
+
+**Дано:** private frozen owner/machine/hash bindings, exact прежняя установка, отсутствующие runtime/stage/GUI attempt этой новой подписи.
+**Когда:** владелец закрывает app и запускает один update.
+**Тогда:** подпись/positive revocation и статическая проверка staging предшествуют conditional unregister и exact mv с backup. Runtime appearance, live GUI, unknown job/sudo/alarm/partial copy отказывают до replacement; frozen replay не вызывает новых команд. CLI register и hardware commands отсутствуют.
+
+**Automated:** `scripts/gui-helper-update-dry-run.py`
+
+### Scenario: Новый GUI marker и enabled не заменяют verified root peer
+
+**Дано:** canonical новая signed/root-owned app после GUI Allow либо отсутствия запроса.
+**Когда:** update читает native marker, framework report и system job.
+**Тогда:** pending/failed peer сохраняются с readOnlyHelperVerified=false; отсутствии marker не подставляется факт GUI register. Только enabled, exact bound peer без error и loaded job допускают diagnostic unsupportedMachine status; неожиданное hardware claim отказывает. Физическое Auto и аппаратная запись не заявляются.
+
+**Automated:** `scripts/gui-helper-update-dry-run.py`
