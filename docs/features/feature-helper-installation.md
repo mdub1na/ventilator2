@@ -12,6 +12,12 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
+2026-10-04: owner GUI probe подтверждён — после ALLOW status=enabled, root job running; один unregister вернул notRegistered и absent job (113). Архивирование остановилось после CLOSED на живом GUI PID. Подписанная тестовая копия сохранена в /Applications, старые 21 файл/девять protected директорий неизменны. Direct production status после probe всё ещё requiresApproval; production root XPC не подтверждён. [Факты и границы](../research/evidence/registration-probe-result.json).
+
+Отдельный archive-only continuation допускает только уже снятый с регистрации exact probe. Он сохраняет прежний frozen session, ждёт фактического завершения GUI, читает один текущий probe status/absent system job и переносит пять signed файлов в новый non-app архив. Register/unregister/signing не повторяются; marker закрывает повтор после попытки. [Полный порядок владельца](../registration-probe-archive-owner.md). Actual перенос этим продолжением пока не выполнен.
+
+## История подготовки до GUI probe
+
 Добавлен отдельный diagnostic GUI probe (`dev.ventilator.registration-probe` / `.daemon`) с noop daemon и своим owner пакетом. Он не линкует модули Ventilator/аппаратный транспорт, не подтверждает production root XPC и не ремонтирует его регистрацию. CLI inspect/qualify не создают SMAppService; GUI registration и cleanup требуют canonical root-owned signed process, pinned Team/certificate и exact owner seal. Marker предшествует каждому sole register/unregister; retry закрыт. Owner workflow подписывает/qualifies до установки, scope root commands ограничен probe, cleanup подтверждает absent job/GUI exit и архивирует exact bundle. [Полный сеанс](../registration-probe-owner.md). Actual signed/system positive ещё не выполнен.
 
 2026-10-04 14:29 +05:00 прямой installed `--helper-status` подтвердил requiresApproval после перезапуска, при прежних exact fingerprints/owner/machine/boot и отсутствии runtime. Предыдущее «не запрашивался» ниже относится к завершённому collector. [Прямой ответ](../research/evidence/post-restart-framework-state.json).
@@ -97,6 +103,7 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 | Изолированный GUI probe, static/process/owner gates | `Diagnostics/RegistrationProbe/ProbeApp.swift`, `Diagnostics/RegistrationProbe/ProbeBundle.swift` |
 | Noop daemon и отдельная сборка | `Diagnostics/RegistrationProbe/ProbeDaemon.swift`, `scripts/build-registration-probe.py` |
 | Полный owner run и модель | `scripts/registration-probe-session.py`, `scripts/registration-probe-dry-run.py` |
+| Завершение переноса stopped probe без lifecycle повторов | `scripts/registration-probe-archive.py`, `scripts/registration-probe-archive-dry-run.py` |
 |---|---|
 | Layout, подписи, root ownership и runtime | `Sources/VentilatorInstallation/SignedBundleInspector.swift` |
 | Путь загруженного executable | `Sources/VentilatorInstallation/CurrentExecutable.swift` |
@@ -421,3 +428,11 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** qualification/job/sudo/format/отмена/partial install отказывают без зависимых действий; success означает только isolated bootstrap, не production peer. Unregister выполняется один раз, архивирование запрещено при active GUI; changed files/alias и replay не вызывают операций. Аппаратных записей нет.
 
 **Automated:** `scripts/registration-probe-dry-run.py`
+
+### Scenario: Архивирование после завершённого unregister не повторяет lifecycle
+
+**Дано:** сохранённые cleanup=notRegistered, absent root job, exact signed installed probe и неизменный stopped session.
+**Когда:** владелец завершает GUI и запускает archive-only continuation.
+**Тогда:** новый status/absent-job read предшествуют одному mv; старый сеанс и protected файлы сохраняются. Живой GUI, неизвестный status/job, changed binding или существующий archive запрещают перенос; после marker повтор закрыт.
+
+**Automated:** `scripts/registration-probe-archive-dry-run.py`

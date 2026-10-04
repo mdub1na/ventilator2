@@ -1,0 +1,53 @@
+{
+  "preparedAt": "2026-10-04T15:45:32.229972+05:00",
+  "purpose": "archiveUnregisteredProbe",
+  "packagePath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/registration-probe-archive-owner",
+  "packageFilesSHA256": {
+    "PLAN.md": "898edddc1c2cbd05aeb747f6c9f3e3c5ec971e09fe21ecfa862e1cea9ed2e6ce",
+    "manifest.json": "563f530511cda78c668225b285ebe8738d43eeea2201b18cf96ccff1e3a68cab",
+    "session.py": "fa6f3f6f312e63f26c402663ae5607e11c5ee2025a6420e35f7e54188c0f4d21"
+  },
+  "packageFileCount": 3,
+  "oldProbeFilesSHA256": {
+    "PLAN.md": "02845d2c4ccc3c2577ffacb8847dd645702b899dd8ff339fd833df872cc180b0",
+    "cleanup-started.json": "ade49afaba2c8c626b87e3706ee2184bf33864a41ba047f2c4c5e5c6dc5e84fc",
+    "cleanup.json": "dd1ebfd3c650fb5421e61f1af677b627ad4e0980a3ae7a71269db9e0b64fb843",
+    "gui.json": "5a83f78d220b6eb8f649278e7107226243a24acf0683cfd7926f6af771137c51",
+    "installation.json": "b5e2a791a295eb618440cfe96987cc88fd6035801e3e0131e9caee1ac1cefd74",
+    "job-after-cleanup.json": "2b3a142698f3c6135fa8d4c3eaa6988b32b883208ce557c02566181e4f09c960",
+    "job-after-registration.json": "924d9d3e700962acc1ffb087254baab0a57577630ee88383ced1df5ea350a3a1",
+    "job-before-install.json": "dfedc107cc84b553ac10d566ba9e240166b89e654e2dc7e284fb6599669d09ce",
+    "manifest.json": "970f39f84e700bd78a198fba54e900233766019ee9660d68f064b66842c4a417",
+    "payload.app/Contents/Info.plist": "279ee6a609bea484fc3afecb64143169f40984107f946c1712429177ba65d100",
+    "payload.app/Contents/Library/LaunchDaemons/dev.ventilator.registration-probe.daemon.plist": "f7b186e4c952d8f8bc768a23af5a59bbf5456ebd83c2bb4394c07c9b72960a8a",
+    "payload.app/Contents/MacOS/RegistrationProbe": "6fea65c7fb62cccae5ac035a8c32fe8206230393af44c427bf9256f09071aefd",
+    "payload.app/Contents/MacOS/RegistrationProbeDaemon": "f007351cd479912b76b566265be1dfaa4181bd216269d74ecd6dffeaeae80095",
+    "payload.app/Contents/_CodeSignature/CodeResources": "93113b2511d2b00b660e23536e7009ebced79a16b18594551f0dcd197981d2bd",
+    "registration-started.json": "5a83f78d220b6eb8f649278e7107226243a24acf0683cfd7926f6af771137c51",
+    "registration.json": "9d01347494e945524bd36a07b54207402fedc94dbe00c4345a6b2a055910336a",
+    "result.json": "3e40020e190ef395ce4957dd0ac4eb81839e2527194df1d1fea4905fa5e00455",
+    "run-started.json": "7fda65d1b4652d97ebd65cbb33f59e4d377e6618aba5bea2d65774f17291bd7c",
+    "sealed.json": "fca5d369d3ee39a53b15d980f44f7be82fe09553c19e460bc7da139b913e0c47",
+    "session.py": "08b0666e17ab81b3c2329d720afb25a7310bf176686996530616688ade37f139",
+    "signature-ready.json": "cf2183dcc653c660690b3d16f61e3b25fedd654f604ce498e7e4f4c042b7ac8e"
+  },
+  "noTTYRefusal": {
+    "exitCode": 78,
+    "stdout": "",
+    "stderr": "STOP: Use the owner's ordinary non-root Terminal, without outer sudo. Preserve both sessions; do not repeat run/cleanup/archive.\n",
+    "packageUnchanged": true,
+    "sourceUnchanged": true
+  },
+  "verification": {
+    "workflowModels": 13,
+    "boundedGUIExitModels": true,
+    "replayAndSourcePreservation": true,
+    "docsDocuments": 13,
+    "bddScenarios": 101,
+    "docsErrors": 0
+  },
+  "nativeInvocationPerformedDuringPreparation": false,
+  "privilegedInvocationPerformedDuringPreparation": false,
+  "archiveExecuted": false,
+  "hardwareWritesExecuted": 0
+}
