@@ -1,3 +1,5 @@
+> Продолжение завершено 2026-10-04 в 19:13:33 +05:00: actual AX ON, native requiresApproval/serviceNotEnabled, helperVerified=false. **Не повторять включение/проверку/регистрацию.** [Фактический результат](research/evidence/gui-helper-enable-result.json).
+
 # Продолжение: включить уже зарегистрированный помощник
 
 Владелец подтвердил, что после последнего GUI register пропустил ON. Установка завершена; actual report в 18:33:33 +05:00 — requiresApproval/serviceNotEnabled, root job absent. Повторять reconnect/sign/register не требуется. Продолжение относится к той же подписанной установленной версии и текущей boot session.

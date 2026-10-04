@@ -1,0 +1,151 @@
+{
+  "completedSessionPath": "/Users/mdub1na/IdeaProjects/ventilator2/.build/gui-helper-enable-owner",
+  "completedFilesSHA256": {
+    "PLAN.md": "f10ece137a077baca4d6f65c60bc42b4099162da4e6319a08bd9d4b715856b8b",
+    "manifest.json": "dd65a05595f3b832426494f4e2673fe7bf3eb2a21b9c66271ca6dcb32c1ff53c",
+    "result.json": "3f809ca36e84ac23171d8fe7766ffe4e117d6042109ce2a6b1377dc9a6d95fbf",
+    "verification-started.json": "5e29ad2f0d6608399a70e8feb13a0b0cfc9c31a011f5a3e79a2b1b1221c9b622"
+  },
+  "actualResult": {
+    "completedAt": "2026-10-04T14:13:33.234172+00:00",
+    "outcome": "systemApprovalPending",
+    "process": {
+      "exitCode": 0,
+      "stdout": "{\n  \"error\" : \"serviceNotEnabled\",\n  \"fingerprint\" : {\n    \"applicationSHA256\" : \"cf2b98b36f52a1c112dac327ae0ab5807c9db3721810fbe57c4e278667bd7157\",\n    \"helperSHA256\" : \"445228b93de5ef2903799c2837887bc670ab3a937e33ed9a1470ce440f1b4971\",\n    \"launchDaemonSHA256\" : \"f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f\"\n  },\n  \"hardwareControlAvailable\" : false,\n  \"helperVerified\" : false,\n  \"installedLocation\" : true,\n  \"registration\" : \"requiresApproval\",\n  \"rootOwned\" : true,\n  \"trustedBundle\" : true\n}\n",
+      "stderr": "",
+      "externalTimeout": false
+    },
+    "registration": {
+      "error": "serviceNotEnabled",
+      "fingerprint": {
+        "applicationSHA256": "cf2b98b36f52a1c112dac327ae0ab5807c9db3721810fbe57c4e278667bd7157",
+        "helperSHA256": "445228b93de5ef2903799c2837887bc670ab3a937e33ed9a1470ce440f1b4971",
+        "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+      },
+      "hardwareControlAvailable": false,
+      "helperVerified": false,
+      "installedLocation": true,
+      "registration": "requiresApproval",
+      "rootOwned": true,
+      "trustedBundle": true
+    },
+    "fingerprintBound": true,
+    "readOnlyHelperVerified": false,
+    "rootJobAdministrativeReadPerformed": false,
+    "rootJobLoaded": null,
+    "integrity": {
+      "protected13Unchanged": true,
+      "installed5Unchanged": true,
+      "gui2Unchanged": true,
+      "wholeRootRuntimeAbsent": true
+    },
+    "hardwareWritesExecuted": 0,
+    "physicalAutoVerified": false,
+    "registrationInvoked": false,
+    "verificationCommandCount": 1
+  },
+  "ownerAndAXObservation": {
+    "startedAt": "2026-10-04T14:13:33.133701+00:00",
+    "ownerReportedON": true,
+    "ownerReportedSystemConfirmation": false,
+    "actualAXSwitch": "on",
+    "axElementID": "background-switch-Ventilator",
+    "axSource": "Existing System Settings Login Items native accessibility, observed this turn",
+    "fingerprint": {
+      "applicationSHA256": "cf2b98b36f52a1c112dac327ae0ab5807c9db3721810fbe57c4e278667bd7157",
+      "helperSHA256": "445228b93de5ef2903799c2837887bc670ab3a937e33ed9a1470ce440f1b4971",
+      "launchDaemonSHA256": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f"
+    },
+    "hardwareWritesExecuted": 0
+  },
+  "conclusions": {
+    "confirmedONDidNotEstablishPeer": true,
+    "noSystemConfirmationReported": true,
+    "nativeStatusNotRepeated": true,
+    "rootJobPIDNotObserved": true,
+    "hardwareWritesExecuted": 0,
+    "physicalAutoVerified": false,
+    "nextAction": "Read only the latest Ventilator authorization log and system settings. No new signing, replacement or registration.",
+    "effectiveDisposition": "enabled, disallowed, not notified; have LWCR=true",
+    "storedChildDispositionAfterON": "enabled, allowed, not notified",
+    "historicalIdentityIsCause": "unproven"
+  },
+  "systemLog": {
+    "windowStart": "2026-10-04 19:01:00 +05:00",
+    "windowEnd": "2026-10-04 19:14:00 +05:00",
+    "readExitCode": 0,
+    "scopedEvents": [
+      "2026-10-04 19:10:45.362 Df backgroundtaskmanagementd[279:4d2f4] [com.apple.backgroundtaskmanagement:main] getItemWithIdentifier: identifier=16.dev.ventilator.helper, uid=-2",
+      "2026-10-04 19:10:45.368 Df backgroundtaskmanagementd[279:4d2f4] [com.apple.backgroundtaskmanagement:main] effectiveItemDisposition: appURL=file:///Applications/Ventilator.app/, type=daemon, url=Contents/Library/LaunchDaemons/dev.ventilator.helper.plist -- file:///, config={\n    BTMConfigArguments =     (\n    );\n    BTMConfigBundleIdentifiers =     (\n    );\n    BTMConfigExecutablePath = \"Contents/MacOS/VentilatorHelper\";\n    BTMConfigLabel = \"dev.ventilator.helper\";\n    BTMConfigSHA256Checksum = {length = 32, bytes = 0xf4a3431e 86d4a355 664dc447 d71e5283 ... 86a60833 0046cd2f };\n}",
+      "2026-10-04 19:10:45.369 Df backgroundtaskmanagementd[279:4d2f4] [com.apple.backgroundtaskmanagement:main] getItemWithIdentifier: identifier=2.dev.ventilator.macos, uid=501",
+      "2026-10-04 19:10:45.886 Df LoginItems[49912:561ac] [com.apple.libxpc.OSLaunchdJob:all] copyJobWithLabel for label dev.ventilator.helper failed with error 113: Could not find specified service",
+      "2026-10-04 19:10:45.886 E  LoginItems[49912:561ac] [com.apple.Settings:framework] /AppleInternal/Library/BuildRoots/4~CV22ugDfyb6hUvB3_1Nbt35aFHf8u2jJWQrcjZk/Library/Caches/com.apple.xbs/TemporaryDirectory.lJxv2n/Sources/LoginItemsSettings/Process Monitoring/LaunchdJobMonitor.swift:51 init(btmItem:) Could not find OSLaunchdJob for BTMItem: uuid=7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F, name=VentilatorHelper, type=daemon, disposition=[enabled, allowed, not notified], identifier=16.dev.ventilator.helper, url=Contents/Library/LaunchDaemons/dev.ventilator.helper.plist -- file:///",
+      "2026-10-04 19:10:46.363 Df backgroundtaskmanagementd[279:56257] [com.apple.libxpc.OSLaunchdJob:all] copyJobWithLabel for label dev.ventilator.helper failed with error 113: Could not find specified service",
+      "2026-10-04 19:10:46.388 Df LoginItems[49912:561ac] [com.apple.libxpc.OSLaunchdJob:all] copyJobWithLabel for label dev.ventilator.helper failed with error 113: Could not find specified service",
+      "2026-10-04 19:10:46.388 E  LoginItems[49912:561ac] [com.apple.Settings:framework] /AppleInternal/Library/BuildRoots/4~CV22ugDfyb6hUvB3_1Nbt35aFHf8u2jJWQrcjZk/Library/Caches/com.apple.xbs/TemporaryDirectory.lJxv2n/Sources/LoginItemsSettings/Process Monitoring/LaunchdJobMonitor.swift:51 init(btmItem:) Could not find OSLaunchdJob for BTMItem: uuid=7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F, name=VentilatorHelper, type=daemon, disposition=[enabled, allowed, not notified], identifier=16.dev.ventilator.helper, url=Contents/Library/LaunchDaemons/dev.ventilator.helper.plist -- file:///",
+      "2026-10-04 19:10:46.893 Df LoginItems[49912:561ac] [com.apple.libxpc.OSLaunchdJob:all] copyJobWithLabel for label dev.ventilator.helper failed with error 113: Could not find specified service",
+      "2026-10-04 19:10:46.893 E  LoginItems[49912:561ac] [com.apple.Settings:framework] /AppleInternal/Library/BuildRoots/4~CV22ugDfyb6hUvB3_1Nbt35aFHf8u2jJWQrcjZk/Library/Caches/com.apple.xbs/TemporaryDirectory.lJxv2n/Sources/LoginItemsSettings/Process Monitoring/LaunchdJobMonitor.swift:51 init(btmItem:) Could not find OSLaunchdJob for BTMItem: uuid=7EF86C32-6CFD-4E66-ADE2-B0C4FEC3AE4F, name=VentilatorHelper, type=daemon, disposition=[enabled, allowed, not notified], identifier=16.dev.ventilator.helper, url=Contents/Library/LaunchDaemons/dev.ventilator.helper.plist -- file:///",
+      "2026-10-04 19:13:33.200 Df backgroundtaskmanagementd[279:1e8a9] [com.apple.backgroundtaskmanagement:main] effectiveItemDispositionWithAuditToken: pid=56540, type=daemon, url=Contents/Library/LaunchDaemons/dev.ventilator.helper.plist -- file:///, config={\n    BTMConfigArguments =     (\n    );\n    BTMConfigBundleIdentifiers =     (\n    );\n    BTMConfigExecutablePath = \"Contents/MacOS/VentilatorHelper\";\n    BTMConfigLabel = \"dev.ventilator.helper\";\n    BTMConfigSHA256Checksum = {length = 32, bytes = 0xf4a3431e 86d4a355 664dc447 d71e5283 ... 86a60833 0046cd2f };\n}",
+      "2026-10-04 19:13:33.204 Df backgroundtaskmanagementd[279:1e8a9] [com.apple.backgroundtaskmanagement:main] effectiveItemDisposition: appURL=file:///Applications/Ventilator.app/, type=daemon, url=Contents/Library/LaunchDaemons/dev.ventilator.helper.plist -- file:///, config={\n    BTMConfigArguments =     (\n    );\n    BTMConfigBundleIdentifiers =     (\n    );\n    BTMConfigExecutablePath = \"Contents/MacOS/VentilatorHelper\";\n    BTMConfigLabel = \"dev.ventilator.helper\";\n    BTMConfigSHA256Checksum = {length = 32, bytes = 0xf4a3431e 86d4a355 664dc447 d71e5283 ... 86a60833 0046cd2f };\n}"
+    ],
+    "rawOtherApplicationsCommitted": false
+  },
+  "additionalSettingsRead": {
+    "privacyAndSecurityVentilatorAllowControlPresent": false,
+    "loginItemsVentilatorRemainedON": true,
+    "settingsMutated": false,
+    "notificationCenterOpened": false
+  },
+  "primarySources": [
+    {
+      "url": "https://developer.apple.com/videos/play/wwdc2022/10096/",
+      "verified": "Elevated daemon requires administrator approval; normal app login launch is different."
+    },
+    {
+      "url": "https://developer.apple.com/forums/thread/802443",
+      "verified": "Daemon register can await system Allow/admin; unregister does not clear remembered response."
+    },
+    {
+      "url": "https://developer.apple.com/forums/thread/799933",
+      "verified": "DTS recommends capturing system diagnostics before resetting BTM when a production failure occurs. No reset performed here; development history differs."
+    }
+  ],
+  "toolHelp": {
+    "command": [
+      "/usr/bin/sfltool",
+      "help"
+    ],
+    "exitCode": 0,
+    "stdout": "Usage: sfltool csinfo|dumpbtm|archive|clear|resetbtm|resetlist|list|list-info [options]",
+    "mutationInvoked": false,
+    "perApplicationResetDocumentedByThisHelp": false
+  },
+  "effectiveStatusLog": {
+    "readWindowSeconds": 3,
+    "scopedNativeStatusEvents": [
+      "2026-10-04 19:13:33.200 Df backgroundtaskmanagementd[279:1e8a9] [com.apple.backgroundtaskmanagement:main] effectiveItemDispositionWithAuditToken: pid=56540, type=daemon, url=Contents/Library/LaunchDaemons/dev.ventilator.helper.plist -- file:///, config={",
+      "    BTMConfigArguments =     (",
+      "    );",
+      "    BTMConfigBundleIdentifiers =     (",
+      "    );",
+      "    BTMConfigExecutablePath = \"Contents/MacOS/VentilatorHelper\";",
+      "    BTMConfigLabel = \"dev.ventilator.helper\";",
+      "    BTMConfigSHA256Checksum = {length = 32, bytes = 0xf4a3431e 86d4a355 664dc447 d71e5283 ... 86a60833 0046cd2f };",
+      "}",
+      "2026-10-04 19:13:33.204 Df backgroundtaskmanagementd[279:1e8a9] [com.apple.backgroundtaskmanagement:main] effectiveItemDisposition: appURL=file:///Applications/Ventilator.app/, type=daemon, url=Contents/Library/LaunchDaemons/dev.ventilator.helper.plist -- file:///, config={",
+      "    BTMConfigArguments =     (",
+      "    );",
+      "    BTMConfigBundleIdentifiers =     (",
+      "    );",
+      "    BTMConfigExecutablePath = \"Contents/MacOS/VentilatorHelper\";",
+      "    BTMConfigLabel = \"dev.ventilator.helper\";",
+      "    BTMConfigSHA256Checksum = {length = 32, bytes = 0xf4a3431e 86d4a355 664dc447 d71e5283 ... 86a60833 0046cd2f };",
+      "}",
+      "2026-10-04 19:13:33.204 Df smd[98:1a8f] [com.apple.backgroundtaskmanagement:main] getEffectiveDisposition: disposition=[enabled, disallowed, not notified], have LWCR=true",
+      "2026-10-04 19:13:33.204 Df smd[98:1a8f] [com.apple.xpc.smd:all] Found status: 2 for <private>",
+      "2026-10-04 19:13:33.204 Df smd[98:1a8f] [com.apple.xpc:connection] [0x74bec6d540] invalidated because the client process (pid 56540) either cancelled the connection or exited",
+      "2026-10-04 19:13:33.204 Df Ventilator[56540:56c4e] [com.apple.libxpc.SMAppService:all] Service <private> status: 2"
+    ],
+    "rawOtherApplicationsCommitted": false
+  }
+}

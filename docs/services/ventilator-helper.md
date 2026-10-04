@@ -12,6 +12,8 @@ publishes: [VentilatorHelper]
 
 # Помощник
 
+После owner включения actual AX ON независимо подтверждён; единственный native status в 19:13:33 +05:00 остался **requiresApproval/serviceNotEnabled**, helperVerified=false. CLI exit 0 означает завершение диагностики. Frozen continuation4, completed reconnect30, protected12, installed5 и private GUI2 сохранены; runtime отсутствует, hardware writes 0. ON не привёл к root positive. Повтор статуса/регистрации не выполняется; исследуется системный допуск. [Actual result](../research/evidence/gui-helper-enable-result.json).
+
 Владелец подтвердил, что после последнего register пропустил ON. Подготовлено [продолжение только с включением фоновой активности](../gui-helper-enable-owner.md): существующая установка/регистрация сохраняются, после owner ON агент независимо проверяет переключатель и делает один bounded native status. Повтор signing/reconnect/register не нужен. ON/positive root пока не подтверждены, hardware writes 0.
 
 Последний owner reconnect установил подписанную source сборку без mainApp startup query. В 18:33:33 +05:00 actual requiresApproval/serviceNotEnabled, root lookup 113, helperVerified=false; новый register подтверждён marker PID 49998. Settings после сеанса показывает OFF; ON не подтверждён словом NONE. 30 файлов completed packet, exact old backup, installed seal и 12 protected директорий проверены; runtime отсутствует, аппаратных записей 0. Владелец затем подтвердил пропуск ON; продолжение включает только owner ON и одну проверку агентом. [Результат](../research/evidence/gui-helper-reconnect-result.json).

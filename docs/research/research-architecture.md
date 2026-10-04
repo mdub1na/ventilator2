@@ -8,6 +8,16 @@ date: 2026-10-04
 
 # Исследование
 
+## Actual ON подтверждён; framework остаётся requiresApproval — 2026-10-04
+
+Владелец включил Ventilator и сообщил отсутствие системного подтверждения. Агент независимо прочитал native AX: background-switch-Ventilator=on. Затем выполнил один заранее подготовленный bounded canonical --helper-status; completedAt=19:13:33 +05:00, process exit 0, actual **requiresApproval / serviceNotEnabled**, helperVerified=false. Exit 0 здесь означает завершение диагностической CLI, не готовность helper. Installed/trusted/root-owned/exact fingerprints подтверждены; XPC не создавался при non-enabled framework state. Это первый результат новой installed сборки после независимо подтверждённого ON; пропуск прошлого ON не был единственной причиной отсутствия связи. Root job/PID заново административно не читался и не заявлен.
+
+Frozen continuation содержит четыре файла (PLAN/manifest/start/result); 30 completed reconnect файлов, 12 старых protected директорий, installed5 и private GUI2 сохранены, whole root runtime отсутствует. Hardware writes=0, physicalAutoVerified=false; signing/register/replacement не повторялись. Продолжение завершено, его native status не повторяем. Следующий этап — read-only анализ текущего authorization журнала и доступного UI; повтор lifecycle/OFF/ON не следует из этого результата. [Полный результат](evidence/gui-helper-enable-result.json).
+
+В журнале owner ON в 19:10:45 Settings читает child UID -2 и parent UID 501; child той же UUID показан enabled/allowed/not notified, но job lookup 113. В момент CLI 19:13:33 вычисляется disposition для exact canonical app/helper. Child allowed сам по себе не подтвердил фактический административный допуск: actual framework requiresApproval сохраняется. Read-only Privacy & Security не содержит Ventilator Allow, возвращение в Login Items подтверждает устойчивый ON. NotificationCenter не открывался, настройки не менялись. [Apple WWDC](https://developer.apple.com/videos/play/wwdc2022/10096/) отличает обычный login launch от admin approval для elevated daemon; [DTS](https://developer.apple.com/forums/thread/802443) отмечает сохранение consent state после unregister. История старой identity остаётся гипотезой, не установленной причиной.
+
+Точечный журнал уже выполненного CLI PID 56540 в 19:13:33.204 установил конкретное расхождение: smd effective disposition **enabled/disallowed/not notified, have LWCR=true**, затем Found status 2. Поэтому stored child allowed после ON не соответствует effective административному допуску canonical caller. Это подтверждает решение ServiceManagement до XPC; ошибки helper startup не установлены. macOS help sfltool не документирует per-app reset; mutation/reset не выполнялся. Нужен следующий изолированный путь, а не повтор owner ON или native status.
+
 ## Владелец подтвердил пропущенный ON — 2026-10-04
 
 Владелец уточнил: после GUI register в пункте 4 последнего reconnect фоновую активность обратно не включил. Read-only повторное чтение Settings также показывает OFF. Поэтому requiresApproval при достигнутом OFF не проверяет поведение после ON; отказ после подтверждённого ON для новой сборки не установлен. Ранее найденный лишний mainApp query устранён независимо, но его причинное влияние на bootstrap остаётся недоказанным. [Owner clarification](evidence/gui-helper-reconnect-result.json).
