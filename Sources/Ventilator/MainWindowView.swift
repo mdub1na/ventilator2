@@ -162,11 +162,7 @@ private struct ApplicationView: View {
                 Text("Закрытие окна оставляет наблюдение работающим в строке меню.")
                     .foregroundStyle(.secondary)
             }
-            Section("Помощник") {
-                LabeledContent("Состояние", value: "Не установлен")
-                Text("Приложение работает в режиме наблюдения. Для управления вентиляторами потребуется отдельная проверка оборудования.")
-                    .foregroundStyle(.secondary)
-            }
+            HelperSetupView(model: store.helperSetup)
             if let error = store.settingsError {
                 Section("Ошибка настройки") { Text(error).foregroundStyle(.red) }
             }

@@ -3,7 +3,7 @@ import Foundation
 import ServiceManagement
 import VentilatorControl
 
-public struct HelperServiceReport: Encodable {
+public struct HelperServiceReport: Encodable, Sendable {
     public var registration: String
     public var trustedBundle = false
     public var installedLocation = false
@@ -13,6 +13,7 @@ public struct HelperServiceReport: Encodable {
     public var fingerprint: InstallationFingerprint?
     public var error: String?
     public var registrationDiagnostic: String?
+    public init(registration: String) { self.registration = registration }
 }
 
 /// Explicit app CLI actions only. No registration during status, GUI launch, signing or build.
@@ -85,6 +86,51 @@ public enum HelperServiceController {
             return report
         }
         return status()
+    }
+
+    /// Explicit GUI action. Record before register; leave peer verification to background status.
+    @MainActor public static func registerFromGUI(expected: InstallationFingerprint) throws -> HelperServiceReport {
+        try registerFromGUI(expected: expected, inspectProcess: {
+            try SignedBundleInspector.requireCurrentProcess(role: .application)
+        }, state: {
+            SMAppService.daemon(plistName: SignedBundleInspector.plistName).status
+        }, claim: { try GUIRegistrationAttempt.record($0.fingerprint) }, register: {
+            try SMAppService.daemon(plistName: SignedBundleInspector.plistName).register()
+        })
+    }
+
+    internal static func registerFromGUI(expected: InstallationFingerprint,
+        inspectProcess: () throws -> SignedBundleProof, state: () -> SMAppService.Status,
+        claim: (SignedBundleProof) throws -> Void, register: () throws -> Void) throws -> HelperServiceReport {
+        let proof = try inspectProcess()
+        try SignedBundleInspector.requireInstalled(proof)
+        guard proof.fingerprint == expected else { throw InstallationError.runtimeIdentityRejected }
+        let before = state()
+        var report = bundleReport(proof); report.registration = name(before)
+        guard before == .notRegistered || before == .notFound else {
+            guard before == .enabled || before == .requiresApproval else { throw InstallationError.serviceNotEnabled }
+            return report
+        }
+        try claim(proof)
+        do { try register() }
+        catch {
+            let after = state(); report.registration = name(after)
+            if registrationAwaitsApproval(error, status: after) { report.registrationDiagnostic = String(describing: error) }
+            else { report.error = String(describing: error) }
+            return report
+        }
+        report.registration = name(state())
+        return report
+    }
+
+    public static func guiStatus() -> HelperServiceReport {
+        var report = status()
+        if ["notRegistered", "notFound"].contains(report.registration), let fingerprint = report.fingerprint {
+            do {
+                if try GUIRegistrationAttempt.exists(fingerprint) { report.error = "registrationAlreadyAttempted" }
+            } catch { report.error = String(describing: error) }
+        }
+        return report
     }
 
     internal static func registrationAwaitsApproval(_ error: Error, status: SMAppService.Status) -> Bool {
