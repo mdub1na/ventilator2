@@ -12,9 +12,9 @@ source: Sources/Ventilator
 
 # Приложение
 
-Actual signed GUI update выполнен владельцем: после одноразового нажатия экран остался в requiresApproval, кнопка подключения disabled. Поздний отдельный CLI report — enabled/remoteFailure при отсутствующем system job. Наблюдения относятся к разным моментам; refresh агентом не вызывался, причина расхождения не доказана. Нельзя объяснять этот результат отсутствием GUI нажатия или исправлять повторным register. [Факты](../research/evidence/gui-helper-update-result.json), [следующее только чтение](../gui-helper-state-owner.md).
+Последний installed reconnect завершён в 18:33:33 +05:00: GUI PID 49998 остаётся в requiresApproval, «Подключить помощник» disabled, «Открыть настройки macOS» и «Проверить состояние» доступны. Чтение экрана агентом не повторяет framework status/register. Строка автозапуска показывает «Пока недоступно» в новой установленной версии. Отдельное чтение Settings показывает Ventilator OFF; сообщение NONE само по себе не подтверждает ON. Повтор register запрещён; нужен ответ владельца о последнем включении. [Факты](../research/evidence/gui-helper-reconnect-result.json).
 
-Исходники GUI шага объединены в main, для installed проверки подготовлен [один полный owner update](../gui-helper-owner-update.md). Source shortcut `--show-helper-setup` открывает именно этот раздел и не вызывает register. Положительный новый production GUI/root result ещё не получен.
+Прежний GUI PID 35574 и enabled/remoteFailure относятся к предыдущей установке. Последующий refresh того GUI показал connectionFailed; persistent расхождение GUI/CLI не доказано. Source shortcut `--show-helper-setup` только открывает раздел. Positive production root result ещё не получен.
 
 ## Состояния
 

@@ -1,3 +1,5 @@
+> Сеанс завершён 2026-10-04 в 18:33:33 +05:00: requiresApproval, system job absent, hardware writes 0. **Не повторять reconnect/update/register/ready.** [Проверенный итог](research/evidence/gui-helper-reconnect-result.json).
+
 # Один сеанс повторного подключения после исправления startup
 
 Снимок разрешений уже завершён: записи allowed, system job отсутствует. Новая проверенная сборка убирает лишнее mainApp status при startup. Его влияние на старую регистрацию не доказано; этот сеанс проверяет новый путь после штатного снятия старой регистрации. Профиль **Mac15,7 / macOS 27.0.1 / 26A434 — read-only**. Полный список аппаратных записей: **`[]`**, число записей — **0**. Аппаратный review/approval/ready/start/worker/Auto/sleep experiment в пакете отсутствуют.
