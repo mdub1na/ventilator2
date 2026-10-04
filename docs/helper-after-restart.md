@@ -58,9 +58,11 @@ Frozen script/PLAN связаны SHA-256 в manifest. Связаны все в�
 ## Результат и остановка
 
 - `readOnlyHelperVerified`: живой root peer подтверждён. Это не разрешение управлять вентиляторами.
-- `systemApprovalPending`: job по-прежнему отсутствует; перезапуск не завершил системное разрешение. Причина ещё требует разбора; новые install/register/OFF/ON циклы этим результатом не разрешаются.
+- `rootJobAbsent`: job отсутствует; фактический SMAppService registration status не наблюдался. В сохранённом пакете PR #29 этот исход назывался `systemApprovalPending`; такая общая метка не доказывает ожидание одобрения. Причина ещё требует разбора; новые install/register/OFF/ON циклы этим результатом не разрешаются.
 - `runtimeStatePresent`: runtime появился при чтении; peer verification пропущен, состояние сохранено.
 - `rootPeerUnverified`: job есть, но одна bound peer проверка не прошла. Timeout/error не вызывают retry.
 - `diagnosticIncomplete`: sudo/read/format отказал или истёк alarm; последующие зависимые действия не вызываются. Сохранённые части пакета не очищаются.
 
 Report находится в `.build/helper-after-restart/result.json`. После любого исхода остановитесь: этот пакет одноразовый. Old notification snapshot, stopped update, installed копия и backup не меняются скриптом.
+
+В новых отчётах rootJobLoaded, nativeVerificationAttempted и registrationStatus отражают отдельные наблюдения. RegistrationStatus остаётся null, пока native CLI не вернул известный framework state; отсутствие job, изменение BTM, timeout или malformed reply не подставляют requiresApproval. Завершённый frozen пакет PR #29 и его PLAN/result сохраняются без изменений; обновление этого документа не разрешает его повтор.

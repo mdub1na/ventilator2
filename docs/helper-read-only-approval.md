@@ -22,7 +22,7 @@ python3 /Users/mdub1na/IdeaProjects/ventilator2/.build/helper-read-only-approval
 
 3. Скрипт попросит **sudo пароль в Terminal**, если системе он нужен, и прочитает global `launchd` job и BTM. Это требуется для достоверного состояния root-службы: обычный non-root lookup не заменяет global контекст. Пароль не передавать в чат. Кэш пароля не предполагается. После аутентификации utilities ограничены 5 и 20 с; обычно весь снимок занимает менее минуты, время на просмотр уведомлений/ввод пароля не ограничено.
 
-4. Если administrative job отсутствует, скрипт сохранит `systemApprovalPending` без запуска app/helper. Если job загружен, при прежней exact машине и отсутствии runtime выполнит **одну** read-only проверку signed root XPC, с пределом 10 с и внутренним nonce/deadline 2 с. Успех требует enabled/helperVerified=true, trusted/root-owned canonical bundle, exact hashes и hardwareControlAvailable=false. Ответ/timeout также сохраняются; повторов нет.
+4. Если administrative job отсутствует, новый скрипт сохранит `rootJobAbsent` без запуска app/helper и с registrationStatus=null. В сохранённом завершённом пакете PR #26 использовалась общая метка `systemApprovalPending`; она не является фактическим framework state. Если job загружен, при прежней exact машине и отсутствии runtime выполнит **одну** read-only проверку signed root XPC, с пределом 10 с и внутренним nonce/deadline 2 с. Успех требует enabled/helperVerified=true, trusted/root-owned canonical bundle, exact hashes и hardwareControlAvailable=false. Ответ/timeout также сохраняются; повторов нет. Frozen PLAN/result прежнего пакета не изменяются.
 
 5. Финальный вывод:
 
