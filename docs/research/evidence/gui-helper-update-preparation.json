@@ -1,0 +1,65 @@
+{
+  "purpose": "guiHelperReadOnlyUpdate",
+  "machine": {
+    "model": "Mac15,7",
+    "version": "27.0.1",
+    "build": "26A434"
+  },
+  "ownerUID": 501,
+  "packageFilesSHA256": {
+    "PLAN.md": "28ba2ce60fa35afce7ddb4e69c8a929517b634d2821fefc1fe1e3244a6b93a3e",
+    "manifest.json": "a0d5eef9b8c99f144b3cdc2e9062f112397b5bfcdccbcdc6bd735bef8d0cc644",
+    "payload.app/Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+    "payload.app/Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+    "payload.app/Contents/MacOS/Ventilator": "48dd7714b3fe62ec9afddd3500a87e35a6f903e79746fe0bbeac0df7a2ded549",
+    "payload.app/Contents/MacOS/VentilatorHelper": "c9e2bd0c4370a01eccfd46643e3315d075d967499ca555b430ea76eb408b77b6",
+    "payload.app/Contents/_CodeSignature/CodeResources": "5c3e2283fc2ff1fff0f693ffeeaea5ebf18c4c86a99c72b4894d6e8174450a7f",
+    "session.py": "13b45ffde55765a2dafa2320b167b6f2bd9e629b1ac5794e283faf5bc9de4161"
+  },
+  "packageFileCount": 8,
+  "protectedDirectories": 10,
+  "previousInstalledFilesSHA256": {
+    "Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+    "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+    "Contents/MacOS/Ventilator": "c29cf7caa4f28908b50eebd99e600ccffe58c2de45506983d307aac324330bfc",
+    "Contents/MacOS/VentilatorHelper": "49805829c7c8118bbbfa0177d1960547be9259f036da89c19bfe27cc08887c27",
+    "Contents/_CodeSignature/CodeResources": "e7a4e6cd967b9c0bca58b89cb3bab152a66ef19ee6f0d545837624887445f20a"
+  },
+  "preparedAdHocPayloadFilesSHA256": {
+    "Contents/Info.plist": "ff54982131c255f08c365721cfe5d3c487077da16f51799af1364b0566a82f3f",
+    "Contents/Library/LaunchDaemons/dev.ventilator.helper.plist": "f4a3431e86d4a355664dc447d71e5283be7900ae2a7990d386a608330046cd2f",
+    "Contents/MacOS/Ventilator": "48dd7714b3fe62ec9afddd3500a87e35a6f903e79746fe0bbeac0df7a2ded549",
+    "Contents/MacOS/VentilatorHelper": "c9e2bd0c4370a01eccfd46643e3315d075d967499ca555b430ea76eb408b77b6",
+    "Contents/_CodeSignature/CodeResources": "5c3e2283fc2ff1fff0f693ffeeaea5ebf18c4c86a99c72b4894d6e8174450a7f"
+  },
+  "frozenNoTTY": {
+    "exitCode": 78,
+    "stdout": "",
+    "stderr": "STOP: Use the owner's ordinary non-root Terminal, without outer sudo. Preserve all packages and paths; do not repeat sign/update/register/ready.\n",
+    "packageUnchanged": true
+  },
+  "verification": {
+    "workflowModels": 19,
+    "actualAnonymousXPCUnsupportedProfiles": 3,
+    "missingDiagnosticDirectoryVerified": true,
+    "actualRuntimeXPCModels": 2,
+    "actualStartupRecoveryModels": 2,
+    "actualLegacyLoopbackPassed": true,
+    "nativeExitCodes": [
+      0,
+      0
+    ],
+    "docsDocuments": 13,
+    "bddScenariosBeforeNewScenarios": 103,
+    "docsErrors": 0,
+    "bddScenarios": 105
+  },
+  "sourceFinding": "Cold HelperCoordinator created simulation directory before this change; no actual owner positive was attempted on that code.",
+  "qualificationPerformed": false,
+  "privateKeyUsed": false,
+  "systemMutationsPerformed": false,
+  "productionReplaced": false,
+  "guiRegistrationAttempted": false,
+  "rootPeerVerified": false,
+  "hardwareWritesExecuted": 0
+}

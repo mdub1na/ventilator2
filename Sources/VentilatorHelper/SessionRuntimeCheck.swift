@@ -10,6 +10,7 @@ func sessionRuntimeCheck() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ventilator-unsupported-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: directory) }
         let server = try HelperServer(acceptance: .anonymousUnsupportedMachineModel(machine: machine), directory: directory)
+        guard !FileManager.default.fileExists(atPath: directory.path) else { throw CheckError.failed("Diagnostic startup created simulation storage") }
         let listener = NSXPCListener.anonymous(); listener.delegate = server; listener.resume()
         defer { listener.invalidate() }
         let client = NSXPCConnection(listenerEndpoint: listener.endpoint)
@@ -25,14 +26,13 @@ func sessionRuntimeCheck() throws {
             throw CheckError.failed("Unsupported profile prepared hardware")
         }
         let start = try rpc(client) { $0.startApprovedHardwareExperiment(UUID().uuidString, planSHA256: prepared.planSHA256, reply: $1) }
-        let journal = try FileSessionJournal(directory: directory)
         guard start.errorCode?.contains("unsupportedMachine") == true,
-              !FileManager.default.fileExists(atPath: directory.appendingPathComponent("authority-hardware.json").path),
-              try journal.loadAuthorityState(domain: .simulation) == nil else {
+              !FileManager.default.fileExists(atPath: directory.path) else {
             throw CheckError.failed("Unsupported start initialized authority")
         }
         let installation = try rpcData(client) { $0.installationStatus(UUID().uuidString, reply: $1) }
         guard installation.isEmpty else { throw CheckError.failed("Anonymous non-root model claimed installation proof") }
+        guard !FileManager.default.fileExists(atPath: directory.path) else { throw CheckError.failed("Diagnostic requests created a journal") }
         print("Unsupported hardware XPC model: \(machine.model)/\(machine.version)/\(machine.build); diagnostic idle, explicit blocker and start denial; no authority or device.")
         withExtendedLifetime(server) {}
     }

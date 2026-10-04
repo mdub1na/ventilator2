@@ -12,6 +12,8 @@ publishes: [Ventilator.app]
 
 # Приложение
 
+Для installed испытания нового GUI подготовлен отдельный [owner update](../gui-helper-owner-update.md): квалификация новой подписи до root staging/removal, exact non-app backup/замена, открытие canonical helper section и только явный GUI register. Old frozen sessions/user markers сохраняются; after-GUI snapshot различает actual peer readiness и факт GUI attempt. Actual подпись/замена/root positive требуют владельца, аппаратных команд в этом mode нет. [Проверки/привязки](../research/evidence/gui-helper-update-preparation.json).
+
 Исходники теперь содержат [GUI настройку помощника](../screens/screen-application.md), actual status вместо фиксированного «Не установлен», явное register и per-owner durable marker. Status/XPC выполняются вне UI потока; регистрация — только по нажатию из main actor после подписанного installed process/fingerprint gate. Pending/enabled не перерегистрируются, settings button открывает системный раздел и не выдаёт разрешение. Подключение helper не открывает RPM controls. Подписанная установленная копия остаётся прежней; новый owner update ещё не выполнен.
 
 Изолированный GUI probe успешно запустился, затем был unregistered и архивирован. Архив/старые сеансы/production hashes сохранены; последняя production проверка всё ещё requiresApproval. [Завершение архивирования](../research/evidence/registration-probe-archive-result.json). Следующий owner план должен заменить только diagnostic GUI bundle с квалифицированной новой подписью; old hardware candidate не расширяется.

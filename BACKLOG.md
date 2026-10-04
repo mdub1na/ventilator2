@@ -16,6 +16,8 @@
 
 ## M2 — подготовка единственного опыта
 
+GUI source шаг объединён в PR #33. Подготовлен следующий полный [owner GUI update](docs/gui-helper-owner-update.md): новая подпись/qualification до root действий, conditional removal/exact backup/replacement, explicit GUI register, один status/job snapshot и conditional unsupportedMachine status. Cold diagnostic startup теперь не создаёт отсутствующее simulation storage. 19 workflow models и native anonymous XPC/loopback прошли; actual подпись/замена/root positive ещё требуют владельца. Аппаратный M2 остаётся закрытым. [Подготовка](docs/research/evidence/gui-helper-update-preparation.json).
+
 Probe cleanup завершён: exact signed тестовое приложение архивировано, его current state=notRegistered, system job absent; старые пакеты/production копия сохранены. Реализуется следующий source шаг — GUI состояние и sole helper register с persistent marker; positive production GUI/root result ещё не подтверждён. После проверки/merge исходников нужен отдельный полный owner update с новой подписью до системных изменений. [Архив](docs/research/evidence/registration-probe-archive-result.json), [экран](docs/screens/screen-application.md).
 
 Владелец завершил один перезапуск macOS и отдельный read-only collect: новый boot UUID подтверждён, root job снова отсутствует (113). BTM убрал pending authorization у parent, но helper не загрузился. Native verification не выполнялась, framework status после перезапуска не запрашивался; историческая метка systemApprovalPending не доказывает новый requiresApproval. [Результат](docs/research/evidence/after-restart-result.json). Все семь файлов завершённого пакета, прежние сеансы/installed/backup сохранены. Повтор collect/setup/register/ready и перезапуска не назначен.

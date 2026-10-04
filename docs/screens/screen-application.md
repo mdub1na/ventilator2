@@ -12,6 +12,8 @@ source: Sources/Ventilator
 
 # Приложение
 
+Исходники GUI шага объединены в main, для installed проверки подготовлен [один полный owner update](../gui-helper-owner-update.md). Source shortcut `--show-helper-setup` открывает именно этот раздел и не вызывает register. Положительный новый production GUI/root result ещё не получен.
+
 ## Состояния
 
 - [x] **Unchecked / Checking:** состояние ещё не прочитано либо выполняется проверка вне UI потока.

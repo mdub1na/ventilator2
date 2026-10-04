@@ -12,6 +12,8 @@ publishes: [VentilatorHelper]
 
 # Помощник
 
+Холодный диагностический `HelperCoordinator` теперь не создаёт отсутствующий simulation journal directory. Existing directory/journal по-прежнему читается и, при необходимости, запускает прежний simulation recovery; lstat ошибки кроме ENOENT не игнорируются. Native unsupported-profile XPC проверяет отсутствие каталога после startup/status/prepare/start-denial/installation-denial. HardwareIfSupported/profile/recovery gates не расширены. Для root positive готовится [полный GUI update](../gui-helper-owner-update.md); его owner действия ещё не выполнялись.
+
 Завершённая owner проверка отдельной GUI identity подтвердила enabled и running root job с той же Apple Development подписью/Team на 27.0.1. Probe затем успешно unregistered, system job отсутствует. Архивирование остановилось на живом GUI PID; подготовлен отдельный перенос без повторного lifecycle. Это не production root peer: прямой status основного Ventilator после probe по-прежнему requiresApproval. Аппаратный runtime отсутствует; M2 не открыт. [Факты](../research/evidence/registration-probe-result.json), [archive-only порядок](../registration-probe-archive-owner.md).
 
 ## История состояния до GUI probe
