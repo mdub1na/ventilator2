@@ -1,0 +1,71 @@
+Real non-root exec timer: sleeping utility terminated by SIGALRM; no sudo.
+Scoped BTM fixture: preserves UID/parent disposition, rejects unrelated/lookalike records and embedded numbering.
+Root and no-TTY collection refused before file inspection, markers or privileged commands.
+Changed diagnostic script, owner seal and installed helper refused before sudo/attempt marker.
+Model read-only plan; zero hardware writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-registration-model-i1yf1cdd/helper-registration-diagnostics/result.json
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Missing job and timed-out BTM retained as failures; no readiness claim, owner file unchanged and replay blocked.
+Model authentication refusal.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-registration-denied-1i0vtzbx/result.json
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Sudo refusal stops before BTM; partial result retained without a second administrative command.
+System cycle refuses runtime presence/unreadability and loaded job before owner UI action.
+Changed owner UID or previous administrative evidence refused before UI prompt, marker or sudo.
+Model one system cycle; no hardware approval.
+Model one system cycle; no hardware approval.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-system-cycle-model-sdymjdfj/result.json
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Cancel stops before sudo; DONE performs two fixed reads only; marker blocks repeated UI prompt and sudo.
+Model notification inspection; zero SMC writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-consent-model-eq1c1s5h/result.json
+Outcome: systemApprovalPending; helperVerified=False. No hardware experiment.
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Model notification inspection; zero SMC writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-consent-model-e1s9nwyp/result.json
+Outcome: readOnlyHelperVerified; helperVerified=True. No hardware experiment.
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Model notification inspection; zero SMC writes.
+Model notification inspection; zero SMC writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-consent-model-r72ddzcb/result.json
+Outcome: diagnosticIncomplete; helperVerified=False. No hardware experiment.
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Model notification inspection; zero SMC writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-consent-model-oyujnr35/result.json
+Outcome: diagnosticIncomplete; helperVerified=False. No hardware experiment.
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Model notification inspection; zero SMC writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-consent-model-onte7ru5/result.json
+Outcome: rootPeerUnverified; helperVerified=False. No hardware experiment.
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Model notification inspection; zero SMC writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-consent-model-gafje0y9/result.json
+Outcome: rootPeerUnverified; helperVerified=False. No hardware experiment.
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Model notification inspection; zero SMC writes.
+Read-only launchd: sudo authentication in this Terminal; then bounded system read.
+Read-only btm: sudo authentication in this Terminal; then bounded system read.
+Saved read-only snapshot: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-consent-model-mhqquwnk/result.json
+Outcome: runtimeStatePresent; helperVerified=False. No hardware experiment.
+Stop here and report that the snapshot was saved. Do not repeat collection/setup/register/ready.
+Model notification inspection; zero SMC writes.
+Read-only consent inspection: nine branches; ALLOW alone never proves consent, NONE still saves snapshot, one conditional peer verify; cancellation, source race, failed/partial reads, runtime and replay stop dependent actions.
+Prepared owner read-only consent inspection: /Users/mdub1na/IdeaProjects/ventilator2/.build/ventilator-readonly-consent-bindings-soe7482n/.build/helper-read-only-approval
+Real read-only package preparation/check: stopped source and backup preserved; changed source/installed/backup, owner, machine and advanced source refused.
+Registration diagnostics dry-run passed; no registration, actual UI cycle, installed app execution, root commands or SMC.

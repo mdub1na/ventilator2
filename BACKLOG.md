@@ -40,7 +40,8 @@
 - [x] Получить системное одобрение helper; actual registration=enabled подтверждён.
 - [x] Воспроизвести ошибку пути argv[0], исправить путь загруженного executable, добавить startup log и подготовить ограниченную замену disabled службы без runtime state.
 - [x] Подготовить read-only обновление 26A434 и продолжение после отказа public qualification: exact новая подпись сохранена, developer seal готов до owner OFF, аппаратный профиль не расширен. [Результат](docs/research/evidence/owner-profile-update-resume-package.json), [полный план](docs/owner-helper-update-resume.md).
-- [ ] Обновить signed installed helper, проверить enabled root XPC gate и получить одно локальное одобрение точного sealed опыта.
+- [x] Обновить signed installed helper на 26A434: exact новая копия и сохранённый backup подтверждены. [Результат](docs/research/evidence/owner-read-only-update-installed-pending.json).
+- [ ] Подтвердить enabled root XPC новой копии; системное одобрение пока requiresApproval. [Следующий полный сеанс](docs/helper-read-only-approval.md). Новое локальное одобрение аппаратного опыта требует отдельного sealed плана текущей ОС.
 - [ ] После одобрения выполнить ровно один ограниченный аппаратный опыт и проверить устойчивый возврат Auto.
 
 Проверено 2026-09-30: [симуляция](docs/features/feature-control-simulation.md), независимый процесс восстановления, [подготовленный протокол](docs/features/feature-experiment-protocol.md) и [dry-run](docs/research/evidence/control-dry-run.txt). На текущем шаге локальный issuer и restart подготовлены и проверены на модели; для аппаратного runtime нужны подключение broker к daemon/public start и положительный signed/installed gate. Кандидатный план не готов к одобрению. GUI по-прежнему read-only; hardwareControlAvailable=false. До PR #2 локально было 0 valid identities; последняя команда сообщает 2, одна помечена revoked. Подпись второй identity и установленный helper ещё не проверены.

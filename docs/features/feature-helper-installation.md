@@ -12,9 +12,11 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
+Текущее состояние 2026-10-04: новая exact signed/root-owned копия установлена, backup подтверждён; один register требует approval. Owner ON прошёл без administrative prompt, subsequent verify и один developer status сохранили requiresApproval/serviceNotEnabled. Settings on не совпадает с global parent BTM disallowed/pending. Положительного root XPC новой сборки нет. [Markers и scoped state](../research/evidence/owner-read-only-update-installed-pending.json). Следующий [owner сеанс](../helper-read-only-approval.md) проверяет существующее уведомление и собирает global job/BTM snapshot, с одной conditional peer проверкой; новую подпись/установку/register не выполняет. [Frozen подготовка](../research/evidence/owner-read-only-approval-preparation.json).
+
 Реализованы диагностика bundle, явные app CLI-команды регистрации и ограниченный XPC handshake. После одного owner off/on **system job загружен**, хотя parent BTM всё ещё содержит pending authorization. Один installed XPC verify получил enabled/deadline: helper завершается на runtime с untrustedSignature. Read-only проверка обнаружила смену ОС на **27.0.1 (26A434)** при candidate **27.0.0 (26A428)**; профиль ошибочно объединялся с signature guard. Root XPC ещё не подтверждён; GUI-кнопки RPM отключены. [Последние факты](../research/evidence/owner-system-approval-result.json).
 
-Исправленный daemon на неподтверждённом профиле проходит прежний signed/root-owned identity gate и сохраняет диагностический XPC, не создавая аппаратный runtime/authority и не вызывая startup hardware recovery. Preparation/start явно отказывают с unsupportedMachine; старый аппаратный candidate не расширен. Installation status по-прежнему читает существующий pending journal и не очищает его. Actual signed root positive новой сборки требует обновления владельцем.
+Исправленный daemon на неподтверждённом профиле проходит прежний signed/root-owned identity gate и сохраняет диагностический XPC, не создавая аппаратный runtime/authority и не вызывая startup hardware recovery. Preparation/start явно отказывают с unsupportedMachine; старый аппаратный candidate не расширен. Installation status по-прежнему читает существующий pending journal и не очищает его. Новая копия установлена, actual signed root positive ожидает завершения системного разрешения.
 
 `--read-only-update` готовит отдельный pinned пакет из новой ad hoc сборки и exact прежней установки. Один owner `update-read-only` связывает sign → public qualification → OFF → guarded unregister → проверенную замену с backup → один register → при необходимости ON → один root verify/status. Marker исключает повтор, неизвестный runtime/job/hash и любые отказы останавливают последующие действия. Seal содержит signed fingerprints; hardware candidate/review/receipt не сохраняются. Пакет запрещает ready/run/collect/setup и отдельные lifecycle команды. Полная последовательность и argv заданы в [плане read-only обновления](../owner-helper-update.md); подготовка и модели — [в свидетельстве](../research/evidence/owner-profile-update-package.json).
 
@@ -238,6 +240,22 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** update отказывает до marker/OFF/system actions, sign не обращается к ключу. Только один qualify может создать seal без hardware review; повтор запрещён. Исходный остановленный пакет сохраняется.
 
 **Automated:** `scripts/read-only-update-dry-run.py`
+
+### Scenario: Снимок новой установленной копии связывает stopped source и backup
+
+**Дано:** read-only update завершил replacement и register, затем остановился с requiresApproval.
+**Когда:** готовится prepare-read-only и запускается diagnostic collect.
+**Тогда:** 17 source файлов, installed fingerprint, backup, owner UID и exact неподтверждённая машина закреплены в manifest; изменение любой привязки или advanced source отказывает. Existing/unreadable runtime и отсутствие owner Terminal исключают первый owner prompt/sudo.
+
+**Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
+
+### Scenario: Сообщение ALLOW не заменяет проверку root peer
+
+**Дано:** frozen read-only consent inspection с ответом ALLOW либо NONE после просмотра существующего уведомления.
+**Когда:** выполняются один administrative job/BTM snapshot и условная проверка установленного helper.
+**Тогда:** missing job сохраняет pending без app invocation; загруженный job допускает одну bounded диагностику только при отсутствии runtime. Sudo отказ, BTM timeout, peer refusal или timeout сохраняются без positive proof и повторов. Успех требует actual enabled/root peer/exact hashes/hardwareControlAvailable=false; отмена и source race до sudo исключают последующие вызовы. Ни register, ни аппаратное одобрение не выполняются.
+
+**Automated:** `scripts/helper-registration-diagnostics-dry-run.py`
 
 ### Scenario: Installed continuation связывает установленную копию без замены
 

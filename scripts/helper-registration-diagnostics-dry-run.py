@@ -214,4 +214,114 @@ for answer in ("cancel", "DONE"):
                 pass
             owner_input.assert_not_called(); external.assert_not_called()
 print("Cancel stops before sudo; DONE performs two fixed reads only; marker blocks repeated UI prompt and sudo.")
+
+# Updated installed copy: notification inspection is not a new registration or UI toggle cycle.
+for mode in ["none", "allow", "cancel", "sudo-denied", "btm-timeout", "bad-peer", "verify-timeout", "runtime-appeared", "source-changed-after-input"]:
+    with tempfile.TemporaryDirectory(prefix="ventilator-readonly-consent-model-", dir=root / ".build") as directory:
+        package = Path(directory)
+        (package / "PLAN.md").write_text("Model notification inspection; zero SMC writes.")
+        manifest = {"purpose": "readOnlyApprovalInspection", "scriptSHA256": "a" * 64, "planSHA256": "b" * 64,
+                    "installedFingerprint": fingerprints}
+        calls = []
+        def command(command, **kwargs):
+            calls.append(command)
+            if len(calls) == 1:
+                return subprocess.CompletedProcess(command, 1 if mode == "sudo-denied" else 113 if mode == "none" else 0, "model system job")
+            if len(calls) == 2:
+                return subprocess.CompletedProcess(command, 142 if mode == "btm-timeout" else 0, "Records for UID -2 : TEST\n")
+            assert command == ["/Applications/Ventilator.app/Contents/MacOS/Ventilator", "--verify-installed-helper"]
+            if mode == "verify-timeout": raise subprocess.TimeoutExpired(command, 10)
+            reply = {"trustedBundle": True, "rootOwned": True, "installedLocation": True,
+                     "hardwareControlAvailable": False, "helperVerified": mode != "bad-peer",
+                     "fingerprint": fingerprints, "registration": "enabled"}
+            return subprocess.CompletedProcess(command, 78 if mode == "bad-peer" else 0, json.dumps(reply), "")
+        checks = 0
+        def checking(_):
+            global checks
+            checks += 1
+            if mode == "source-changed-after-input" and checks == 2: raise RuntimeError("Model source changed during owner inspection")
+            return manifest
+        absent = {"exists": False, "lstatErrno": 2}
+        after = {"exists": True} if mode == "runtime-appeared" else absent
+        metadata = [absent, absent, after, after]
+        with patch.object(snapshot, "owner_terminal"), patch.object(snapshot, "check", side_effect=checking), \
+                patch.object(snapshot, "runtime_metadata", side_effect=metadata), \
+                patch("builtins.input", return_value="cancel" if mode == "cancel" else "NONE" if mode == "none" else "ALLOW") as owner_input, \
+                patch.object(snapshot.subprocess, "run", side_effect=command):
+            if mode in ["cancel", "source-changed-after-input"]:
+                try:
+                    snapshot.collect(package)
+                    raise AssertionError("Cancelled/changed inspection admitted")
+                except RuntimeError: pass
+                assert not calls
+            else:
+                snapshot.collect(package)
+                report = json.loads((package / "result.json").read_text())
+                assert report["helperVerified"] == (mode == "allow")
+                assert len(calls) == (1 if mode == "sudo-denied" else 3 if mode in ["allow", "bad-peer", "verify-timeout"] else 2)
+                assert report["hardwareWritesExecuted"] == 0
+                if mode == "none": assert report["outcome"] == "systemApprovalPending"
+                if mode == "runtime-appeared": assert report["outcome"] == "runtimeStatePresent"
+                if mode == "bad-peer": assert report["steps"]["verification"]["reply"]["helperVerified"] is False
+                if mode == "verify-timeout": assert report["steps"]["verification"]["timedOut"]
+            before = list(calls)
+            owner_input.reset_mock()
+            # Runtime and binding reads may repeat; owner prompt, sudo and XPC may not.
+            with patch.object(snapshot, "runtime_metadata", return_value=absent), patch.object(snapshot, "check", return_value=manifest):
+                try:
+                    snapshot.collect(package)
+                    raise AssertionError("Read-only inspection replayed")
+                except FileExistsError: pass
+            owner_input.assert_not_called(); assert before == calls
+print("Read-only consent inspection: nine branches; ALLOW alone never proves consent, NONE still saves snapshot, one conditional peer verify; cancellation, source race, failed/partial reads, runtime and replay stop dependent actions.")
+
+with tempfile.TemporaryDirectory(prefix="ventilator-readonly-consent-bindings-", dir=root / ".build") as directory:
+    import shutil
+    base = Path(directory)
+    source = base / ".build" / snapshot.READ_ONLY_SOURCE
+    installed, backup = base / "installed.app", base / "backup"
+    source.mkdir(parents=True); (base / "docs").mkdir()
+    shutil.copyfile(root / "docs/helper-read-only-approval.md", base / "docs/helper-read-only-approval.md")
+    for key, name in snapshot.INSTALLED_FILES.items():
+        for bundle in [source / "Ventilator.app", installed, backup]:
+            path = bundle / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text(key)
+    hashes = {key: snapshot.digest(installed / name) for key, name in snapshot.INSTALLED_FILES.items()}
+    (source / "PLAN.md").write_text("Model stopped plan"); (source / "session.py").write_text("Model stopped script")
+    source_manifest = {"readOnlyUpdate": True, "readOnlyMachine": snapshot.READ_ONLY_MACHINE, "installedReplacement": hashes,
+                       "certificateSHA1": "model-cert", "teamIdentifier": "model-team",
+                       "packageFiles": {n: snapshot.digest(source / n) for n in ["PLAN.md", "session.py"]}}
+    snapshot.save(source / "manifest.json", source_manifest)
+    snapshot.save(source / "sealed.json", {"fingerprint": hashes, "positiveRevocation": True,
+        "certificateSHA1": "model-cert", "teamIdentifier": "model-team"})
+    snapshot.save(source / "replacement-completed.json", {"fingerprint": hashes, "previous": hashes, "hardwareWritesExecuted": 0})
+    snapshot.save(source / "registration-completed.json", {"fingerprint": hashes, "registration": "requiresApproval",
+        "hardwareControlAvailable": False, "trustedBundle": True, "rootOwned": True, "installedLocation": True})
+    for n in ["qualification-started.json", "update-started.json", "removal-started.json", "removal-completed.json", "replacement-started.json", "registration-started.json"]:
+        snapshot.save(source / n, {"model": True})
+    with patch.object(snapshot, "READ_ONLY_BACKUP", backup), patch.object(snapshot, "machine", return_value=snapshot.READ_ONLY_MACHINE), \
+            patch.object(snapshot, "runtime_metadata", return_value={"lstatErrno": 2}):
+        before = snapshot.tree_files(source)
+        snapshot.prepare_read_only(base, installed=installed)
+        package = base / ".build" / snapshot.READ_ONLY_SNAPSHOT
+        prepared = snapshot.check(package, installed=installed)
+        assert prepared["ownerFilesSHA256"] == before and snapshot.tree_files(source) == before
+        assert prepared["backupFilesSHA256"] == snapshot.tree_files(backup)
+        for path in [source / "PLAN.md", installed / snapshot.INSTALLED_FILES["helperSHA256"], backup / snapshot.INSTALLED_FILES["applicationSHA256"]]:
+            original = path.read_bytes(); path.write_bytes(original + b" changed")
+            try:
+                snapshot.check(package, installed=installed)
+                raise AssertionError("Changed bound file admitted")
+            except RuntimeError: pass
+            path.write_bytes(original)
+        for substitution in ["owner", "machine", "advanced-source"]:
+            with patch.object(snapshot.os, "getuid", return_value=os.getuid() + (1 if substitution == "owner" else 0)), \
+                    patch.object(snapshot, "machine", return_value={} if substitution == "machine" else snapshot.READ_ONLY_MACHINE):
+                if substitution == "advanced-source": (source / "result.json").write_text("{}")
+                try:
+                    snapshot.check(package, installed=installed)
+                    raise AssertionError("Changed diagnostic binding admitted")
+                except RuntimeError: pass
+                if substitution == "advanced-source": (source / "result.json").unlink()
+        assert snapshot.tree_files(source) == before
+print("Real read-only package preparation/check: stopped source and backup preserved; changed source/installed/backup, owner, machine and advanced source refused.")
 print("Registration diagnostics dry-run passed; no registration, actual UI cycle, installed app execution, root commands or SMC.")
