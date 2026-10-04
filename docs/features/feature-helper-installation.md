@@ -12,6 +12,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
+Следующий [guarded reconnect](../gui-helper-reconnect-owner.md) использует immutable прежний GUI update engine и отдельный пакет для source без mainApp startup query. Qualification и статический root staging предшествуют owner OFF; root job должен отсутствовать до OFF и непосредственно перед old unregister. Actual requiresApproval/serviceNotEnabled допускает только прежний unstarted removal; enabled после OFF запрещает удаление независимо от сообщения владельца. После exact backup/replacement выполняется одно GUI register и owner ON/Allow. Hardware review/start отсутствуют, Mac остаётся unsupported/read-only. [Composition](../../scripts/gui-helper-reconnect.py), [18 models](../../scripts/gui-helper-reconnect-dry-run.py).
+
 Administrative read выполнен владельцем: system job absent (113), четыре BTM records для UID -2/0/501 содержат allowed без pending authorization/disallowed. Current framework status в collector не читался; одно последующее обновление того же GUI показало enabled с connectionFailed и lookup No such process. Не требуется повтор collect. Недоступный mainApp login item теперь не обращается к ServiceManagement при monitoring startup; эта source поправка не заявлена как ремонт BTM. [Снимок](../research/evidence/gui-helper-state-result.json).
 
 Owner GUI update завершён: installed/payload совпадают с новой квалифицированной подписью, прежняя копия сохранена. Exclusive marker подтверждает одно GUI register; системный журнал фиксирует disallowed/bootstrap error 1 до first light. Поздний CLI report enabled/remoteFailure и отсутствующий system job не подтверждают root helper. Следующий [пакет только чтения](../gui-helper-state-owner.md) проверяет completed update/installed/GUI hashes, owner/machine/boot и private marker до административного чтения launchd/BTM; framework status, XPC, registration и аппаратный runtime не вызываются. [Actual result](../research/evidence/gui-helper-update-result.json).
@@ -113,6 +115,7 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 
 | Компонент | Code |
 |---|---|
+| Read-only reconnect после startup isolation | `scripts/gui-helper-reconnect.py`, `scripts/gui-helper-reconnect-dry-run.py` |
 | Одно административное чтение после завершённого GUI update | `scripts/gui-helper-state.py`, `scripts/gui-helper-state-dry-run.py` |
 | Изолированный GUI probe, static/process/owner gates | `Diagnostics/RegistrationProbe/ProbeApp.swift`, `Diagnostics/RegistrationProbe/ProbeBundle.swift` |
 | Noop daemon и отдельная сборка | `Diagnostics/RegistrationProbe/ProbeDaemon.swift`, `scripts/build-registration-probe.py` |
@@ -139,6 +142,22 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** читаются только system job и BTM; сохраняются только parent/helper records Ventilator вместе с UID. Absent job даёт rootJobAbsent, loaded job — rootPeerUnverified; registrationStatus остаётся null, nativeVerificationAttempted/helperVerified=false. Аппаратных записей нет.
 
 **Automated:** `scripts/gui-helper-state-dry-run.py`
+
+### Scenario: OFF допускает только штатное снятие unstarted регистрации
+
+**Дано:** checked startup-isolated payload, exact previous installation и absent hardware runtime на unsupported Mac.
+**Когда:** owner reconnect прошёл qualification/staging, root job absent и владелец сообщил OFF.
+**Тогда:** actual framework требует requiresApproval/serviceNotEnabled либо already unregistered. Old unregister вызывается не более одного раза только после второго absent-job gate; enabled/loaded/unknown/changed state останавливают его. Qualified new bundle заменяет exact old bytes с backup; новое GUI register остаётся sole explicit action.
+
+**Automated:** `scripts/gui-helper-reconnect-dry-run.py`
+
+### Scenario: Reconnect сохраняет отсутствие root proof и запрещает повтор
+
+**Дано:** source/protected/boot change, отказ qualification/OFF/removal, cancel либо уже начатый reconnect.
+**Когда:** выполняется reconnect.
+**Тогда:** запретные дальнейшие lifecycle действия не выполняются, старые protected файлы не переписываются; повтор после run-started не повторяет signing/root commands. После завершённого failed peer либо pending outcome root helper и hardware не объявляются готовыми.
+
+**Automated:** `scripts/gui-helper-reconnect-dry-run.py`
 
 ### Scenario: Неизвестное состояние и повтор административного чтения останавливаются
 
