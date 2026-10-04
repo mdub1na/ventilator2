@@ -8,6 +8,12 @@ date: 2026-10-04
 
 # Исследование
 
+## Владелец подтвердил пропущенный ON — 2026-10-04
+
+Владелец уточнил: после GUI register в пункте 4 последнего reconnect фоновую активность обратно не включил. Read-only повторное чтение Settings также показывает OFF. Поэтому requiresApproval при достигнутом OFF не проверяет поведение после ON; отказ после подтверждённого ON для новой сборки не установлен. Ранее найденный лишний mainApp query устранён независимо, но его причинное влияние на bootstrap остаётся недоказанным. [Owner clarification](evidence/gui-helper-reconnect-result.json).
+
+Следующее решение — продолжить только пропущенный owner ON в существующей signed установке и один раз проверить связь после независимого AX ON gate. Signing/removal/replacement/register не повторяются. Подготовлен полный короткий [план продолжения](../gui-helper-enable-owner.md) и отдельные frozen PLAN/manifest, связывающие exact seal, current boot, 30 completed файлов, 12 старых protected директорий и два GUI marker. Static frozen reconnect check прошёл; installed/protected/root-runtime pins проверены без framework/XPC. ON/verification ещё не выполнены, root positive не заявлен; hardware writes=[], M2 остаётся закрыт. [Хеши подготовки](evidence/gui-helper-enable-preparation.json).
+
 ## Reconnect завершён; mainApp isolation не устранил ожидание — 2026-10-04
 
 Владелец выполнил отдельный reconnect, completedAt=18:33:33 +05:00. Positive signature qualification прошла до lifecycle; owner OFF подтверждён actual requiresApproval/serviceNotEnabled. Два дополнительных root lookups до OFF/unregister и после removal дали 113; прежний guarded unregister вернул notRegistered. Exact прежняя signed копия сохранена в новом previous-installed.bundle, новая без mainApp startup query установлена. GUI marker PID 49998 подтверждает новый register; owner ответил NONE. Итоговый report **requiresApproval / serviceNotEnabled**, system job absent (113), helperVerified=false. Это actual состояние нового сеанса; прежний enabled/remoteFailure относится к старой копии. Устранение лишнего mainApp обращения **не оказалось достаточным** для запуска production daemon. Причина ожидания одобрения ещё не установлена.

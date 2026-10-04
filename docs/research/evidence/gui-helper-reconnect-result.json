@@ -187,14 +187,14 @@
   },
   "conclusions": {
     "newGUIRegistrationAttempted": true,
-    "mainAppStartupIsolationDidNotResolveApproval": true,
     "systemApprovalPending": true,
     "rootPeerVerified": false,
     "physicalAutoVerified": false,
     "hardwareWritesExecuted": 0,
     "registrationOrCollectionRepeated": false,
-    "nextAction": "Clarify whether owner ON occurred or reverted; do not infer it from NONE. No new registration or signing.",
-    "mainAppIsolationResult": "Installed fix alone did not establish root peer. Final ON was not independently confirmed; this is not a test with confirmed ON."
+    "nextAction": "Continue only the omitted ON for the existing registered signed installation; then one independently gated read-only verification. No signing/replacement/register.",
+    "mainAppIsolationResult": "A run with confirmed final ON has not occurred; the earlier OFF result cannot establish failure with ON.",
+    "mainAppStartupIsolationWithoutFinalONDidNotEstablishPeer": true
   },
   "systemLog": {
     "windowStart": "2026-10-04 18:32:30 +05:00",
@@ -215,7 +215,7 @@
     "ventilatorSwitch": "off",
     "observedAfterCompletedSession": true,
     "settingsMutatedByAgent": false,
-    "ownerClarificationPending": true
+    "ownerClarificationPending": false
   },
   "guiObservation": {
     "method": "Read-only accessibility of already running canonical PID 49998/UID 501",
@@ -235,5 +235,11 @@
       "url": "https://developer.apple.com/forums/thread/802443",
       "verified": "DTS illustrates separate daemon register and system Allow/admin approval; no guarantee of notification for this OS/history."
     }
-  ]
+  ],
+  "ownerClarification": {
+    "receivedDate": "2026-10-04",
+    "ownerReported": "After connecting helper in step 4, did not turn background activity ON.",
+    "finalONPerformed": false,
+    "switchRevertedAfterONReported": false
+  }
 }
