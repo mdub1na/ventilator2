@@ -80,6 +80,62 @@ final class HelperSetupTests: XCTestCase {
         }
     }
 
+    func testSavedHardwareFailureSurvivesStatusAndDisplaysUnconfirmedRecovery() throws {
+        let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let data = try Data(contentsOf: repository.appendingPathComponent("docs/research/evidence/current-hardware-failed-result.json"))
+        let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let result = try XCTUnwrap(saved["result"] as? [String: Any])
+        let audit = try XCTUnwrap(result["audit"] as? [String: Any])
+        let authority = try XCTUnwrap(audit["authority"] as? [String: Any])
+        let ledger = try XCTUnwrap(authority["ledger"] as? [String: Any])
+        let pending = try XCTUnwrap(ledger["pendingRestoration"] as? Bool)
+        XCTAssertTrue(pending)
+
+        var peerCalls = 0
+        let status = HelperServiceController.status(effectiveUID: 501, inspect: { self.proof() },
+            validateProcess: {}, registration: { .enabled }, verify: { _ in peerCalls += 1; return pending })
+        XCTAssertEqual(peerCalls, 1)
+        XCTAssertTrue(status.helperVerified)
+        XCTAssertEqual(status.pendingHardwareRestoration, true)
+        XCTAssertFalse(status.hardwareControlAvailable)
+        XCTAssertEqual(HelperSetupPhase(report: status), .recoveryUnconfirmed)
+        let encoded = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(status)) as? [String: Any])
+        XCTAssertEqual(encoded["pendingHardwareRestoration"] as? Bool, true)
+    }
+
+    func testRecoveryWarningRequiresTrustedVerifiedReplyAndNeverClaimsAutoForFalse() {
+        var pending = report("enabled", verified: true)
+        pending.pendingHardwareRestoration = true
+        XCTAssertEqual(HelperSetupPhase(report: pending), .recoveryUnconfirmed)
+        pending.helperVerified = false
+        XCTAssertEqual(HelperSetupPhase(report: pending), .registered)
+        pending.helperVerified = true; pending.error = "deadline"
+        XCTAssertEqual(HelperSetupPhase(report: pending), .connectionFailed)
+        pending.error = nil; pending.trustedBundle = false
+        XCTAssertEqual(HelperSetupPhase(report: pending), .unavailable)
+        pending.trustedBundle = true; pending.pendingHardwareRestoration = false
+        XCTAssertEqual(HelperSetupPhase(report: pending), .verified)
+        XCTAssertFalse(pending.hardwareControlAvailable)
+    }
+
+    @MainActor func testPendingRecoveryModelAllowsRefreshWithoutRegistrationOrSettings() async throws {
+        var pending = report("enabled", verified: true)
+        pending.pendingHardwareRestoration = true
+        let saved = pending
+        var registerCalls = 0
+        let model = HelperSetupModel(read: { saved }, register: { _ in registerCalls += 1; return saved })
+        model.refreshIfNeeded()
+        for _ in 0..<100 where model.busy { try await Task.sleep(nanoseconds: 10_000_000) }
+        XCTAssertEqual(model.phase, .recoveryUnconfirmed)
+        XCTAssertFalse(model.canRegister); XCTAssertFalse(model.canOpenSettings)
+        model.connect()
+        XCTAssertEqual(registerCalls, 0)
+        model.refresh()
+        for _ in 0..<100 where model.busy { try await Task.sleep(nanoseconds: 10_000_000) }
+        XCTAssertEqual(model.phase, .recoveryUnconfirmed)
+        XCTAssertEqual(registerCalls, 0)
+    }
+
     func testDurableMarkerSurvivesFailureAndRejectsReplayWithoutOverwriting() throws {
         let base = FileManager.default.temporaryDirectory.resolvingSymlinksInPath().appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: base, withIntermediateDirectories: false)

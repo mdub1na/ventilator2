@@ -3,10 +3,18 @@ id: research-architecture
 title: Ventilator — исследование архитектуры и аппаратных ограничений
 type: research
 status: active
-date: 2026-10-04
+date: 2026-10-09
 ---
 
 # Исследование
+
+## Отображение незавершённого восстановления — 2026-10-09
+
+Source defect подтверждён: InstalledHelperClient уже получал pendingHardwareRestoration в authenticated installation reply, но HelperServiceController отбрасывал reply, поэтому GUI мог показать Verified при незавершённом hardware восстановлении. Исправлено сохранение optional pending flag и отдельная RecoveryUnconfirmed phase; registration, подписи и доверенная связь не выдаются за physical Auto. При отсутствии/ошибке peer flag остаётся nil; false также не квалифицирует Auto. Settings/register недоступны в новом состоянии, явный refresh использует только прежнюю status проверку.
+
+Проверено: 126 unit tests без ошибок, ad hoc build/strict verify, отдельный offscreen SwiftUI PNG fixture визуально проверен — сообщение помещается, действия отключены. Sandbox rendering завершился 134 без diagnostic output; тот же отключённый fixture вне sandbox завершился 0. Normal app/MonitorStore, production XPC и SMC в fixture не запускаются. Saved actual pending audit проходит status → report JSON → RecoveryUnconfirmed на injected peer; register/settings закрыты. Completed11/protected16/installed5/privateGUI4 byte-exact. [Source evidence](evidence/helper-recovery-ui-source.json). Source UI не устанавливался на Mac; фактическое Auto не подтверждено.
+
+Нового аппаратного опыта/восстановления и owner пакета нет. Root state и production bundle не меняются. Физическое выключение из frozen stop plan было аварийной мерой после опыта; оно не проверяет Auto и не является способом продолжить диагностику на выключенном Mac. В обсуждении это было уточнено владельцу. Текущая physical Auto квалификация остаётся неизвестной; дальнейшая source работа использует только модели и сохранённые данные.
 
 ## Одобренный аппаратный опыт завершился recoveryRequired — 2026-10-04
 
