@@ -1,0 +1,79 @@
+{
+  "verifiedDate": "2026-10-09",
+  "clientTimezone": "Asia/Yekaterinburg",
+  "baseCommit": "bd7cf89d7ed98a113f1bf72a6330c96db6354f09",
+  "kind": "sourceAndFakeDataVerificationOnly",
+  "expectedProfile": {
+    "model": "Mac15,7",
+    "version": "27.0.1",
+    "build": "26A434"
+  },
+  "currentProfileQualified": false,
+  "liveProbeProcessStarted": false,
+  "sensorReadsByThisStep": 0,
+  "approvalReview": {
+    "outcome": "rejectedBeforeExecution",
+    "action": "live non-root NAND-only probe outside sandbox",
+    "reason": "The failed hardware experiment stop rule was interpreted as prohibiting new live hardware checks; prior broad autonomy was insufficient.",
+    "freshExplicitPermissionRequired": true
+  },
+  "preparedReading": {
+    "maximumSamples": 5,
+    "interSamplePauseSeconds": 1,
+    "individualReadAcceptedBelowSeconds": 0.5,
+    "subprocessTimeoutSeconds": 8,
+    "eventAgeMaximumSeconds": 2,
+    "temperatureCelsiusRange": [
+      -10,
+      125
+    ],
+    "fanWrites": 0,
+    "SMCTransportLinked": false,
+    "rootOrHelperOrSudoUsed": false,
+    "CPUOrGPULoad": false,
+    "newOutputDirectoryOnly": true
+  },
+  "qualificationAllowlistChanged": false,
+  "compiledWithWarningsAsErrors": true,
+  "staticLinkInspection": {
+    "deviceConnectionOpenOrCallImports": false,
+    "frameworks": [
+      "Foundation",
+      "IOKit",
+      "CoreFoundation"
+    ],
+    "executionRequired": false
+  },
+  "verification": {
+    "fakeDataChecks": 17,
+    "temperatureUnitTests": 3,
+    "failures": 0,
+    "timeoutAndLaunchFailurePreserved": true,
+    "replayDeniedBeforeFakeLaunch": true
+  },
+  "sourceAndBinarySHA256": {
+    "tools/nand_profile_probe.m": "53664841b945181ff2fb172ffdc6e728c2305e30676b0f36cad438f477bd26cd",
+    "Sources/CHIDTemperature/HIDTemperatureRead.c": "950e6d4568d71ff3754924111dd257e0d4112b707a95933a7dc7ad966e53dde9",
+    "Sources/CHIDTemperature/include/HIDTemperatureRead.h": "605edd9a478509d68bf06e7666bc1e2764f382e14dd1940735f8519d50277b2e",
+    "scripts/build-nand-profile-probe.sh": "ac75db5c06e4e10e38b5eeae4e33a808ad80984a8587b40a857ef9f77a4fbba4",
+    "scripts/check-nand-profile.py": "2cb64f4670ba0d2ddbc5f3e9873f8b85211b1754f93383c84175ef5e5d9594e2",
+    "scripts/nand-profile-dry-run.py": "c432140c891a8f65b125858537582c8c99d10ef17eaef247a1f8b01671c342bb",
+    ".build/research/nand-profile-probe": "319b9e58356ba2f1bc22243557c4ec2a43ecb5093eb5da115d095b18b1547609"
+  },
+  "preservation": {
+    "completedFiles": 11,
+    "protectedDirectories": 16,
+    "installedFiles": 5,
+    "privateGUIFiles": 4,
+    "allByteExact": true
+  },
+  "rootRuntimeReadOrChangedByAgent": false,
+  "productionBundleChanged": false,
+  "physicalAutoVerified": false,
+  "CPUOrGPUAttributed": false,
+  "docs": {
+    "documents": 13,
+    "bddScenarios": 122,
+    "errors": 0
+  }
+}

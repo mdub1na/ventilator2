@@ -3,12 +3,20 @@ id: research-temperatures
 title: Источники температур на Mac15,7 и macOS 27
 type: research
 status: active
-date: 2026-09-30
+date: 2026-10-09
 ---
 
 # Температурные источники
 
-Профиль: `Mac15,7`, M3 Pro, macOS 27.0 build `26A428`. Только чтение, без `sudo` и SMC-записей. Общее устройство проекта и аппаратные ограничения описаны в [архитектуре](research-architecture.md).
+Подтверждённый температурный профиль: `Mac15,7`, M3 Pro, macOS 27.0 build `26A428`. Только чтение, без `sudo` и SMC-записей. Общее устройство проекта и аппаратные ограничения описаны в [архитектуре](research-architecture.md).
+
+## Новая сборка ОС — подготовка 2026-10-09
+
+На ранее сохранённом текущем профиле `Mac15,7 / 27.0.1 / 26A434` NAND ещё не квалифицирован; `TemperatureSources` оставляет SSD неизвестным. Подготовлен [один NAND-only read](../nand-profile-read-only.md): максимум пять чтений существующим CHIDTemperature, exact profile до I/O, свежесть ≤2 с, диапазон −10…125 °C, individual duration <0.5 с и subprocess timeout 8 с. SMC/helper/root и нагрузки исключены из пробника.
+
+Проверено по коду и сборке: warnings-as-errors, static imports без device connection open/call, 17 fake-data checks включая реальный подставной subprocess, replay и сохранение launch/timeout отказов; три TemperatureSources tests прошли. Allowlist не расширен. Автоматическая проверка разрешений отклонила **живой** запуск до создания процесса из-за stop rule после неудачного аппаратного опыта. Новых температурных данных нет; ожидается отдельное разрешение владельца именно на это чтение. [Факты подготовки и хеши](evidence/nand-current-profile-preparation.json).
+
+Следующие разделы фиксируют выполненное исследование **2026-09-30 на 26A428**. Команды воспроизведения описывают тот исторический сеанс; сейчас они не назначены к запуску.
 
 ## Локально проверено
 
@@ -70,6 +78,7 @@ Metal включает CPU-вызовы отправки команд, нагр�
 | Исследовательский каталог | `tools/temperature_probe.m`, `scripts/build-temperature-probe.sh` |
 | Ограниченные вычисления | `tools/temperature_workload.m`, `scripts/run-temperature-research.py` |
 | Нативное чтение NAND | `Sources/CHIDTemperature/HIDTemperatureRead.c` |
+| Подготовленная проверка нового профиля | `tools/nand_profile_probe.m`, `scripts/build-nand-profile-probe.sh`, `scripts/check-nand-profile.py`, `scripts/nand-profile-dry-run.py` |
 | Проверенный профиль | `Sources/VentilatorCore/TemperatureSources.swift` |
 | Независимые источники снимка | `Sources/VentilatorCore/Monitoring.swift` |
 | Проверки модели показания | `Tests/VentilatorCoreTests/TemperatureSourcesTests.swift` |
@@ -79,3 +88,4 @@ Metal включает CPU-вызовы отправки команд, нагр�
 - CPU/GPU: получить независимую атрибуцию для точного M3 Pro, затем повторить измерения; корреляции и чужой таблицы недостаточно. Пока нет проверяемой карты, сохранять «Нет данных».
 - Повторить обнаружение и чтение после сна/пробуждения; текущий сеанс этого не проверял.
 - При изменении модели или сборки macOS выполнить новую проверку. Частный HID ABI может исчезнуть; такой профиль не разрешается автоматически.
+  - `27.0.1 / 26A434`: пробник подготовлен и проверен на моделях; живое чтение ожидает отдельного разрешения владельца после автоматического отказа запуска.

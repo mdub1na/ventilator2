@@ -12,6 +12,12 @@ publishes: [Ventilator.app]
 
 # Приложение
 
+## Текущая подготовка температурной диагностики — 2026-10-09
+
+[NAND-only probe](../nand-profile-read-only.md) — отдельный исследовательский бинарник, не часть запуска приложения: `tools/nand_profile_probe.m`, `scripts/build-nand-profile-probe.sh`, `scripts/check-nand-profile.py`. Он связывается только с существующим CHIDTemperature reader, проверяет exact профиль до чтений и принимает пять валидных образцов; subprocess timeout 8 с, новый каталог и exclusive result. SMC transport/helper/root/sudo/load отсутствуют. 17 fake-data checks и три температурных unit tests прошли; живой запуск отклонён автоматической проверкой разрешений до создания процесса. Источники приложения и установленная signed копия не изменены; SSD на 27.0.1/26A434 остаётся неизвестным. [Source evidence](../research/evidence/nand-current-profile-preparation.json).
+
+Ниже сохранена история установки/диагностики. Текущий аппаратный опыт уже завершился отказом; новые installation/register/hardware сеансы здесь не назначаются. [Актуальный результат](../research/evidence/current-hardware-failed-result.json), [состояние незавершённого восстановления](../screens/screen-application.md).
+
 Для новой source сборки готовится отдельный [read-only reconnect](../gui-helper-reconnect-owner.md), который переиспользует checked frozen GUI engine и добавляет подтверждённый OFF перед прежним guarded unregister. Enabled peer requirement не ослаблен; root job must be absent before OFF/removal. Старая installed копия, completed GUI update/administrative snapshot и GUI history сохраняются. Actual новая подпись/установка/root positive ещё не выполнены.
 
 Administrative read завершён: четыре scoped BTM records allowed, system job отсутствует, package/installed/GUI hashes сохранены. GUI после одного refresh также показывает connectionFailed; root helper не подтверждён. `MonitorStore` больше не запрашивает mainApp status при создании; для недоступного автозапуска нет register/unregister и binding к будущему mutation. Строка сообщает «Пока недоступно», не изображая прочитанный OS setting. Source проверяется отдельной ad hoc сборкой; installed signed копия пока содержит прежний startup. [Новый actual снимок](../research/evidence/gui-helper-state-result.json).

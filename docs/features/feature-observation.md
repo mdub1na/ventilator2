@@ -14,6 +14,8 @@ tags: [macOS, monitoring]
 
 Приложение показывает read-only снимки AppleSMC для обнаруженных вентиляторов. `FNum` задаёт количество (в коде ограничено восемью); каждый вентилятор имеет фактические/целевые RPM, пределы и сырой код режима. Непрочитанное значение остаётся неизвестным. Нуль RPM остаётся нулём, а не ошибкой. На проверенном `Mac15,7` + macOS 27.0.0 (`26A428`) HID читает температуру NAND-канала встроенного SSD. CPU/GPU не имеют проверенных источников и показываются как «Нет данных». Кандидат `Tf26` виден отдельно. [Результаты исследования](../research/research-temperatures.md).
 
+На `27.0.1 / 26A434` SSD остаётся «Нет данных» до отдельной квалификации. [NAND-only пробник](../nand-profile-read-only.md) подготовлен и проверен только на моделях; автоматическая проверка разрешений отклонила живой запуск. Это не подтверждение источника на новой ОС.
+
 Управление в [разделе вентиляторов](../screens/screen-fans.md) отключено до аппаратного подтверждения. [Обзор](../screens/screen-overview.md), [температуры](../screens/screen-temperatures.md) и [приложение](../screens/screen-application.md) читают один снимок из [приложения](../services/ventilator-app.md). Внешнего API нет.
 
 ## Code anchors
@@ -22,6 +24,7 @@ tags: [macOS, monitoring]
 |---|---|
 | Чтение SMC | `Sources/CSMCRead/SMCRead.c` |
 | Чтение NAND и профиль | `Sources/CHIDTemperature/HIDTemperatureRead.c`, `Sources/VentilatorCore/TemperatureSources.swift` |
+| Отдельная квалификация NAND | `tools/nand_profile_probe.m`, `scripts/check-nand-profile.py`, `scripts/nand-profile-dry-run.py` |
 | Снимок и шкала | `Sources/VentilatorCore/Monitoring.swift` |
 | Окно | `Sources/Ventilator/MainWindowView.swift` |
 | Значок | `Sources/Ventilator/StatusItemController.swift` |
@@ -52,11 +55,11 @@ tags: [macOS, monitoring]
 
 ### Scenario: Запись пока закрыта
 
-**Дано:** аппаратная проверка фиксированного режима не проводилась.
+**Дано:** успешная аппаратная квалификация Fixed и возврата Auto отсутствует.
 **Когда:** открыт раздел вентиляторов.
 **Тогда:** элементы Auto, фиксированных оборотов и возврата Auto отключены с пояснением.
 
-Проверено по accessibility-дереву запущенного приложения 2026-09-30. Реальная запись и возврат Auto не проверены.
+Отключённые элементы проверены по accessibility-дереву запущенного приложения 2026-09-30. Последующий [аппаратный опыт](../research/evidence/current-hardware-failed-result.json) завершился отказом; Fixed и physical Auto не подтверждены.
 
 ### Scenario: Температура NAND на подтверждённом профиле
 
@@ -73,6 +76,22 @@ tags: [macOS, monitoring]
 **Тогда:** SSD остаётся «Нет данных»; локальное подтверждение не переносится на другую машину.
 
 **Automated:** `Tests/VentilatorCoreTests/TemperatureSourcesTests.swift::testReadingDoesNotTransferToAnotherHardwareOrOSProfile`
+
+### Scenario: Подставные данные не открывают новый NAND профиль
+
+**Дано:** модельный отчёт пробника с пятью допустимыми температурами на `27.0.1 / 26A434`.
+**Когда:** модельные проверки завершены без живого чтения.
+**Тогда:** диагностика принимает только модельный отчёт; продуктовая allowlist сохраняет отказ нового профиля, SSD остаётся неизвестным.
+
+**Automated:** `scripts/nand-profile-dry-run.py`, `Tests/VentilatorCoreTests/TemperatureSourcesTests.swift::testReadingDoesNotTransferToAnotherHardwareOrOSProfile`
+
+### Scenario: Повтор сбора в существующий каталог
+
+**Дано:** каталог результата уже существует после предыдущего запуска.
+**Когда:** коллектор запрашивает тот же каталог.
+**Тогда:** дочерний процесс не запускается, файлы результата не меняются.
+
+**Automated:** `scripts/nand-profile-dry-run.py`
 
 ### Scenario: Потеря температурного показания
 
