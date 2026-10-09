@@ -8,7 +8,15 @@ date: 2026-10-09
 
 # Исследование
 
-## Подготовленная проверка NAND на новой ОС — 2026-10-09
+## Одно разрешённое чтение NAND завершено — 2026-10-09
+
+В ответ на точный вопрос о пяти NAND-only reads с timeout 8 без SMC/helper/root/load владелец сообщил «приступай». Pins подготовленных files проверены до запуска; collector выполнил одну non-root серию на Mac15,7/27.0.1/26A434 и сохранил qualified=true, exit0, sourceUnchanged=true. Показания 26/26/25/26/25 °C, последний elapsed 4.0741 с, individual durations 0.01067–0.01435 с; прежние C guards подтвердили exact NAND source и свежесть событий. [Actual evidence](evidence/nand-current-profile-result.json).
+
+Добавлена exact NAND версия/build пара в source allowlist; legacy pair остаётся доступна, смешанные пары и будущие сборки отвергаются. Hardware experiment allowlist/receipt/pending не меняются. C reader и установленная signed app сохранены. Записей 0, root/runtime/helper/SMC agent не использовал; физическое Auto, CPU/GPU attribution и sleep/wake не подтверждены. [Выполненный read-only план](../nand-profile-read-only.md) сохраняет прежние pins и больше не назначает запуск.
+
+Три temperature unit tests на обеих confirmed парах прошли, включая нуль/отсутствие/нечисловые/out-of-range значения и mixed/future rejection. Ad hoc build и strict verify прошли, production app не запускалась. Docs_check: 13 документов/122 BDD, ошибок0. Completed NAND2, owner11/protected16/installed5/privateGUI4 byte-exact. [Source verification и хеши development бинарников](evidence/nand-current-profile-source.json).
+
+## Подготовленная проверка NAND до отдельного разрешения — 2026-10-09
 
 TemperatureSources разрешает NAND только для Mac15,7/27.0.0/26A428, поэтому ранее сохранённый текущий 27.0.1/26A434 остаётся unsupported. Для следующего температурного шага подготовлен отдельный NAND-only probe: пять existing-reader calls, exact profile до I/O, native freshness guard, timeout 8 с, новый output без replay. Сборка со строгими warnings и static link inspection прошли; SMC transport/helper/root не включены. 17 fake-data checks и три temperature unit tests прошли; профиль приложения не изменён.
 
