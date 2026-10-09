@@ -4,7 +4,7 @@ import XCTest
 final class TemperatureSourcesTests: XCTestCase {
     func testReadingDoesNotTransferToAnotherHardwareOrOSProfile() {
         for profile in [("Mac15,3", "27.0.0", "26A428"), ("Mac15,7", "26.0.0", "26A428"),
-                        ("Mac15,7", "27.0.0", "26A999")] {
+                        ("Mac15,7", "27.0.0", "26A999"), ("Mac15,7", "27.0.1", "26A434")] {
             let reading = TemperatureSources.nandReading(model: profile.0, version: profile.1, build: profile.2, rawCelsius: 30)
             XCTAssertNil(reading.celsius)
             XCTAssertFalse(reading.verified)

@@ -8,6 +8,12 @@ date: 2026-10-09
 
 # Исследование
 
+## Подготовленная проверка NAND на новой ОС — 2026-10-09
+
+TemperatureSources разрешает NAND только для Mac15,7/27.0.0/26A428, поэтому ранее сохранённый текущий 27.0.1/26A434 остаётся unsupported. Для следующего температурного шага подготовлен отдельный NAND-only probe: пять existing-reader calls, exact profile до I/O, native freshness guard, timeout 8 с, новый output без replay. Сборка со строгими warnings и static link inspection прошли; SMC transport/helper/root не включены. 17 fake-data checks и три temperature unit tests прошли; профиль приложения не изменён.
+
+Автоматическая проверка разрешений отклонила live non-root запуск до создания процесса: stop rule после failed hardware опыта был применён к новым живым аппаратным проверкам. Sensor reads этого шага=0; actual NAND qualification=false. Подготовлен [точный объём чтения](../nand-profile-read-only.md); для запуска требуется отдельное явное разрешение владельца. Completed11/protected16/installed5/privateGUI4 byte-exact, root runtime не читался и не менялся. [Source/model evidence](evidence/nand-current-profile-preparation.json). Подготовка не открывает hardware control и не подтверждает Auto.
+
 ## Отображение незавершённого восстановления — 2026-10-09
 
 Source defect подтверждён: InstalledHelperClient уже получал pendingHardwareRestoration в authenticated installation reply, но HelperServiceController отбрасывал reply, поэтому GUI мог показать Verified при незавершённом hardware восстановлении. Исправлено сохранение optional pending flag и отдельная RecoveryUnconfirmed phase; registration, подписи и доверенная связь не выдаются за physical Auto. При отсутствии/ошибке peer flag остаётся nil; false также не квалифицирует Auto. Settings/register недоступны в новом состоянии, явный refresh использует только прежнюю status проверку.
