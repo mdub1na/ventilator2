@@ -12,6 +12,10 @@ source: Sources/Ventilator
 
 # Приложение
 
+2026-10-09, source: после authenticated installation reply с pendingHardwareRestoration=true экран показывает **«Восстановление Auto не подтверждено»**. Связь с помощником остаётся подтверждённой, но подключение и переход в настройки macOS отключены; доступна явная проверка состояния. Приложение продолжает только наблюдение и предупреждает не повторять аппаратный опыт/не перезапускать помощник. Новая версия экрана ещё не установлена; предыдущий аппаратный результат остаётся recoveryRequired.
+
+126 unit tests/build прошли; отключённый offscreen SwiftUI fixture визуально проверен. Это source/rendering проверка, не проверка установленного GUI или physical Auto. [Evidence](../research/evidence/helper-recovery-ui-source.json).
+
 Owner сеанс новой identity завершён 2026-10-04 в 20:11:31 +05:00: **enabled, helperVerified=true, running root job PID 66079**, `readOnlyHelperVerified=true`. Owner сообщил ON и ALLOW; exact installed подпись/positive qualification и bound root XPC подтверждены. Сохранены 30 файлов completed пакета, old backup, 14 protected директорий и два прежних GUI marker; новый marker — третий. Staging/root runtime отсутствуют. Hardware status отдельно подтвердил **unsupportedMachine**, аппаратных записей 0, physicalAutoVerified=false. Завершённый run/register/ready не повторять. [Actual result](../research/evidence/gui-helper-identity-result.json).
 
 Реализована новая compiled identity `dev.ventilator.app` / `dev.ventilator.app.helper` с одноимённым plist; Apple anchor/Team/CDHash и root peer gates сохранены. Старые identities и лишний legacy plist отвергаются до signature/framework. 29 installation/setup tests, strict ad hoc build и anonymous XPC/runtime models прошли. Это **source verification**, на момент подготовки installed версия была прежней. Полный [owner сеанс новой identity](../gui-helper-identity-owner.md) проверяет гипотезу сохранённой истории: positive qualification до lifecycle, pending/absent-only old removal, exact backup, sole GUI register и раздельные CONNECTED → ON → ALLOW/NONE. Hardware writes=[], при подготовке actual новая регистрация ещё не была выполнена. [Source evidence](../research/evidence/helper-identity-source-preparation.json).
@@ -33,6 +37,7 @@ Owner сеанс новой identity завершён 2026-10-04 в 20:11:31 +05
 - [x] **RequiresApproval:** actual framework status требует системного разрешения; доступны настройки macOS и явная проверка после Allow.
 - [x] **Registered:** enabled без подтверждённого root handshake не показан как готовность.
 - [x] **Verified:** actual trusted installed/root XPC status подтверждён; подпись и связь проверены.
+- [x] **RecoveryUnconfirmed:** bound reply сообщает незавершённое аппаратное восстановление; показано отдельное предупреждение, регистрация и системные настройки отключены. Это не положительная квалификация Auto.
 - [x] **ConnectionFailed:** enabled, но peer verification отказала; детали доступны без обещания готовности.
 - [x] **Stopped:** сохранена предыдущая попытка либо отказ действия; автоматической повторной регистрации нет.
 - [x] **ReadOnly:** значок всегда включён; RPM controls остаются отключены во всех helper состояниях.

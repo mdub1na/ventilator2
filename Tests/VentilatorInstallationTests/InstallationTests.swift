@@ -46,7 +46,7 @@ final class InstallationTests: XCTestCase {
                 calls.append("inspect"); return self.proof(path: path, rootOwned: owned)
             }, validateProcess: { calls.append("process") }, registration: {
                 calls.append("service"); return .enabled
-            }, verify: { _ in calls.append("peer") })
+            }, verify: { _ in calls.append("peer"); return false })
             XCTAssertEqual(calls, ["inspect"])
             XCTAssertEqual(report.registration, "notQueried")
             XCTAssertEqual(report.error, String(describing: expected))
@@ -66,7 +66,7 @@ final class InstallationTests: XCTestCase {
                 return self.proof()
             }, validateProcess: {
                 calls.append("process"); throw InstallationError.runtimeIdentityRejected
-            }, registration: { calls.append("service"); return .enabled }, verify: { _ in calls.append("peer") })
+            }, registration: { calls.append("service"); return .enabled }, verify: { _ in calls.append("peer"); return false })
             XCTAssertEqual(calls, mode == "root" ? [] : mode == "signature" ? ["inspect"] : ["inspect", "process"])
             XCTAssertEqual(report.registration, "notQueried")
             let expected: InstallationError = mode == "root" ? .nonRootApplicationRequired : mode == "signature" ? .appleSignatureRequired : .runtimeIdentityRejected
@@ -84,18 +84,21 @@ final class InstallationTests: XCTestCase {
                 calls.append("service"); return state
             }, verify: { inspected in
                 calls.append("peer"); XCTAssertEqual(inspected.fingerprint, self.proof().fingerprint)
+                return false
             })
             XCTAssertEqual(calls, ["inspect", "process", "service"] + (state == .enabled ? ["peer"] : []))
             XCTAssertEqual(report.helperVerified, state == .enabled)
             XCTAssertEqual(report.error, state == .enabled ? nil : "serviceNotEnabled")
             XCTAssertNotEqual(report.registration, "notQueried")
             XCTAssertFalse(report.hardwareControlAvailable)
+            XCTAssertEqual(report.pendingHardwareRestoration, state == .enabled ? false : nil)
         }
         let failedPeer = HelperServiceController.status(effectiveUID: 501, inspect: { self.proof() },
             validateProcess: {}, registration: { .enabled }, verify: { _ in throw InstallationError.peerIdentity })
         XCTAssertEqual(failedPeer.registration, "enabled")
         XCTAssertEqual(failedPeer.error, "peerIdentity")
         XCTAssertFalse(failedPeer.helperVerified)
+        XCTAssertNil(failedPeer.pendingHardwareRestoration)
     }
 
     func testStaticInspectionReportsFilesWithoutInstalledAdmission() {

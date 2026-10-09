@@ -12,6 +12,8 @@ tags: [macOS, signing, SMAppService, XPC, preparation]
 
 # Подпись и installed gate
 
+2026-10-09, source: `HelperServiceReport` сохраняет optional pendingHardwareRestoration из уже полученного authenticated installation reply. Неуспешная/пропущенная peer проверка оставляет nil; false сообщает только отсутствие pending и не доказывает physical Auto. Trusted installed enabled + verified + pending=true выбирает RecoveryUnconfirmed вместо Verified. UI показывает «Восстановление Auto не подтверждено», только наблюдение и явную проверку; register/settings недоступны. Дополнительных RPC, аппаратных чтений/записей и root state доступа не добавлено. Новая source сборка не установлена.
+
 Owner сеанс новой identity завершён 2026-10-04 в 20:11:31 +05:00: **enabled, helperVerified=true, running root job PID 66079**, `readOnlyHelperVerified=true`. Owner сообщил ON и ALLOW; exact installed подпись/positive qualification и bound root XPC подтверждены. Сохранены 30 файлов completed пакета, old backup, 14 protected директорий и два прежних GUI marker; новый marker — третий. Staging/root runtime отсутствуют. Hardware status отдельно подтвердил **unsupportedMachine**, аппаратных записей 0, physicalAutoVerified=false. Завершённый run/register/ready не повторять. [Actual result](../research/evidence/gui-helper-identity-result.json).
 
 Новая compiled identity — `dev.ventilator.app` / `dev.ventilator.app.helper`; Apple anchor/Team/CDHash и root peer gates сохранены. Legacy layout/extra plist отказывают до signature/framework. Новая сборка проверена на модели, на момент подготовки installed версия была прежней. Подготовлен один [owner сеанс](../gui-helper-identity-owner.md) для проверки гипотезы identity history с positive qualification, pending/absent-only removal, exact backup и явными CONNECTED → ON → ALLOW/NONE. [Source evidence](../research/evidence/helper-identity-source-preparation.json).
@@ -542,3 +544,19 @@ Actual первый fresh пакет PR #18 содержал прежнее ав
 **Тогда:** квалификация предшествует new/old absent-job reads; enabled/unknown old state и loaded/unknown job запрещают unregister/replacement. Exact old backup сохраняется, новая служба подключается только из GUI. Без CONNECTED, ON и actual private new marker финальная проверка не выполняется. Pending/peer failure не означают готовность; hardware admission закрыт, replay не вызывает новых действий.
 
 **Automated:** `scripts/gui-helper-identity-dry-run.py`
+
+### Scenario: Проверенная связь не скрывает незавершённое восстановление
+
+**Дано:** trusted installed enabled helper и authenticated installation reply с pendingHardwareRestoration=true; сохранённый failed hardware audit имеет pending=true.
+**Когда:** status report передаётся GUI model.
+**Тогда:** pending сохраняется в report/JSON, выбран RecoveryUnconfirmed, ручное управление остаётся заблокированным. Register и settings недоступны; явный refresh не вызывает register, restore или новый аппаратный start.
+
+**Automated:** `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testSavedHardwareFailureSurvivesStatusAndDisplaysUnconfirmedRecovery`, `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testPendingRecoveryModelAllowsRefreshWithoutRegistrationOrSettings`
+
+### Scenario: Отсутствие peer proof не подменяется восстановлением Auto
+
+**Дано:** bundle/process/service/peer отказ либо bound pending=false.
+**Когда:** выбирается состояние helper.
+**Тогда:** без peer verification pending остаётся nil и recovery предупреждение не подменяет actual trust/connection failure. Pending=false сообщает только отсутствие pending, hardwareControlAvailable остаётся false; physical Auto не квалифицируется. Existing status выполняет единственную peer проверку только для enabled installed процесса.
+
+**Automated:** `Tests/VentilatorInstallationTests/HelperSetupTests.swift::testRecoveryWarningRequiresTrustedVerifiedReplyAndNeverClaimsAutoForFalse`, `Tests/VentilatorInstallationTests/InstallationTests.swift::testStatusQueriesOnlyAdmittedProcessAndVerifiesOnlyEnabledPeer`

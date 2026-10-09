@@ -1,0 +1,60 @@
+{
+  "verifiedDate": "2026-10-09",
+  "clientTimezone": "Asia/Yekaterinburg",
+  "baseCommit": "abfe44a3ce93a691a38486c9bc6024822b5d12a9",
+  "kind": "sourceVerificationOnly",
+  "tests": {
+    "products": [
+      33,
+      57,
+      10,
+      26
+    ],
+    "total": 126,
+    "failures": 0
+  },
+  "savedActualFailureUsed": "current-hardware-failed-result.json",
+  "savedPendingHardwareRestoration": true,
+  "statusPreservesAuthenticatedPending": true,
+  "missingOrFailedPeerPendingRemainsUnknown": true,
+  "falsePendingEstablishesPhysicalAuto": false,
+  "newPhase": "recoveryUnconfirmed",
+  "registrationCallsFromPendingModel": 0,
+  "settingsEnabledInPendingModel": false,
+  "newRPCsAdded": 0,
+  "hardwareCommandsByAgent": 0,
+  "productionXPCStatusOrSMCInvocationsByAgent": 0,
+  "rootRuntimeReadOrChangedByAgent": false,
+  "newOwnerPackagePrepared": false,
+  "buildAndStrictAdHocVerification": "passed",
+  "render": {
+    "mode": "offscreenDisabledFixture",
+    "entry": "--render-helper-setup recoveryUnconfirmed",
+    "sandboxExit": 134,
+    "approvedOutsideSandboxExit": 0,
+    "path": ".build/helper-recovery-status.png",
+    "sha256": "11b3d2ac7f5b0a2a6a59fea4baf8a7f0033c0392567a845abcc9851f8c7a4fb2",
+    "pixels": [
+      1380,
+      1020
+    ],
+    "visuallyInspected": true,
+    "textClipped": false,
+    "actionsDisabled": true,
+    "usesMonitorStoreOrHelper": false
+  },
+  "preservation": {
+    "completedFiles": 11,
+    "protectedDirectories": 16,
+    "installedFiles": 5,
+    "privateGUIFiles": 4,
+    "allByteExact": true
+  },
+  "deployed": false,
+  "physicalAutoVerified": false,
+  "docs": {
+    "documents": 13,
+    "bddScenarios": 120,
+    "errors": 0
+  }
+}

@@ -9,6 +9,8 @@ public struct HelperServiceReport: Encodable, Sendable {
     public var installedLocation = false
     public var rootOwned = false
     public var helperVerified = false
+    /// nil means no authenticated reply; false does not establish physical Auto recovery.
+    public var pendingHardwareRestoration: Bool?
     public let hardwareControlAvailable = false
     public var fingerprint: InstallationFingerprint?
     public var error: String?
@@ -33,7 +35,7 @@ public enum HelperServiceController {
         }, registration: {
             SMAppService.daemon(plistName: SignedBundleInspector.plistName).status
         }, verify: {
-            _ = try InstalledHelperClient.verify($0)
+            try InstalledHelperClient.verify($0).pendingHardwareRestoration
         })
     }
 
@@ -48,7 +50,7 @@ public enum HelperServiceController {
 
     internal static func status(effectiveUID: uid_t, inspect: () throws -> SignedBundleProof,
                                validateProcess: () throws -> Void, registration: () -> SMAppService.Status,
-                               verify: (SignedBundleProof) throws -> Void) -> HelperServiceReport {
+                               verify: (SignedBundleProof) throws -> Bool) -> HelperServiceReport {
         var report = HelperServiceReport(registration: "notQueried")
         do {
             guard effectiveUID != 0 else { throw InstallationError.nonRootApplicationRequired }
@@ -61,7 +63,7 @@ public enum HelperServiceController {
             let state = registration()
             report.registration = name(state)
             guard state == .enabled else { throw InstallationError.serviceNotEnabled }
-            try verify(proof)
+            report.pendingHardwareRestoration = try verify(proof)
             report.helperVerified = true
         } catch { report.error = String(describing: error) }
         return report

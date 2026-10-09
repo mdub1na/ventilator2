@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 public enum HelperSetupPhase: String, CaseIterable, Sendable {
-    case unchecked, checking, registering, unavailable, notRegistered, requiresApproval, registered, verified, connectionFailed, stopped
+    case unchecked, checking, registering, unavailable, notRegistered, requiresApproval, registered, verified, recoveryUnconfirmed, connectionFailed, stopped
 
     public init(report: HelperServiceReport) {
         guard report.trustedBundle, report.rootOwned, report.installedLocation, report.fingerprint != nil else {
@@ -10,7 +10,10 @@ public enum HelperSetupPhase: String, CaseIterable, Sendable {
         }
         switch report.registration {
         case "requiresApproval": self = .requiresApproval
-        case "enabled": self = report.helperVerified && report.error == nil ? .verified : report.error == nil ? .registered : .connectionFailed
+        case "enabled":
+            if report.error != nil { self = .connectionFailed }
+            else if !report.helperVerified { self = .registered }
+            else { self = report.pendingHardwareRestoration == true ? .recoveryUnconfirmed : .verified }
         case "notRegistered", "notFound": self = report.error == "registrationAlreadyAttempted" ? .stopped : (report.error == nil || report.error == "serviceNotEnabled") ? .notRegistered : .stopped
         default: self = .unavailable
         }
