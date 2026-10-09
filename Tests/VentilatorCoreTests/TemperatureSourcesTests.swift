@@ -4,7 +4,9 @@ import XCTest
 final class TemperatureSourcesTests: XCTestCase {
     func testReadingDoesNotTransferToAnotherHardwareOrOSProfile() {
         for profile in [("Mac15,3", "27.0.0", "26A428"), ("Mac15,7", "26.0.0", "26A428"),
-                        ("Mac15,7", "27.0.0", "26A999"), ("Mac15,7", "27.0.1", "26A434")] {
+                        ("Mac15,7", "27.0.0", "26A999"), ("Mac15,3", "27.0.1", "26A434"),
+                        ("Mac15,7", "27.0.1", "26A428"), ("Mac15,7", "27.0.0", "26A434"),
+                        ("Mac15,7", "27.0.1", "26A435"), ("Mac15,7", "27.0.2", "26A434")] {
             let reading = TemperatureSources.nandReading(model: profile.0, version: profile.1, build: profile.2, rawCelsius: 30)
             XCTAssertNil(reading.celsius)
             XCTAssertFalse(reading.verified)
@@ -12,23 +14,25 @@ final class TemperatureSourcesTests: XCTestCase {
     }
 
     func testUnavailableAndInvalidSamplesNeverBecomeAZeroReading() {
-        for value: Double? in [nil, .nan, .infinity, -11, 126] {
-            let reading = localReading(value)
-            XCTAssertNil(reading.celsius)
-            XCTAssertFalse(reading.verified)
+        for profile in qualifiedProfiles {
+            for value: Double? in [nil, .nan, .infinity, -11, 126] {
+                let reading = TemperatureSources.nandReading(model: "Mac15,7", version: profile.0, build: profile.1, rawCelsius: value)
+                XCTAssertNil(reading.celsius)
+                XCTAssertFalse(reading.verified)
+            }
         }
     }
 
     func testConfirmedNANDReadingPreservesZeroAndNamesTheChannel() {
-        for value in [0.0, 30.0, 32.0] {
-            let reading = localReading(value)
-            XCTAssertEqual(reading.celsius, value)
-            XCTAssertTrue(reading.verified)
-            XCTAssertEqual(reading.label, "SSD (NAND CH0)")
+        for profile in qualifiedProfiles {
+            for value in [0.0, 25.0, 26.0, 30.0, 32.0] {
+                let reading = TemperatureSources.nandReading(model: "Mac15,7", version: profile.0, build: profile.1, rawCelsius: value)
+                XCTAssertEqual(reading.celsius, value)
+                XCTAssertTrue(reading.verified)
+                XCTAssertEqual(reading.label, "SSD (NAND CH0)")
+            }
         }
     }
 
-    private func localReading(_ value: Double?) -> TemperatureReading {
-        TemperatureSources.nandReading(model: "Mac15,7", version: "27.0.0", build: "26A428", rawCelsius: value)
-    }
+    private let qualifiedProfiles = [("27.0.0", "26A428"), ("27.0.1", "26A434")]
 }

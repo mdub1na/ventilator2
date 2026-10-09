@@ -2,7 +2,9 @@ import Foundation
 
 enum TemperatureSources {
     static func supportsNAND(model: String, version: String, build: String) -> Bool {
-        model == "Mac15,7" && version == "27.0.0" && build == "26A428"
+        guard model == "Mac15,7" else { return false }
+        return (version == "27.0.0" && build == "26A428") ||
+            (version == "27.0.1" && build == "26A434")
     }
 
     // The native boundary has already checked product, location, driver, uniqueness and event age.

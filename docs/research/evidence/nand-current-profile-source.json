@@ -1,0 +1,58 @@
+{
+  "verifiedDate": "2026-10-09",
+  "baseCommit": "3a4f8825804c2af3d4a5d753b801ee61a3b30325",
+  "kind": "sourceVerificationFollowingActualNANDQualification",
+  "actualEvidence": "nand-current-profile-result.json",
+  "supportsNAND": {
+    "model": "Mac15,7",
+    "versionBuildPairs": [
+      [
+        "27.0.0",
+        "26A428"
+      ],
+      [
+        "27.0.1",
+        "26A434"
+      ]
+    ]
+  },
+  "temperatureUnitTests": {
+    "total": 3,
+    "failures": 0,
+    "bothConfirmedProfilesChecked": true,
+    "mixedVersionBuildRejected": true,
+    "otherModelOrFutureVersionBuildRejected": true,
+    "nilNonfiniteOutOfRangeRejected": true,
+    "zeroPreserved": true
+  },
+  "buildAndStrictAdHocVerification": "passed",
+  "productionAppLaunched": false,
+  "deployed": false,
+  "nativeReaderUnchanged": true,
+  "hardwareExperimentProfileOrPendingChanged": false,
+  "additionalLiveSensorReads": 0,
+  "hardwareWritesByThisStep": 0,
+  "rootRuntimeReadOrChangedByAgent": false,
+  "physicalAutoVerified": false,
+  "CPUOrGPUAttributed": false,
+  "sleepWakeVerified": false,
+  "preservation": {
+    "completedNANDFiles": 2,
+    "completedOwnerFiles": 11,
+    "protectedDirectories": 16,
+    "installedFiles": 5,
+    "privateGUIFiles": 4,
+    "allByteExact": true
+  },
+  "sourceAndDevelopmentBinarySHA256": {
+    "Sources/VentilatorCore/TemperatureSources.swift": "8d2b0a6168aac28b9bcb74072cf4182482cd59f698330671fdf4e153fdeb978f",
+    "Tests/VentilatorCoreTests/TemperatureSourcesTests.swift": "9f27452f990942dc0496ea790db249fd551657203d9722a3ac5163dd194d81c9",
+    ".build/Ventilator.app/Contents/MacOS/Ventilator": "966a1584b60f443e96e286abd1dbab0906402694d4bf4d92a0ed6ff7068d73b3",
+    ".build/Ventilator.app/Contents/MacOS/VentilatorHelper": "1a5eb5fc83aff4e8b8df788469cf427d6b813aff92cde0cb96400e4864bf3d8e"
+  },
+  "docs": {
+    "documents": 13,
+    "bddScenarios": 122,
+    "errors": 0
+  }
+}

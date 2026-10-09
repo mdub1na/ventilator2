@@ -12,9 +12,9 @@ tags: [macOS, monitoring]
 
 # Наблюдение
 
-Приложение показывает read-only снимки AppleSMC для обнаруженных вентиляторов. `FNum` задаёт количество (в коде ограничено восемью); каждый вентилятор имеет фактические/целевые RPM, пределы и сырой код режима. Непрочитанное значение остаётся неизвестным. Нуль RPM остаётся нулём, а не ошибкой. На проверенном `Mac15,7` + macOS 27.0.0 (`26A428`) HID читает температуру NAND-канала встроенного SSD. CPU/GPU не имеют проверенных источников и показываются как «Нет данных». Кандидат `Tf26` виден отдельно. [Результаты исследования](../research/research-temperatures.md).
+Приложение показывает read-only снимки AppleSMC для обнаруженных вентиляторов. `FNum` задаёт количество (в коде ограничено восемью); каждый вентилятор имеет фактические/целевые RPM, пределы и сырой код режима. Непрочитанное значение остаётся неизвестным. Нуль RPM остаётся нулём, а не ошибкой. На проверенном `Mac15,7` с macOS `27.0.0 / 26A428` и `27.0.1 / 26A434` HID читает температуру NAND-канала встроенного SSD. CPU/GPU не имеют проверенных источников и показываются как «Нет данных». Кандидат `Tf26` виден отдельно. [Результаты исследования](../research/research-temperatures.md).
 
-На `27.0.1 / 26A434` SSD остаётся «Нет данных» до отдельной квалификации. [NAND-only пробник](../nand-profile-read-only.md) подготовлен и проверен только на моделях; автоматическая проверка разрешений отклонила живой запуск. Это не подтверждение источника на новой ОС.
+`27.0.1 / 26A434` квалифицирован отдельным [NAND-only чтением](../nand-profile-read-only.md) после разрешения владельца: пять показаний 25–26 °C. Exact profile разрешён в новой source сборке; установленная signed версия остаётся прежней. Поддержка иных сборок не переносится автоматически.
 
 Управление в [разделе вентиляторов](../screens/screen-fans.md) отключено до аппаратного подтверждения. [Обзор](../screens/screen-overview.md), [температуры](../screens/screen-temperatures.md) и [приложение](../screens/screen-application.md) читают один снимок из [приложения](../services/ventilator-app.md). Внешнего API нет.
 
@@ -77,13 +77,13 @@ tags: [macOS, monitoring]
 
 **Automated:** `Tests/VentilatorCoreTests/TemperatureSourcesTests.swift::testReadingDoesNotTransferToAnotherHardwareOrOSProfile`
 
-### Scenario: Подставные данные не открывают новый NAND профиль
+### Scenario: NAND после обновления macOS
 
-**Дано:** модельный отчёт пробника с пятью допустимыми температурами на `27.0.1 / 26A434`.
-**Когда:** модельные проверки завершены без живого чтения.
-**Тогда:** диагностика принимает только модельный отчёт; продуктовая allowlist сохраняет отказ нового профиля, SSD остаётся неизвестным.
+**Дано:** `Mac15,7 / 27.0.1 / 26A434` подтверждён одним разрешённым живым чтением NAND.
+**Когда:** новый исходный код принимает допустимое значение с прежней нативной границы.
+**Тогда:** SSD показывает NAND CH0; смешанные version/build пары и будущие сборки остаются неизвестными, потеря чтения не сохраняет прошлую температуру.
 
-**Automated:** `scripts/nand-profile-dry-run.py`, `Tests/VentilatorCoreTests/TemperatureSourcesTests.swift::testReadingDoesNotTransferToAnotherHardwareOrOSProfile`
+**Automated:** `Tests/VentilatorCoreTests/TemperatureSourcesTests.swift::testConfirmedNANDReadingPreservesZeroAndNamesTheChannel`, `Tests/VentilatorCoreTests/TemperatureSourcesTests.swift::testReadingDoesNotTransferToAnotherHardwareOrOSProfile`, `Tests/VentilatorCoreTests/TemperatureSourcesTests.swift::testUnavailableAndInvalidSamplesNeverBecomeAZeroReading`. Native граница: [actual report](../research/evidence/nand-current-profile-result.json); модельные проверки сами по себе не квалифицируют устройство.
 
 ### Scenario: Повтор сбора в существующий каталог
 

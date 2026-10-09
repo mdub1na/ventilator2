@@ -12,9 +12,11 @@ publishes: [Ventilator.app]
 
 # Приложение
 
-## Текущая подготовка температурной диагностики — 2026-10-09
+## Квалификация температурного профиля — 2026-10-09
 
-[NAND-only probe](../nand-profile-read-only.md) — отдельный исследовательский бинарник, не часть запуска приложения: `tools/nand_profile_probe.m`, `scripts/build-nand-profile-probe.sh`, `scripts/check-nand-profile.py`. Он связывается только с существующим CHIDTemperature reader, проверяет exact профиль до чтений и принимает пять валидных образцов; subprocess timeout 8 с, новый каталог и exclusive result. SMC transport/helper/root/sudo/load отсутствуют. 17 fake-data checks и три температурных unit tests прошли; живой запуск отклонён автоматической проверкой разрешений до создания процесса. Источники приложения и установленная signed копия не изменены; SSD на 27.0.1/26A434 остаётся неизвестным. [Source evidence](../research/evidence/nand-current-profile-preparation.json).
+[NAND-only probe](../nand-profile-read-only.md) — отдельный исследовательский бинарник, не часть запуска приложения: `tools/nand_profile_probe.m`, `scripts/build-nand-profile-probe.sh`, `scripts/check-nand-profile.py`. Он связывается только с существующим CHIDTemperature reader, проверяет exact профиль до чтений и принимает пять валидных образцов; subprocess timeout 8 с, новый каталог и exclusive result. SMC transport/helper/root/sudo/load отсутствуют. После [подготовки и model verification](../research/evidence/nand-current-profile-preparation.json) первый живой запуск был отклонён до процесса; отдельное разрешение владельца позволило выполнить одну non-root серию 26/26/25/26/25 °C на 27.0.1/26A434. [Actual result](../research/evidence/nand-current-profile-result.json).
+
+В `TemperatureSources` добавлена exact NAND пара 27.0.1/26A434 на Mac15,7, старая пара сохранена. C reader и hardware experiment profile не меняются. Подготовлена новая ad hoc source сборка; установленная signed копия и root pending остаются прежними. После выполненного чтения probe не повторяется.
 
 Ниже сохранена история установки/диагностики. Текущий аппаратный опыт уже завершился отказом; новые installation/register/hardware сеансы здесь не назначаются. [Актуальный результат](../research/evidence/current-hardware-failed-result.json), [состояние незавершённого восстановления](../screens/screen-application.md).
 
@@ -76,7 +78,7 @@ Post-restart проверка завершена с absent job; семь фай�
 
 - В песочнице процесса Codex открытие AppleSMC не удалось; тот же бинарник вне неё без `sudo` прочитал SMC. Это различие среды, которое нужно учитывать в тестах.
 - Код режима `F*Md=3` показан как возможный системный режим, а не подтверждённая семантика.
-- CPU/GPU остаются «Нет данных», пока физический источник не установлен. На точном `Mac15,7` + `27.0.0` + `26A428` SSD показывает один NAND-канал. `Tf26` показан отдельно как неразмеченный датчик.
+- CPU/GPU остаются «Нет данных», пока физический источник не установлен. На `Mac15,7` с exact парами `27.0.0 / 26A428` и `27.0.1 / 26A434` SSD показывает один NAND-канал. `Tf26` показан отдельно как неразмеченный датчик.
 - HID-граница использует четыре частных символа IOKit через `dlsym`. Она проверяет Product, location, классы датчика/родителя, отсутствие неоднозначности и возраст события ≤2 с. Отсутствие API или показания оставляет «Нет данных»; число не кэшируется. Это риск совместимости с будущими ОС, описанный в [исследовании температур](../research/research-temperatures.md).
 - Закрытие окна не завершает процесс. Владелец подтвердил работу значка на живом экране 2026-09-30; [протокол](../research/evidence/m1-product-probe.txt).
 
